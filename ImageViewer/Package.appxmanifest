@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap mp">
+
+  <Identity
+    Name="9efc3c67-c8c1-47f8-8b44-91881fd2bdeb"
+    Publisher="CN=robmi"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="9efc3c67-c8c1-47f8-8b44-91881fd2bdeb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>ImageViewer</DisplayName>
+    <PublisherDisplayName>robmi</PublisherDisplayName>
+    <Logo>Assets\Tiles\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="ImageViewer.App">
+      <uap:VisualElements
+        DisplayName="ImageViewer"
+        Square150x150Logo="Assets\Tiles\Square150x150Logo.png"
+        Square44x44Logo="Assets\Tiles\Square44x44Logo.png"
+        Description="ImageViewer"
+        BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\Tiles\Wide310x150Logo.png" Square71x71Logo="Assets\Tiles\SmallTile.png" Square310x310Logo="Assets\Tiles\LargeTile.png" ShortName="ImageViewer">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
+            <uap:ShowOn Tile="square310x310Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile >
+        <uap:SplashScreen Image="Assets\Tiles\SplashScreen.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="images">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.jpeg</uap:FileType>
+              <uap:FileType>.jpg</uap:FileType>
+              <uap:FileType>.png</uap:FileType>
+              <uap:FileType>.bin</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>ImageViewer</uap:DisplayName>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

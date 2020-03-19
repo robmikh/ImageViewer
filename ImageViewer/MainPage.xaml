@@ -1,0 +1,52 @@
+﻿<Page
+    x:Class="ImageViewer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ImageViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <ScrollViewer x:Name="ImageScrollViewer"
+            ZoomMode="Enabled"
+            HorizontalScrollMode="Enabled"
+            VerticalScrollMode="Enabled"
+            HorizontalScrollBarVisibility="Visible" 
+            VerticalScrollBarVisibility="Visible"
+            PointerPressed="ScrollViewer_PointerPressed"
+            PointerMoved="ScrollViewer_PointerMoved">
+            <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border.BorderBrush>
+                        <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
+                    </Border.BorderBrush>
+                    <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Rectangle x:Name="ImageRectangle" />
+                    </Grid>
+                </Border>
+            </Border>
+        </ScrollViewer>
+
+        <ContentDialog x:Name="BinaryDetailsInputDialog"
+                       PrimaryButtonText="Open"
+                       IsPrimaryButtonEnabled="False"
+                       CloseButtonText="Cancel"
+                       Opened="BinaryDetailsInputDialog_Opened">
+            <StackPanel>
+                <TextBox x:Name="BinaryDetailsWidthTextBox" Header="Width" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
+                <TextBox x:Name="BinaryDetailsHeightTextBox" Header="Height" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
+                <TextBlock Text="Using BGRA8 as the pixel format." Margin="10" />
+            </StackPanel>
+        </ContentDialog>
+    </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarToggleButton Icon="Stop" Label="View Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
+            <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
+            <AppBarButton Icon="OpenFile" Label="Open File" Click="OpenFileButton_Click" />
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>
