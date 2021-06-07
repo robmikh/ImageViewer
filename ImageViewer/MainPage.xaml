@@ -32,8 +32,7 @@
         <ContentDialog x:Name="BinaryDetailsInputDialog"
                        PrimaryButtonText="Open"
                        IsPrimaryButtonEnabled="False"
-                       CloseButtonText="Cancel"
-                       Opened="BinaryDetailsInputDialog_Opened">
+                       CloseButtonText="Cancel">
             <StackPanel>
                 <TextBox x:Name="BinaryDetailsWidthTextBox" Header="Width" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
                 <TextBox x:Name="BinaryDetailsHeightTextBox" Header="Height" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
@@ -47,6 +46,7 @@
             <AppBarToggleButton Icon="Stop" Label="View Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
             <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
             <AppBarButton Icon="OpenFile" Label="Open File" Click="OpenFileButton_Click" />
+            <AppBarButton Icon="SaveLocal" Label="Save As" Click="SaveAsButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

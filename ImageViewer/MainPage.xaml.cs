@@ -2,6 +2,8 @@
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
@@ -9,6 +11,7 @@ using Windows.Graphics;
 using Windows.Graphics.DirectX;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
@@ -28,6 +31,7 @@ namespace ImageViewer
         private StorageFile _currentFile;
         private Point _lastPosition;
         private bool _borderEnabled = true;
+        private CanvasBitmap _currentBitmap;
 
         private CompositionSurfaceBrush _backgroundBrush;
         private CompositionSurfaceBrush _imageBrush;
@@ -73,6 +77,21 @@ namespace ImageViewer
                     var width = 0;
                     var height = 0;
                     var format = DirectXPixelFormat.B8G8R8A8UIntNormalized;
+
+                    // If the image name ends in (width)x(height), then use that in the dialog
+                    var fileName = file.Name;
+                    var fileStem = fileName.Substring(0, fileName.LastIndexOf('.'));
+                    var pattern = @".*[A-z](?<width>[0-9]+)x(?<height>[0-9]+)";
+                    var match = Regex.Match(fileStem, pattern);
+                    if (match.Success)
+                    {
+                        ResetBinaryDetailsInputDialog(int.Parse(match.Groups["width"].Value), int.Parse(match.Groups["height"].Value));
+                    }
+                    else
+                    {
+                        ResetBinaryDetailsInputDialog();
+                    }
+
                     var dialogResult = await BinaryDetailsInputDialog.ShowAsync();
                     if (dialogResult == ContentDialogResult.Primary &&
                         ParseBinaryDetailsSizeBoxes(out width, out height))
@@ -121,6 +140,18 @@ namespace ImageViewer
                     ImageBorderBrush.Color = Colors.Black;
                 }
                 _currentFile = file;
+                _currentBitmap = fileBitmap;
+            }
+        }
+
+        private async Task SaveToFileAsync(StorageFile file)
+        {
+            if (_currentBitmap != null)
+            {
+                using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    await _currentBitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                }
             }
         }
 
@@ -141,12 +172,17 @@ namespace ImageViewer
             return brush;
         }
 
-        private void BinaryDetailsInputDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
+        private void ResetBinaryDetailsInputDialog()
+        {
+            ResetBinaryDetailsInputDialog(0, 0);
+        }
+
+        private void ResetBinaryDetailsInputDialog(int width, int height)
         {
             // Reset the state
-            BinaryDetailsInputDialog.IsPrimaryButtonEnabled = false;
-            BinaryDetailsWidthTextBox.Text = "0";
-            BinaryDetailsHeightTextBox.Text = "0";
+            BinaryDetailsInputDialog.IsPrimaryButtonEnabled = width > 0 && height > 0;
+            BinaryDetailsWidthTextBox.Text = $"{width}";
+            BinaryDetailsHeightTextBox.Text = $"{height}";
         }
 
         private void BinaryDetailsTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -231,6 +267,26 @@ namespace ImageViewer
             if (file != null)
             {
                 await OpenFileAsync(file);
+            }
+        }
+
+        private async void SaveAsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentFile != null)
+            {
+                var currentName = _currentFile.Name;
+                var picker = new FileSavePicker();
+                picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+                picker.SuggestedFileName = $"{currentName.Substring(0, currentName.LastIndexOf('.'))}.modified";
+                picker.DefaultFileExtension = ".png";
+                picker.FileTypeChoices.Add("PNG Image", new List<string> { ".png" });
+
+                var file = await picker.PickSaveFileAsync();
+                if (file != null)
+                {
+                    await SaveToFileAsync(file);
+                    await Launcher.LaunchFileAsync(file);
+                }
             }
         }
 
