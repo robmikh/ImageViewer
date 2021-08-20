@@ -3,6 +3,7 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
@@ -14,6 +15,7 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -68,6 +70,17 @@ namespace ImageViewer
 
         public async Task OpenFileAsync(StorageFile file)
         {
+            var fileBitmap = await OpenBitmapFromFile(file);
+
+            if (fileBitmap != null)
+            {
+                OpenBitmap(fileBitmap);
+                _currentFile = file;
+            }
+        }
+
+        public async Task<CanvasBitmap> OpenBitmapFromFile(StorageFile file)
+        {
             CanvasBitmap fileBitmap = null;
             var extension = file.FileType;
             switch (extension)
@@ -108,40 +121,42 @@ namespace ImageViewer
                     break;
             }
 
-            if (fileBitmap != null)
+            return fileBitmap;
+        }
+
+        public void OpenBitmap(CanvasBitmap bitmap)
+        {
+            var size = bitmap.SizeInPixels;
+            var backgroundSurface = _compositionGraphics.CreateDrawingSurface2(
+                new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
+                DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                DirectXAlphaMode.Premultiplied);
+            using (var drawingSession = CanvasComposition.CreateDrawingSession(backgroundSurface))
             {
-                var size = fileBitmap.SizeInPixels;
-                var backgroundSurface = _compositionGraphics.CreateDrawingSurface2(
-                    new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
-                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                    DirectXAlphaMode.Premultiplied);
-                using (var drawingSession = CanvasComposition.CreateDrawingSession(backgroundSurface))
-                {
-                    drawingSession.FillRectangle(0, 0, size.Width, size.Height, _backgroundCavnasBrush);
-                }
-
-                var imageSurface = _compositionGraphics.CreateDrawingSurface2(
-                    new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
-                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                    DirectXAlphaMode.Premultiplied);
-                using (var drawingSession = CanvasComposition.CreateDrawingSession(imageSurface))
-                {
-                    drawingSession.Clear(Colors.Transparent);
-                    drawingSession.DrawImage(fileBitmap);
-                }
-
-                _backgroundBrush.Surface = backgroundSurface;
-                _imageBrush.Surface = imageSurface;
-                ImageGrid.Width = size.Width;
-                ImageGrid.Height = size.Height;
-                ImageScrollViewer.ChangeView(0, 0, 1, true);
-                if (_borderEnabled)
-                {
-                    ImageBorderBrush.Color = Colors.Black;
-                }
-                _currentFile = file;
-                _currentBitmap = fileBitmap;
+                drawingSession.FillRectangle(0, 0, size.Width, size.Height, _backgroundCavnasBrush);
             }
+
+            var imageSurface = _compositionGraphics.CreateDrawingSurface2(
+                new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
+                DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                DirectXAlphaMode.Premultiplied);
+            using (var drawingSession = CanvasComposition.CreateDrawingSession(imageSurface))
+            {
+                drawingSession.Clear(Colors.Transparent);
+                drawingSession.DrawImage(bitmap);
+            }
+
+            _backgroundBrush.Surface = backgroundSurface;
+            _imageBrush.Surface = imageSurface;
+            ImageGrid.Width = size.Width;
+            ImageGrid.Height = size.Height;
+            ImageScrollViewer.ChangeView(0, 0, 1, true);
+            if (_borderEnabled)
+            {
+                ImageBorderBrush.Color = Colors.Black;
+            }
+            _currentBitmap = bitmap;
+            _currentFile = null; // In the case of diffs we don't have a file
         }
 
         private async Task SaveToFileAsync(StorageFile file)
@@ -272,9 +287,13 @@ namespace ImageViewer
 
         private async void SaveAsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentFile != null)
+            if (_currentBitmap != null)
             {
-                var currentName = _currentFile.Name;
+                var currentName = "image";
+                if (_currentFile != null)
+                {
+                    currentName = _currentFile.Name;
+                }
                 var picker = new FileSavePicker();
                 picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
                 picker.SuggestedFileName = $"{currentName.Substring(0, currentName.LastIndexOf('.'))}.modified";
@@ -303,7 +322,7 @@ namespace ImageViewer
         private void BorderButton_Checked(object sender, RoutedEventArgs e)
         {
             _borderEnabled = true;
-            if (_currentFile != null)
+            if (_currentBitmap != null)
             {
                 ImageBorderBrush.Color = Colors.Black;
             }
@@ -312,10 +331,100 @@ namespace ImageViewer
         private void BorderButton_Unchecked(object sender, RoutedEventArgs e)
         {
             _borderEnabled = false;
-            if (_currentFile != null)
+            if (_currentBitmap != null)
             {
                 ImageBorderBrush.Color = Colors.Transparent;
             }
         }
-    }
+
+        private async Task<CanvasBitmap> PickFileBitmap()
+        {
+            var picker = new FileOpenPicker();
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".bin");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var bitmap = await OpenBitmapFromFile(file);
+                return bitmap;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private (CanvasBitmap, bool) GenerateDiffBitmap(CanvasBitmap image1, CanvasBitmap image2)
+        {
+            var pixels1 = image1.GetPixelColors();
+            var pixels2 = image2.GetPixelColors();
+            Debug.Assert(pixels1.Length == pixels2.Length);
+
+            var newPixels = new List<Color>();
+            var identical = true;
+            for (var i = 0; i < pixels1.Length; i++)
+            {
+                var pixel1 = pixels1[i];
+                var pixel2 = pixels2[i];
+
+                var diffB = pixel1.B - pixel2.B;
+                var diffG = pixel1.G - pixel2.G;
+                var diffR = pixel1.R - pixel2.R;
+
+                if (diffB != 0 || diffG != 0 || diffR != 0)
+                {
+                    identical = false;
+                }
+
+                var newPixel = new Color
+                {
+                    B = (byte)diffB,
+                    G = (byte)diffG,
+                    R = (byte)diffR,
+                    A = 255
+                };
+                newPixels.Add(newPixel);
+            }
+
+            var size = image1.SizeInPixels;
+            var bitmap = CanvasBitmap.CreateFromColors(_canvasDevice, newPixels.ToArray(), (int)size.Width, (int)size.Height);
+            return (bitmap, identical);
+        }
+
+        private async void DiffImagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            var image1 = await PickFileBitmap();
+            if (image1 == null)
+            {
+                return;
+            }
+            var image2 = await PickFileBitmap();
+            if (image2 == null)
+            {
+                return;
+            }
+
+            // Make sure they're the same size
+            var size1 = image1.SizeInPixels;
+            var size2 = image2.SizeInPixels;
+            if (size1.Width != size2.Width || size1.Height != size2.Height)
+            {
+                var dialog = new MessageDialog("Sizes do not match!");
+                await dialog.ShowAsync();
+                return;
+            }
+
+            var (diffBitmap, areIdentical) = GenerateDiffBitmap(image1, image2);
+            OpenBitmap(diffBitmap);
+            if (areIdentical)
+            {
+                var dialog = new MessageDialog("Both images are an exact match!");
+                await dialog.ShowAsync();
+            }
+        }
+}
 }
