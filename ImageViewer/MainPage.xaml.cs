@@ -45,6 +45,14 @@ namespace ImageViewer
         }
         private InputMode _inputMode = InputMode.Drag;
 
+        struct DiffResult
+        {
+            public CanvasBitmap Bitmap;
+            public bool ColorChannelsMatch;
+            public bool AlphaChannelsMatch;
+        }
+
+
 
         public MainPage()
         {
@@ -358,14 +366,15 @@ namespace ImageViewer
             }
         }
 
-        private (CanvasBitmap, bool) GenerateDiffBitmap(CanvasBitmap image1, CanvasBitmap image2)
+        private DiffResult GenerateDiffBitmap(CanvasBitmap image1, CanvasBitmap image2)
         {
             var pixels1 = image1.GetPixelColors();
             var pixels2 = image2.GetPixelColors();
             Debug.Assert(pixels1.Length == pixels2.Length);
 
             var newPixels = new List<Color>();
-            var identical = true;
+            var identicalColors = true;
+            var identicalAlpha = true;
             for (var i = 0; i < pixels1.Length; i++)
             {
                 var pixel1 = pixels1[i];
@@ -377,7 +386,12 @@ namespace ImageViewer
 
                 if (diffB != 0 || diffG != 0 || diffR != 0)
                 {
-                    identical = false;
+                    identicalColors = false;
+                }
+
+                if (pixel1.A != pixel2.A)
+                {
+                    identicalAlpha = false;
                 }
 
                 var newPixel = new Color
@@ -392,7 +406,12 @@ namespace ImageViewer
 
             var size = image1.SizeInPixels;
             var bitmap = CanvasBitmap.CreateFromColors(_canvasDevice, newPixels.ToArray(), (int)size.Width, (int)size.Height);
-            return (bitmap, identical);
+            return new DiffResult 
+            { 
+                Bitmap = bitmap, 
+                ColorChannelsMatch = identicalColors, 
+                AlphaChannelsMatch = identicalAlpha 
+            };
         }
 
         private async void DiffImagesButton_Click(object sender, RoutedEventArgs e)
@@ -418,11 +437,21 @@ namespace ImageViewer
                 return;
             }
 
-            var (diffBitmap, areIdentical) = GenerateDiffBitmap(image1, image2);
-            OpenBitmap(diffBitmap);
-            if (areIdentical)
+            var result = GenerateDiffBitmap(image1, image2);
+            OpenBitmap(result.Bitmap);
+            if (result.ColorChannelsMatch && result.AlphaChannelsMatch)
             {
                 var dialog = new MessageDialog("Both images are an exact match!");
+                await dialog.ShowAsync();
+            }
+            else if (result.ColorChannelsMatch)
+            {
+                var dialog = new MessageDialog("The color channels of both images match, but their alpha channels do not!");
+                await dialog.ShowAsync();
+            }
+            else if (result.AlphaChannelsMatch)
+            {
+                var dialog = new MessageDialog("The alpha channels of both images match, but their color channels do not!");
                 await dialog.ShowAsync();
             }
         }
