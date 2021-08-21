@@ -177,8 +177,26 @@ namespace ImageViewer
             return brush;
         }
 
+        private bool ShouldIgnorePointerEvent(PointerRoutedEventArgs e)
+        {
+            // If the position is where the scroll bars should be, ignore
+            // the pointer event. Otherwise the scroll bars are unusable
+            // when the input mode is set to drag.
+            var pointInParentSpace = e.GetCurrentPoint(ImageScrollViewerContainer).Position;
+            var scrollBarSize = 16.0; // https://docs.microsoft.com/en-us/windows/apps/design/controls/scroll-controls
+            var parentWidth = ImageScrollViewerContainer.ActualWidth;
+            var parentHeight = ImageScrollViewerContainer.ActualHeight;
+            return parentWidth - pointInParentSpace.X < scrollBarSize ||
+                parentHeight - pointInParentSpace.Y < scrollBarSize;
+        }
+
         private void ScrollViewer_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            if (ShouldIgnorePointerEvent(e))
+            {
+                return;
+            }
+
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
             {
                 _lastPosition = e.GetCurrentPoint((ScrollViewer)sender).Position;
@@ -187,6 +205,11 @@ namespace ImageViewer
         
         private void ScrollViewer_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
+            if (ShouldIgnorePointerEvent(e))
+            {
+                return;
+            }
+
             var pointer = e.Pointer;
             if (_inputMode == InputMode.Drag && 
                 pointer.PointerDeviceType == PointerDeviceType.Mouse && 

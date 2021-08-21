@@ -44,7 +44,8 @@
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
 
-        <ScrollViewer x:Name="ImageScrollViewer" Grid.Row="1"
+        <Grid x:Name="ImageScrollViewerContainer" Grid.Row="1">
+            <ScrollViewer x:Name="ImageScrollViewer"
             ZoomMode="Enabled"
             HorizontalScrollMode="Enabled"
             VerticalScrollMode="Enabled"
@@ -52,18 +53,19 @@
             VerticalScrollBarVisibility="Visible"
             PointerPressed="ScrollViewer_PointerPressed"
             PointerMoved="ScrollViewer_PointerMoved" MaxZoomFactor="20">
-            <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border.BorderBrush>
-                        <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
-                    </Border.BorderBrush>
-                    <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
-                        <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
-                    </Grid>
+                <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border.BorderBrush>
+                            <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
+                        </Border.BorderBrush>
+                        <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
+                            <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
                 </Border>
-            </Border>
-        </ScrollViewer>
+            </ScrollViewer>
+        </Grid>
 
         <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}">
             <Grid.ColumnDefinitions>
