@@ -76,8 +76,9 @@ namespace ImageViewer
 
             ImageGrid.Background = new InteropBrush(_backgroundBrush);
             ImageRectangle.Fill = new InteropBrush(_imageBrush);
-            ImageBorderBrush.Color = Colors.Transparent;
             GridLinesRectangle.Fill = new InteropBrush(_gridLinesBrush);
+
+            ImageBorder.Visibility = Visibility.Collapsed;
         }
 
         public async Task OpenFileAsync(IImportedFile file)
@@ -126,7 +127,7 @@ namespace ImageViewer
             }
             if (_borderEnabled)
             {
-                ImageBorderBrush.Color = Colors.Black;
+                ImageBorder.BorderBrush = ImageBorderBrush;
             }
             _currentBitmap = bitmap;
             _viewMode = viewMode;
@@ -135,6 +136,7 @@ namespace ImageViewer
 
         private void OnBitmapOpened(ViewMode viewMode)
         {
+            ImageBorder.Visibility = Visibility.Visible;
             ViewMenu.Visibility = Visibility.Visible;
             DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
             MainMenu.SelectedItem = viewMode == ViewMode.Diff ? DiffMenu : ViewMenu;
@@ -298,7 +300,7 @@ namespace ImageViewer
             _borderEnabled = true;
             if (_currentBitmap != null)
             {
-                ImageBorderBrush.Color = Colors.Black;
+                ImageBorder.BorderBrush = ImageBorderBrush;
             }
         }
 
@@ -307,7 +309,7 @@ namespace ImageViewer
             _borderEnabled = false;
             if (_currentBitmap != null)
             {
-                ImageBorderBrush.Color = Colors.Transparent;
+                ImageBorder.BorderBrush = null;
             }
         }
 

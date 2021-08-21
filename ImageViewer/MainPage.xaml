@@ -30,6 +30,10 @@
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton Icon="Stop" Label="Show Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
+                    <AppBarElementContainer>
+                        <controls:ColorPickerButton SelectedColor="{Binding Color, ElementName=ImageBorderBrush, Mode=TwoWay}" />
+                    </AppBarElementContainer>
+                    <AppBarSeparator />
                     <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
                     <AppBarToggleButton Icon="ViewAll" Label="Show Grid" Checked="GridLinesButton_Checked" Unchecked="GridLinesButton_Unchecked" IsChecked="False" />
                 </controls:TabbedCommandBarItem>
@@ -61,7 +65,7 @@
             PointerPressed="ScrollViewer_PointerPressed"
             PointerMoved="ScrollViewer_PointerMoved" MaxZoomFactor="20">
                 <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border x:Name="ImageBorder" BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border.BorderBrush>
                             <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
                         </Border.BorderBrush>
