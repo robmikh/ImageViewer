@@ -10,13 +10,15 @@ namespace ImageViewer
 {
     public class DiffResult
     {
-        public CanvasBitmap Bitmap { get; }
+        public CanvasBitmap ColorDiffBitmap { get; }
+        public CanvasBitmap AlphaDiffBitmap { get; }
         public bool ColorChannelsMatch { get; }
         public bool AlphaChannelsMatch { get; }
 
-        public DiffResult(CanvasBitmap bitmap, bool colorsMatch, bool alphasMatch)
+        public DiffResult(CanvasBitmap colorBitmap, CanvasBitmap alphaBitmap, bool colorsMatch, bool alphasMatch)
         {
-            Bitmap = bitmap;
+            ColorDiffBitmap = colorBitmap;
+            AlphaDiffBitmap = alphaBitmap;
             ColorChannelsMatch = colorsMatch;
             AlphaChannelsMatch = alphasMatch;
         }
@@ -49,8 +51,9 @@ namespace ImageViewer
             var pixels2 = image2.GetPixelColors();
             Debug.Assert(pixels1.Length == pixels2.Length);
 
-            var newPixels = new List<Color>();
+            var colorDiffPixels = new List<Color>();
             var identicalColors = true;
+            var alphaDiffPixels = new List<Color>();
             var identicalAlpha = true;
             for (var i = 0; i < pixels1.Length; i++)
             {
@@ -60,30 +63,40 @@ namespace ImageViewer
                 var diffB = pixel1.B - pixel2.B;
                 var diffG = pixel1.G - pixel2.G;
                 var diffR = pixel1.R - pixel2.R;
+                var diffA = pixel1.A - pixel2.A;
 
                 if (diffB != 0 || diffG != 0 || diffR != 0)
                 {
                     identicalColors = false;
                 }
 
-                if (pixel1.A != pixel2.A)
+                if (diffA != 0)
                 {
                     identicalAlpha = false;
                 }
 
-                var newPixel = new Color
+                var newColorPixel = new Color
                 {
                     B = (byte)diffB,
                     G = (byte)diffG,
                     R = (byte)diffR,
                     A = 255
                 };
-                newPixels.Add(newPixel);
+                colorDiffPixels.Add(newColorPixel);
+                var newAlphaPixel = new Color
+                {
+                    B = (byte)diffA,
+                    G = (byte)diffA,
+                    R = (byte)diffA,
+                    A = 255
+                };
+                alphaDiffPixels.Add(newAlphaPixel);
             }
 
             var size = image1.SizeInPixels;
-            var bitmap = CanvasBitmap.CreateFromColors(device, newPixels.ToArray(), (int)size.Width, (int)size.Height);
-            return new DiffResult(bitmap, identicalColors, identicalAlpha);
+            var colorBitmap = CanvasBitmap.CreateFromColors(device, colorDiffPixels.ToArray(), (int)size.Width, (int)size.Height);
+            var alphaBitmap = CanvasBitmap.CreateFromColors(device, alphaDiffPixels.ToArray(), (int)size.Width, (int)size.Height);
+            return new DiffResult(colorBitmap, alphaBitmap, identicalColors, identicalAlpha);
         }
     }
 }

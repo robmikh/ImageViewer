@@ -3,7 +3,6 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
@@ -14,7 +13,6 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -32,6 +30,8 @@ namespace ImageViewer
         private ICanvasBrush _gridLinesCavnasBrush;
 
         private StorageFile _currentFile;
+        private DiffResult _currentDiff;
+
         private Point _lastPosition;
         private bool _borderEnabled = true;
         private CanvasBitmap _currentBitmap;
@@ -46,6 +46,13 @@ namespace ImageViewer
             Drag
         }
         private InputMode _inputMode = InputMode.Drag;
+
+        enum ViewMode
+        {
+            Image,
+            Diff,
+        }
+        private ViewMode _viewMode = ViewMode.Image;
 
         public MainPage()
         {
@@ -79,12 +86,13 @@ namespace ImageViewer
 
             if (fileBitmap != null)
             {
-                OpenBitmap(fileBitmap);
+                OpenBitmap(fileBitmap, ViewMode.Image);
                 _currentFile = file.File;
+                _currentDiff = null;
             }
         }
 
-        public void OpenBitmap(CanvasBitmap bitmap)
+        private void OpenBitmap(CanvasBitmap bitmap, ViewMode viewMode, bool resetScrollViewer = true)
         {
             var size = bitmap.SizeInPixels;
             var width = (int)size.Width;
@@ -112,21 +120,24 @@ namespace ImageViewer
             _imageBrush.Surface = imageSurface;
             ImageGrid.Width = size.Width;
             ImageGrid.Height = size.Height;
-            ImageScrollViewer.ChangeView(0, 0, 1, true);
+            if (resetScrollViewer)
+            {
+                ImageScrollViewer.ChangeView(0, 0, 1, true);
+            }
             if (_borderEnabled)
             {
                 ImageBorderBrush.Color = Colors.Black;
             }
             _currentBitmap = bitmap;
-            _currentFile = null; // In the case of diffs we don't have a file
-            OnBitmapOpened();
+            _viewMode = viewMode;
+            OnBitmapOpened(viewMode);
         }
 
-        private void OnBitmapOpened()
+        private void OnBitmapOpened(ViewMode viewMode)
         {
             ViewMenu.Visibility = Visibility.Visible;
-            DiffMenu.Visibility = Visibility.Collapsed;
-            MainMenu.SelectedItem = ViewMenu;
+            DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
+            MainMenu.SelectedItem = viewMode == ViewMode.Diff ? DiffMenu : ViewMenu;
             var size = _currentBitmap.SizeInPixels;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
@@ -305,14 +316,30 @@ namespace ImageViewer
             Frame.Navigate(typeof(DiffSetupPage));
         }
 
+        private CanvasBitmap GetDiffBitmapForCurrentChannelView(DiffResult diff)
+        {
+            if (ColorDiffButton.IsChecked.HasValue && ColorDiffButton.IsChecked.Value)
+            {
+                return diff.ColorDiffBitmap;
+            }
+            if (AlphaDiffButton.IsChecked.HasValue && AlphaDiffButton.IsChecked.Value)
+            {
+                return diff.AlphaDiffBitmap;
+            }
+            // If we get here, set the current channel view to color
+            ColorDiffButton.IsChecked = true;
+            return diff.ColorDiffBitmap;
+        }
+
         private async void ContinueImageDiff(DiffSetupResult diffSetup)
         {
-            var result = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
-            OpenBitmap(result.Bitmap);
-            ColorChannelsDiffStatus.IsChecked = result.ColorChannelsMatch;
-            AlphaChannelsDiffStatus.IsChecked = result.AlphaChannelsMatch;
-            DiffMenu.Visibility = Visibility.Visible;
-            MainMenu.SelectedItem = DiffMenu;
+            var diff = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
+            var bitmap = GetDiffBitmapForCurrentChannelView(diff);
+            OpenBitmap(bitmap, ViewMode.Diff);
+            _currentFile = null;
+            _currentDiff = diff;
+            ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
+            AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -375,6 +402,22 @@ namespace ImageViewer
         {
             _gridLinesBrush.Surface = null;
             GridLinesRectangle.Visibility = Visibility.Collapsed;
+        }
+
+        private void ColorDiffButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_currentDiff != null)
+            {
+                OpenBitmap(_currentDiff.ColorDiffBitmap, ViewMode.Diff, false);
+            }
+        }
+
+        private void AlphaDiffButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_currentDiff != null)
+            {
+                OpenBitmap(_currentDiff.AlphaDiffBitmap, ViewMode.Diff, false);
+            }
         }
     }
 }

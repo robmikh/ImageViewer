@@ -40,6 +40,13 @@
                     <AppBarElementContainer Margin="5, 0, 5, 0">
                         <CheckBox x:Name="AlphaChannelsDiffStatus" IsEnabled="False" Content="Alpha channels match" Style="{StaticResource ReadOnlyFriendlyCheckBox}"  />
                     </AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarElementContainer>
+                        <RadioButton x:Name="ColorDiffButton" Content="Color" GroupName="DiffChannelView" IsChecked="True" Checked="ColorDiffButton_Checked" />
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <RadioButton x:Name="AlphaDiffButton" Content="Alpha" GroupName="DiffChannelView" Checked="AlphaDiffButton_Checked" />
+                    </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
