@@ -9,6 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="450">
+        <TextBlock Text="Diff Setup" Style="{StaticResource TitleTextBlockStyle}" />
         <TextBlock Text="Image 1" />
         <local:FileSelectionControl x:Name="ImageFile1" FileSelected="ImageFile1_FileSelected" />
         <TextBlock Text=" " />
