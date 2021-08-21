@@ -296,5 +296,11 @@ namespace ImageViewer
         {
             PositionTextBlock.Text = "";
         }
+
+        private async void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new AboutDialog();
+            await dialog.ShowAsync();
+        }
     }
 }

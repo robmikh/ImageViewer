@@ -1,0 +1,26 @@
+﻿<ContentDialog
+    x:Class="ImageViewer.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ImageViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="ImageViewer"
+    PrimaryButtonText="Close"
+    IsSecondaryButtonEnabled="False">
+
+    <StackPanel>
+        <RichTextBlock >
+            <Paragraph>ImageViewer is an image viewing and diffing tool.</Paragraph>
+        </RichTextBlock>
+
+        <HyperlinkButton NavigateUri="https://github.com/robmikh/ImageViewer">
+            GitHub
+        </HyperlinkButton>
+
+        <TextBlock Text="3rd party attribution" Style="{StaticResource SubtitleTextBlockStyle}" />
+        <TextBlock Text="Move by Joseph Augustine from the Noun Project" />
+        <TextBlock Text="size by nico bayu saputro from the Noun Project" />
+    </StackPanel>
+</ContentDialog>

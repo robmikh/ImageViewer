@@ -23,7 +23,7 @@
         <controls:TabbedCommandBar x:Name="MainMenu">
             <controls:TabbedCommandBar.PaneFooter>
                 <CommandBar Background="Transparent" DefaultLabelPosition="Right">
-                    <AppBarButton Label="Help" Icon="Help" />
+                    <AppBarButton Label="About" Icon="Help" Click="AboutButton_Click" />
                 </CommandBar>
             </controls:TabbedCommandBar.PaneFooter>
             <controls:TabbedCommandBar.MenuItems>
@@ -67,9 +67,15 @@
                 <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="PositionTextBlock" Grid.Column="0" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Grid.Column="0">
+                <Image Source="/Assets/Icons/noun_Move_140460.svg" Height="28" VerticalAlignment="Center" Margin="0, 5, 5, 0" />
+                <TextBlock x:Name="PositionTextBlock" Grid.Column="0" VerticalAlignment="Center" d:Text="186, 50px" />
+            </StackPanel>
 
-            <TextBlock x:Name="ImageSizeTextBlock" Grid.Column="2" VerticalAlignment="Center" />
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Image Source="/Assets/Icons/noun_size_2476868.svg" Height="28" VerticalAlignment="Center" Margin="0, 5, 5, 0" />
+                <TextBlock x:Name="ImageSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
+            </StackPanel>
 
             <Grid Grid.Column="3">
                 <Grid.ColumnDefinitions>
