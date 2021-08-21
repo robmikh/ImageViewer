@@ -36,6 +36,14 @@
                     <AppBarToggleButton Icon="Stop" Label="View Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
                     <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
                 </controls:TabbedCommandBarItem>
+                <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
+                        <CheckBox x:Name="ColorChannelsDiffStatus" IsEnabled="False" Content="Color channels match" />
+                    </AppBarElementContainer>
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
+                        <CheckBox x:Name="AlphaChannelsDiffStatus" IsEnabled="False" Content="Alpha channels match" />
+                    </AppBarElementContainer>
+                </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
 

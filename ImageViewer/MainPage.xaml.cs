@@ -116,6 +116,7 @@ namespace ImageViewer
         private void OnBitmapOpened()
         {
             ViewMenu.Visibility = Visibility.Visible;
+            DiffMenu.Visibility = Visibility.Collapsed;
             MainMenu.SelectedItem = ViewMenu;
             var size = _currentBitmap.SizeInPixels;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
@@ -205,10 +206,11 @@ namespace ImageViewer
                 if (_currentFile != null)
                 {
                     currentName = _currentFile.Name;
+                    currentName = $"{currentName.Substring(0, currentName.LastIndexOf('.'))}.modified";
                 }
                 var picker = new FileSavePicker();
                 picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-                picker.SuggestedFileName = $"{currentName.Substring(0, currentName.LastIndexOf('.'))}.modified";
+                picker.SuggestedFileName = currentName;
                 picker.DefaultFileExtension = ".png";
                 picker.FileTypeChoices.Add("PNG Image", new List<string> { ".png" });
 
@@ -258,6 +260,10 @@ namespace ImageViewer
         {
             var result = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
             OpenBitmap(result.Bitmap);
+            ColorChannelsDiffStatus.IsChecked = result.ColorChannelsMatch;
+            AlphaChannelsDiffStatus.IsChecked = result.AlphaChannelsMatch;
+            DiffMenu.Visibility = Visibility.Visible;
+            MainMenu.SelectedItem = DiffMenu;
             if (result.ColorChannelsMatch && result.AlphaChannelsMatch)
             {
                 var dialog = new MessageDialog("Both images are an exact match!");
