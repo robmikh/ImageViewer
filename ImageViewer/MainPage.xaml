@@ -31,6 +31,7 @@
                 <controls:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton Icon="Stop" Label="View Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
                     <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
+                    <AppBarToggleButton Icon="ViewAll" Label="Show Grid" Checked="GridLinesButton_Checked" Unchecked="GridLinesButton_Unchecked" IsChecked="False" />
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer Margin="5, 0, 5, 0">
@@ -58,6 +59,7 @@
                     </Border.BorderBrush>
                     <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
+                        <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
                     </Grid>
                 </Border>
             </Border>

@@ -3,6 +3,7 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
@@ -28,6 +29,7 @@ namespace ImageViewer
         private CompositionGraphicsDevice _compositionGraphics;
 
         private ICanvasBrush _backgroundCavnasBrush;
+        private ICanvasBrush _gridLinesCavnasBrush;
 
         private StorageFile _currentFile;
         private Point _lastPosition;
@@ -36,6 +38,7 @@ namespace ImageViewer
 
         private CompositionSurfaceBrush _backgroundBrush;
         private CompositionSurfaceBrush _imageBrush;
+        private CompositionSurfaceBrush _gridLinesBrush;
 
         enum InputMode
         {
@@ -54,16 +57,20 @@ namespace ImageViewer
 
             // Generate the background bitmap
             _backgroundCavnasBrush = CreateBackgroundBrush(_canvasDevice);
+            _gridLinesCavnasBrush = CreateGridLinesBrush(_canvasDevice);
 
             // Create brushes
             _backgroundBrush = _compositor.CreateSurfaceBrush();
             _backgroundBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
             _imageBrush = _compositor.CreateSurfaceBrush();
             _imageBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
+            _gridLinesBrush = _compositor.CreateSurfaceBrush();
+            _gridLinesBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
 
             ImageGrid.Background = new InteropBrush(_backgroundBrush);
             ImageRectangle.Fill = new InteropBrush(_imageBrush);
             ImageBorderBrush.Color = Colors.Transparent;
+            GridLinesRectangle.Fill = new InteropBrush(_gridLinesBrush);
         }
 
         public async Task OpenFileAsync(IImportedFile file)
@@ -80,8 +87,10 @@ namespace ImageViewer
         public void OpenBitmap(CanvasBitmap bitmap)
         {
             var size = bitmap.SizeInPixels;
+            var width = (int)size.Width;
+            var height = (int)size.Height;
             var backgroundSurface = _compositionGraphics.CreateDrawingSurface2(
-                new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
+                new SizeInt32() { Width = width, Height = height },
                 DirectXPixelFormat.B8G8R8A8UIntNormalized,
                 DirectXAlphaMode.Premultiplied);
             using (var drawingSession = CanvasComposition.CreateDrawingSession(backgroundSurface))
@@ -90,7 +99,7 @@ namespace ImageViewer
             }
 
             var imageSurface = _compositionGraphics.CreateDrawingSurface2(
-                new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height },
+                new SizeInt32() { Width = width, Height = height },
                 DirectXPixelFormat.B8G8R8A8UIntNormalized,
                 DirectXAlphaMode.Premultiplied);
             using (var drawingSession = CanvasComposition.CreateDrawingSession(imageSurface))
@@ -143,6 +152,22 @@ namespace ImageViewer
                 drawingSession.Clear(Colors.Gray);
                 drawingSession.FillRectangle(0, 0, 8, 8, Colors.LightGray);
                 drawingSession.FillRectangle(8, 8, 8, 8, Colors.LightGray);
+            }
+
+            var brush = new CanvasImageBrush(device, bitmap);
+            brush.ExtendX = CanvasEdgeBehavior.Wrap;
+            brush.ExtendY = CanvasEdgeBehavior.Wrap;
+
+            return brush;
+        }
+
+        private ICanvasBrush CreateGridLinesBrush(ICanvasResourceCreator device)
+        {
+            var bitmap = new CanvasRenderTarget(device, 10, 10, 96); // TODO: Dpi?
+            using (var drawingSession = bitmap.CreateDrawingSession())
+            {
+                drawingSession.Clear(Colors.Transparent);
+                drawingSession.DrawRectangle(-0.5f, -0.5f, 10, 10, Colors.LightGray, 0.5f);
             }
 
             var brush = new CanvasImageBrush(device, bitmap);
@@ -293,6 +318,40 @@ namespace ImageViewer
         {
             var dialog = new AboutDialog();
             await dialog.ShowAsync();
+        }
+
+        private void GenerateGridLines()
+        {
+            if (_currentBitmap != null)
+            {
+                var size = _currentBitmap.SizeInPixels;
+                var width = (int)size.Width;
+                var height = (int)size.Height;
+                var gridMultiplier = 10;
+                var gridLinesSurface = _compositionGraphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = width * gridMultiplier, Height = height * gridMultiplier },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface))
+                {
+                    drawingSession.Clear(Colors.Transparent);
+                    drawingSession.FillRectangle(0, 0, size.Width * gridMultiplier, size.Height * gridMultiplier, _gridLinesCavnasBrush);
+                }
+
+                _gridLinesBrush.Surface = gridLinesSurface;
+            }
+        }
+
+        private void GridLinesButton_Checked(object sender, RoutedEventArgs e)
+        {
+            GenerateGridLines();
+            GridLinesRectangle.Visibility = Visibility.Visible;
+        }
+
+        private void GridLinesButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _gridLinesBrush.Surface = null;
+            GridLinesRectangle.Visibility = Visibility.Collapsed;
         }
     }
 }
