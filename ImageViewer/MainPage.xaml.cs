@@ -106,16 +106,14 @@ namespace ImageViewer
                     var match = Regex.Match(fileStem, pattern);
                     if (match.Success)
                     {
-                        ResetBinaryDetailsInputDialog(int.Parse(match.Groups["width"].Value), int.Parse(match.Groups["height"].Value));
-                    }
-                    else
-                    {
-                        ResetBinaryDetailsInputDialog();
+                        width = int.Parse(match.Groups["width"].Value);
+                        height = int.Parse(match.Groups["height"].Value);
                     }
 
-                    var dialogResult = await BinaryDetailsInputDialog.ShowAsync();
+                    var dialog = new BinaryDetailsInputDialog(width, height);
+                    var dialogResult = await dialog.ShowAsync();
                     if (dialogResult == ContentDialogResult.Primary &&
-                        ParseBinaryDetailsSizeBoxes(out width, out height))
+                        dialog.ParseBinaryDetailsSizeBoxes(out width, out height))
                     {
                         fileBitmap = CanvasBitmap.CreateFromBytes(_canvasDevice, buffer, width, height, format);
                     }
@@ -193,50 +191,6 @@ namespace ImageViewer
             brush.ExtendY = CanvasEdgeBehavior.Wrap;
 
             return brush;
-        }
-
-        private void ResetBinaryDetailsInputDialog()
-        {
-            ResetBinaryDetailsInputDialog(0, 0);
-        }
-
-        private void ResetBinaryDetailsInputDialog(int width, int height)
-        {
-            // Reset the state
-            BinaryDetailsInputDialog.IsPrimaryButtonEnabled = width > 0 && height > 0;
-            BinaryDetailsWidthTextBox.Text = $"{width}";
-            BinaryDetailsHeightTextBox.Text = $"{height}";
-        }
-
-        private void BinaryDetailsTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (sender is TextBox textBox)
-            {
-                var width = 0;
-                var height = 0;
-                if (ParseBinaryDetailsSizeBoxes(out width, out height))
-                {
-                    BinaryDetailsInputDialog.IsPrimaryButtonEnabled = true;
-                }
-                else
-                {
-                    BinaryDetailsInputDialog.IsPrimaryButtonEnabled = false;
-                }
-            }
-        }
-
-        private bool ParseBinaryDetailsSizeBoxes(out int width, out int height)
-        {
-            width = 0;
-            height = 0;
-            var widthText = BinaryDetailsWidthTextBox.Text;
-            var heightText = BinaryDetailsHeightTextBox.Text;
-            if (!int.TryParse(widthText, out width) || width == 0 ||
-                !int.TryParse(heightText, out height) || height == 0)
-            {
-                return false;
-            }
-            return true;
         }
 
         private void ScrollViewer_PointerPressed(object sender, PointerRoutedEventArgs e)

@@ -28,17 +28,6 @@
                 </Border>
             </Border>
         </ScrollViewer>
-
-        <ContentDialog x:Name="BinaryDetailsInputDialog"
-                       PrimaryButtonText="Open"
-                       IsPrimaryButtonEnabled="False"
-                       CloseButtonText="Cancel">
-            <StackPanel>
-                <TextBox x:Name="BinaryDetailsWidthTextBox" Header="Width" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
-                <TextBox x:Name="BinaryDetailsHeightTextBox" Header="Height" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>
-                <TextBlock Text="Using BGRA8 as the pixel format." Margin="10" />
-            </StackPanel>
-        </ContentDialog>
     </Grid>
 
     <Page.BottomAppBar>
