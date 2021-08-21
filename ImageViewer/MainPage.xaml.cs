@@ -109,6 +109,8 @@ namespace ImageViewer
                 ImageBorderBrush.Color = Colors.Black;
             }
             _currentBitmap = bitmap;
+            ViewMenu.Visibility = Visibility.Visible;
+            MainMenu.SelectedItem = ViewMenu;
             _currentFile = null; // In the case of diffs we don't have a file
         }
 
