@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Windows.Graphics.DirectX;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI.Core;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer

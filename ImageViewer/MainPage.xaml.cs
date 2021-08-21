@@ -3,8 +3,6 @@ using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
@@ -19,6 +17,7 @@ using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Navigation;
 
 namespace ImageViewer
 {
@@ -44,13 +43,6 @@ namespace ImageViewer
             Drag
         }
         private InputMode _inputMode = InputMode.Drag;
-
-        struct DiffResult
-        {
-            public CanvasBitmap Bitmap;
-            public bool ColorChannelsMatch;
-            public bool AlphaChannelsMatch;
-        }
 
         public MainPage()
         {
@@ -247,80 +239,14 @@ namespace ImageViewer
             }
         }
 
-        private DiffResult GenerateDiffBitmap(CanvasBitmap image1, CanvasBitmap image2)
+        private void DiffImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            var pixels1 = image1.GetPixelColors();
-            var pixels2 = image2.GetPixelColors();
-            Debug.Assert(pixels1.Length == pixels2.Length);
-
-            var newPixels = new List<Color>();
-            var identicalColors = true;
-            var identicalAlpha = true;
-            for (var i = 0; i < pixels1.Length; i++)
-            {
-                var pixel1 = pixels1[i];
-                var pixel2 = pixels2[i];
-
-                var diffB = pixel1.B - pixel2.B;
-                var diffG = pixel1.G - pixel2.G;
-                var diffR = pixel1.R - pixel2.R;
-
-                if (diffB != 0 || diffG != 0 || diffR != 0)
-                {
-                    identicalColors = false;
-                }
-
-                if (pixel1.A != pixel2.A)
-                {
-                    identicalAlpha = false;
-                }
-
-                var newPixel = new Color
-                {
-                    B = (byte)diffB,
-                    G = (byte)diffG,
-                    R = (byte)diffR,
-                    A = 255
-                };
-                newPixels.Add(newPixel);
-            }
-
-            var size = image1.SizeInPixels;
-            var bitmap = CanvasBitmap.CreateFromColors(_canvasDevice, newPixels.ToArray(), (int)size.Width, (int)size.Height);
-            return new DiffResult 
-            { 
-                Bitmap = bitmap, 
-                ColorChannelsMatch = identicalColors, 
-                AlphaChannelsMatch = identicalAlpha 
-            };
+            Frame.Navigate(typeof(DiffSetupPage));
         }
 
-        private async void DiffImagesButton_Click(object sender, RoutedEventArgs e)
+        private async void ContinueImageDiff(DiffSetupResult diffSetup)
         {
-            var diffDialog = new DiffImagesDialog();
-            var dialogResult = await diffDialog.ShowAsync();
-            if (dialogResult != ContentDialogResult.Primary)
-            {
-                return;
-            }
-
-            var file1 = diffDialog.SelectedFile1;
-            var file2 = diffDialog.SelectedFile2;
-
-            var image1 = await file1.ImportFileAsync(_canvasDevice);
-            var image2 = await file2.ImportFileAsync(_canvasDevice);
-
-            // Make sure they're the same size
-            var size1 = image1.SizeInPixels;
-            var size2 = image2.SizeInPixels;
-            if (size1.Width != size2.Width || size1.Height != size2.Height)
-            {
-                var dialog = new MessageDialog("Sizes do not match!");
-                await dialog.ShowAsync();
-                return;
-            }
-
-            var result = GenerateDiffBitmap(image1, image2);
+            var result = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
             OpenBitmap(result.Bitmap);
             if (result.ColorChannelsMatch && result.AlphaChannelsMatch)
             {
@@ -336,6 +262,17 @@ namespace ImageViewer
             {
                 var dialog = new MessageDialog("The alpha channels of both images match, but their color channels do not!");
                 await dialog.ShowAsync();
+            }
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            var param = e.Parameter;
+            if (param is DiffSetupResult diffSetup)
+            {
+                Frame.BackStack.Clear();
+                ContinueImageDiff(diffSetup);
             }
         }
     }
