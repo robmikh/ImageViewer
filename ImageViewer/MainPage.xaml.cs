@@ -121,6 +121,7 @@ namespace ImageViewer
             var size = _currentBitmap.SizeInPixels;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
+            SaveAsButton.IsEnabled = true;
         }
 
         private async Task SaveToFileAsync(StorageFile file)
