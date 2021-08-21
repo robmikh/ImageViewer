@@ -51,7 +51,7 @@
             HorizontalScrollBarVisibility="Visible" 
             VerticalScrollBarVisibility="Visible"
             PointerPressed="ScrollViewer_PointerPressed"
-            PointerMoved="ScrollViewer_PointerMoved">
+            PointerMoved="ScrollViewer_PointerMoved" MaxZoomFactor="20">
             <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Border.BorderBrush>
@@ -89,7 +89,7 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding ZoomFactor, ElementName=ImageScrollViewer, Mode=OneWay, Converter={StaticResource FloatToPercentageConverter}}" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 5, 0" />
-                <Slider x:Name="ZoomSlider" Grid.Column="1" Value="{Binding ZoomFactor, ElementName=ImageScrollViewer, Mode=TwoWay}" Minimum="0.1" Maximum="10" StepFrequency="0.1" Margin="5, 0, 5, 0" IsEnabled="False" />
+                <Slider x:Name="ZoomSlider" Grid.Column="1" Value="{Binding ZoomFactor, ElementName=ImageScrollViewer, Mode=TwoWay}" Minimum="{Binding MinZoomFactor, ElementName=ImageScrollViewer}" Maximum="{Binding MaxZoomFactor, ElementName=ImageScrollViewer}" StepFrequency="0.1" Margin="5, 0, 5, 0" IsEnabled="False" />
             </Grid>
         </Grid>
     </Grid>
