@@ -9,10 +9,6 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <local:FloatToPercentageConverter x:Key="FloatToPercentageConverter" />
-    </Page.Resources>
-    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -38,10 +34,10 @@
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer Margin="5, 0, 5, 0">
-                        <CheckBox x:Name="ColorChannelsDiffStatus" IsEnabled="False" Content="Color channels match" />
+                        <CheckBox x:Name="ColorChannelsDiffStatus" IsEnabled="False" Content="Color channels match" Style="{StaticResource ReadOnlyFriendlyCheckBox}"  />
                     </AppBarElementContainer>
                     <AppBarElementContainer Margin="5, 0, 5, 0">
-                        <CheckBox x:Name="AlphaChannelsDiffStatus" IsEnabled="False" Content="Alpha channels match" />
+                        <CheckBox x:Name="AlphaChannelsDiffStatus" IsEnabled="False" Content="Alpha channels match" Style="{StaticResource ReadOnlyFriendlyCheckBox}"  />
                     </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
