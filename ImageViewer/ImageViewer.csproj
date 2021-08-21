@@ -137,6 +137,7 @@
     <Compile Include="FileSelectionControl.xaml.cs">
       <DependentUpon>FileSelectionControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FloatToPercentageConverter.cs" />
     <Compile Include="ImageDiffer.cs" />
     <Compile Include="InteropBrush.cs" />
     <Compile Include="MainPage.xaml.cs">

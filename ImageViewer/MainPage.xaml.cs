@@ -109,9 +109,17 @@ namespace ImageViewer
                 ImageBorderBrush.Color = Colors.Black;
             }
             _currentBitmap = bitmap;
+            _currentFile = null; // In the case of diffs we don't have a file
+            OnBitmapOpened();
+        }
+
+        private void OnBitmapOpened()
+        {
             ViewMenu.Visibility = Visibility.Visible;
             MainMenu.SelectedItem = ViewMenu;
-            _currentFile = null; // In the case of diffs we don't have a file
+            var size = _currentBitmap.SizeInPixels;
+            ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
+            ZoomSlider.IsEnabled = true;
         }
 
         private async Task SaveToFileAsync(StorageFile file)
