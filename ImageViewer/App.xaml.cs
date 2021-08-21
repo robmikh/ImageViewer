@@ -96,12 +96,12 @@ namespace ImageViewer
                 var page = frame.Content as MainPage;
                 var files = args.Files;
                 var item = files.First(); // TODO: Multi file open
+                Window.Current.Activate();
                 if (item is StorageFile file)
                 {
                     var importedFile = await FileImporter.ProcessStorageFileAsync(file);
                     await page.OpenFileAsync(importedFile);
                 }
-                Window.Current.Activate();
             }
         }
     }
