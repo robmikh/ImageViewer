@@ -53,7 +53,7 @@
                         <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
                     </Border.BorderBrush>
                     <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Rectangle x:Name="ImageRectangle" />
+                        <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
                     </Grid>
                 </Border>
             </Border>

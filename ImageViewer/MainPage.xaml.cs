@@ -285,5 +285,16 @@ namespace ImageViewer
                 ContinueImageDiff(diffSetup);
             }
         }
+
+        private void ImageRectangle_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint((UIElement)sender).Position;
+            PositionTextBlock.Text = $"{(int)point.X}, {(int)point.Y}px";
+        }
+
+        private void ImageRectangle_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            PositionTextBlock.Text = "";
+        }
     }
 }
