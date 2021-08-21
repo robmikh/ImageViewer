@@ -265,21 +265,6 @@ namespace ImageViewer
             AlphaChannelsDiffStatus.IsChecked = result.AlphaChannelsMatch;
             DiffMenu.Visibility = Visibility.Visible;
             MainMenu.SelectedItem = DiffMenu;
-            if (result.ColorChannelsMatch && result.AlphaChannelsMatch)
-            {
-                var dialog = new MessageDialog("Both images are an exact match!");
-                await dialog.ShowAsync();
-            }
-            else if (result.ColorChannelsMatch)
-            {
-                var dialog = new MessageDialog("The color channels of both images match, but their alpha channels do not!");
-                await dialog.ShowAsync();
-            }
-            else if (result.AlphaChannelsMatch)
-            {
-                var dialog = new MessageDialog("The alpha channels of both images match, but their color channels do not!");
-                await dialog.ShowAsync();
-            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
