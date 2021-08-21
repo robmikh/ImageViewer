@@ -130,6 +130,13 @@
     <Compile Include="BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DiffImagesDialog.xaml.cs">
+      <DependentUpon>DiffImagesDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileImporter.cs" />
+    <Compile Include="FileSelectionControl.xaml.cs">
+      <DependentUpon>FileSelectionControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InteropBrush.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -200,6 +207,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="BinaryDetailsInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DiffImagesDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

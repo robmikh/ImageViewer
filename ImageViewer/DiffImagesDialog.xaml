@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="ImageViewer.DiffImagesDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ImageViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Diff images"
+    PrimaryButtonText="Diff"
+    IsPrimaryButtonEnabled="False"
+    SecondaryButtonText="Cancel">
+
+    <StackPanel>
+        <TextBlock Text="Image 1" />
+        <local:FileSelectionControl x:Name="ImageFile1" FileSelected="ImageFile1_FileSelected" />
+        <TextBlock Text=" " />
+        <TextBlock Text="Image 2" />
+        <local:FileSelectionControl x:Name="ImageFile2" FileSelected="ImageFile2_FileSelected" />
+    </StackPanel>
+</ContentDialog>

@@ -93,7 +93,7 @@ namespace ImageViewer
             return frame;
         }
 
-        protected override void OnFileActivated(FileActivatedEventArgs args)
+        protected async override void OnFileActivated(FileActivatedEventArgs args)
         {
             if (args.Kind == ActivationKind.File)
             {
@@ -108,7 +108,8 @@ namespace ImageViewer
                 var item = files.First(); // TODO: Multi file open
                 if (item is StorageFile file)
                 {
-                    var ignored = page.OpenFileAsync(file);
+                    var importedFile = await FileImporter.ProcessStorageFileAsync(file);
+                    await page.OpenFileAsync(importedFile);
                 }
                 Window.Current.Activate();
             }

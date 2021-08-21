@@ -9,9 +9,7 @@
     Title="Binary file details"
     PrimaryButtonText="Open"
     IsPrimaryButtonEnabled="False"
-    CloseButtonText="Cancel"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+    CloseButtonText="Cancel">
 
     <StackPanel>
         <TextBox x:Name="BinaryDetailsWidthTextBox" Header="Width" Text="0" Margin="10" TextChanged="BinaryDetailsTextBox_TextChanged"/>

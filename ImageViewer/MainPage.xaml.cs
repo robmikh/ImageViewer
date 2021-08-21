@@ -52,8 +52,6 @@ namespace ImageViewer
             public bool AlphaChannelsMatch;
         }
 
-
-
         public MainPage()
         {
             this.InitializeComponent();
@@ -76,58 +74,15 @@ namespace ImageViewer
             ImageBorderBrush.Color = Colors.Transparent;
         }
 
-        public async Task OpenFileAsync(StorageFile file)
+        public async Task OpenFileAsync(IImportedFile file)
         {
-            var fileBitmap = await OpenBitmapFromFile(file);
+            var fileBitmap = await file.ImportFileAsync(_canvasDevice);
 
             if (fileBitmap != null)
             {
                 OpenBitmap(fileBitmap);
-                _currentFile = file;
+                _currentFile = file.File;
             }
-        }
-
-        public async Task<CanvasBitmap> OpenBitmapFromFile(StorageFile file)
-        {
-            CanvasBitmap fileBitmap = null;
-            var extension = file.FileType;
-            switch (extension)
-            {
-                case ".bin":
-                    var buffer = await FileIO.ReadBufferAsync(file);
-                    var width = 0;
-                    var height = 0;
-                    var format = DirectXPixelFormat.B8G8R8A8UIntNormalized;
-
-                    // If the image name ends in (width)x(height), then use that in the dialog
-                    var fileName = file.Name;
-                    var fileStem = fileName.Substring(0, fileName.LastIndexOf('.'));
-                    var pattern = @".*[A-z](?<width>[0-9]+)x(?<height>[0-9]+)";
-                    var match = Regex.Match(fileStem, pattern);
-                    if (match.Success)
-                    {
-                        width = int.Parse(match.Groups["width"].Value);
-                        height = int.Parse(match.Groups["height"].Value);
-                    }
-
-                    var dialog = new BinaryDetailsInputDialog(width, height);
-                    var dialogResult = await dialog.ShowAsync();
-                    if (dialogResult == ContentDialogResult.Primary &&
-                        dialog.ParseBinaryDetailsSizeBoxes(out width, out height))
-                    {
-                        fileBitmap = CanvasBitmap.CreateFromBytes(_canvasDevice, buffer, width, height, format);
-                    }
-                    break;
-                default:
-                    // open it with win2d
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        fileBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, stream);
-                    }
-                    break;
-            }
-
-            return fileBitmap;
         }
 
         public void OpenBitmap(CanvasBitmap bitmap)
@@ -233,14 +188,7 @@ namespace ImageViewer
 
         private async void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
-            var picker = new FileOpenPicker();
-            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add(".bin");
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await FileImporter.OpenFileAsync();
             if (file != null)
             {
                 await OpenFileAsync(file);
@@ -299,27 +247,6 @@ namespace ImageViewer
             }
         }
 
-        private async Task<CanvasBitmap> PickFileBitmap()
-        {
-            var picker = new FileOpenPicker();
-            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-            picker.FileTypeFilter.Add(".jpg");
-            picker.FileTypeFilter.Add(".jpeg");
-            picker.FileTypeFilter.Add(".png");
-            picker.FileTypeFilter.Add(".bin");
-
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
-            {
-                var bitmap = await OpenBitmapFromFile(file);
-                return bitmap;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         private DiffResult GenerateDiffBitmap(CanvasBitmap image1, CanvasBitmap image2)
         {
             var pixels1 = image1.GetPixelColors();
@@ -370,16 +297,18 @@ namespace ImageViewer
 
         private async void DiffImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            var image1 = await PickFileBitmap();
-            if (image1 == null)
+            var diffDialog = new DiffImagesDialog();
+            var dialogResult = await diffDialog.ShowAsync();
+            if (dialogResult != ContentDialogResult.Primary)
             {
                 return;
             }
-            var image2 = await PickFileBitmap();
-            if (image2 == null)
-            {
-                return;
-            }
+
+            var file1 = diffDialog.SelectedFile1;
+            var file2 = diffDialog.SelectedFile2;
+
+            var image1 = await file1.ImportFileAsync(_canvasDevice);
+            var image2 = await file2.ImportFileAsync(_canvasDevice);
 
             // Make sure they're the same size
             var size1 = image1.SizeInPixels;
@@ -409,5 +338,5 @@ namespace ImageViewer
                 await dialog.ShowAsync();
             }
         }
-}
+    }
 }
