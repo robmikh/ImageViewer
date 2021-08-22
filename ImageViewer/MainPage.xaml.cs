@@ -48,7 +48,7 @@ namespace ImageViewer
         private Point _lastPosition;
         private bool _borderEnabled = true;
         private bool _gridLinesEnabled = false;
-        private CanvasBitmap _currentBitmap;
+        private IImage _currentImage;
 
         private CompositionSurfaceBrush _backgroundBrush;
         private CompositionSurfaceBrush _imageBrush;
@@ -107,40 +107,27 @@ namespace ImageViewer
 
             if (fileBitmap != null)
             {
-                OpenBitmap(fileBitmap, ViewMode.Image);
+                OpenImage(new CanvasBitmapImage(fileBitmap), ViewMode.Image);
                 _currentFile = file.File;
                 _currentDiff = null;
             }
         }
 
-        private void OpenBitmap(CanvasBitmap bitmap, ViewMode viewMode, bool resetScrollViewer = true)
+        private void OpenImage(IImage image, ViewMode viewMode, bool resetScrollViewer = true)
         {
-            var size = bitmap.SizeInPixels;
-            var width = (int)size.Width;
-            var height = (int)size.Height;
-            var backgroundSurface = _compositionGraphics.CreateDrawingSurface2(
-                new SizeInt32() { Width = width, Height = height },
-                DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                DirectXAlphaMode.Premultiplied);
-            using (var drawingSession = CanvasComposition.CreateDrawingSession(backgroundSurface))
-            {
-                drawingSession.FillRectangle(0, 0, size.Width, size.Height, _backgroundCavnasBrush);
-            }
-
-            var imageSurface = _compositionGraphics.CreateDrawingSurface2(
-                new SizeInt32() { Width = width, Height = height },
-                DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                DirectXAlphaMode.Premultiplied);
-            using (var drawingSession = CanvasComposition.CreateDrawingSession(imageSurface))
-            {
-                drawingSession.Clear(Colors.Transparent);
-                drawingSession.DrawImage(bitmap);
-            }
-
-            _backgroundBrush.Surface = backgroundSurface;
-            _imageBrush.Surface = imageSurface;
+            var size = image.Size;
             ImageGrid.Width = size.Width;
             ImageGrid.Height = size.Height;
+
+            _currentImage = image;
+
+            GenerateBackground();
+            GenerateImage();
+            if (_gridLinesEnabled)
+            {
+                GenerateGridLines();
+            }
+
             if (resetScrollViewer)
             {
                 ImageScrollViewer.ChangeView(0, 0, 1, true);
@@ -149,9 +136,36 @@ namespace ImageViewer
             {
                 ImageBorder.BorderBrush = ImageBorderBrush;
             }
-            _currentBitmap = bitmap;
             _viewMode = viewMode;
             OnBitmapOpened(viewMode);
+        }
+
+        private void GenerateImage()
+        {
+            if (_currentImage != null)
+            {
+                var surface = _currentImage.CreateSurface(_compositionGraphics);
+                _imageBrush.Surface = surface;
+            }
+        }
+
+        private void GenerateBackground()
+        {
+            if (_currentImage != null)
+            {
+                var size = _currentImage.Size;
+                var width = (int)size.Width;
+                var height = (int)size.Height;
+                var backgroundSurface = _compositionGraphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = width, Height = height },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                using (var drawingSession = CanvasComposition.CreateDrawingSession(backgroundSurface))
+                {
+                    drawingSession.FillRectangle(0, 0, size.Width, size.Height, _backgroundCavnasBrush);
+                }
+                _backgroundBrush.Surface = backgroundSurface;
+            }
         }
 
         private void OnBitmapOpened(ViewMode viewMode)
@@ -160,23 +174,20 @@ namespace ImageViewer
             ViewMenu.Visibility = Visibility.Visible;
             DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
             MainMenu.SelectedItem = viewMode == ViewMode.Diff ? DiffMenu : ViewMenu;
-            var size = _currentBitmap.SizeInPixels;
+            var size = _currentImage.Size;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
             SaveAsButton.IsEnabled = true;
-            if (_gridLinesEnabled)
-            {
-                GenerateGridLines();
-            }
         }
 
         private async Task SaveToFileAsync(StorageFile file)
         {
-            if (_currentBitmap != null)
+            if (_currentImage != null)
             {
+                var bitmap = _currentImage.GetSnapshot();
                 using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    await _currentBitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                    await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
                 }
             }
         }
@@ -286,7 +297,7 @@ namespace ImageViewer
 
         private async void SaveAsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentBitmap != null)
+            if (_currentImage != null)
             {
                 var currentName = "image";
                 if (_currentFile != null)
@@ -322,7 +333,7 @@ namespace ImageViewer
         private void BorderButton_Checked(object sender, RoutedEventArgs e)
         {
             _borderEnabled = true;
-            if (_currentBitmap != null)
+            if (_currentImage != null)
             {
                 ImageBorder.BorderBrush = ImageBorderBrush;
             }
@@ -331,7 +342,7 @@ namespace ImageViewer
         private void BorderButton_Unchecked(object sender, RoutedEventArgs e)
         {
             _borderEnabled = false;
-            if (_currentBitmap != null)
+            if (_currentImage != null)
             {
                 ImageBorder.BorderBrush = null;
             }
@@ -365,7 +376,7 @@ namespace ImageViewer
         {
             var diff = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
             var bitmap = GetDiffBitmapForCurrentChannelView(diff);
-            OpenBitmap(bitmap, ViewMode.Diff);
+            OpenImage(new CanvasBitmapImage(bitmap), ViewMode.Diff);
             _currentFile = null;
             _currentDiff = diff;
             ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
@@ -391,9 +402,9 @@ namespace ImageViewer
 
         private void GenerateGridLines()
         {
-            if (_currentBitmap != null)
+            if (_currentImage != null)
             {
-                var size = _currentBitmap.SizeInPixels;
+                var size = _currentImage.Size;
                 var width = (int)size.Width;
                 var height = (int)size.Height;
                 var gridMultiplier = 10;
@@ -474,7 +485,7 @@ namespace ImageViewer
         {
             if (_currentDiff != null)
             {
-                OpenBitmap(_currentDiff.ColorDiffBitmap, ViewMode.Diff, false);
+                OpenImage(new CanvasBitmapImage(_currentDiff.ColorDiffBitmap), ViewMode.Diff, false);
             }
         }
 
@@ -482,7 +493,7 @@ namespace ImageViewer
         {
             if (_currentDiff != null)
             {
-                OpenBitmap(_currentDiff.AlphaDiffBitmap, ViewMode.Diff, false);
+                OpenImage(new CanvasBitmapImage(_currentDiff.AlphaDiffBitmap), ViewMode.Diff, false);
             }
         }
     }
