@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml;
+﻿using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer
@@ -17,12 +18,29 @@ namespace ImageViewer
 
     public sealed partial class DiffSetupPage : Page
     {
+        private TaskCompletionSource<DiffSetupResult> _task;
         private bool _image1Selected = false;
         private bool _image2Selected = false;
 
-        public DiffSetupPage()
+        public DiffSetupPage(TaskCompletionSource<DiffSetupResult> task)
         {
             this.InitializeComponent();
+            _task = task;
+        }
+
+        // This is terrible and hacky, but I needed something that behaved like
+        // a ContentDialog without being a ContentDialog. The FileSelectionControl
+        // will show a ContentDialog if it needs more information when picking
+        // a file.
+        public static async Task<DiffSetupResult> ShowAsync(Frame frame)
+        {
+            var currentPage = frame.Content;
+            var task = new TaskCompletionSource<DiffSetupResult>();
+            var setupPage = new DiffSetupPage(task);
+            frame.Content = setupPage;
+            var result = await task.Task;
+            frame.Content = currentPage;
+            return result;
         }
 
         private void ImageFile1_FileSelected(object sender, IImportedFile file)
@@ -40,12 +58,12 @@ namespace ImageViewer
         private void DiffButton_Click(object sender, RoutedEventArgs e)
         {
             var result = new DiffSetupResult(ImageFile1.SelectedFile, ImageFile2.SelectedFile);
-            Frame.Navigate(typeof(MainPage), result);
+            _task.SetResult(result);
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.GoBack();
+            _task.SetResult(null);
         }
 
         private void EvaluatePrimaryButtonState()

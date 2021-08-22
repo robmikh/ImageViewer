@@ -313,9 +313,13 @@ namespace ImageViewer
             }
         }
 
-        private void DiffImagesButton_Click(object sender, RoutedEventArgs e)
+        private async void DiffImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(DiffSetupPage));
+            var diffSetup = await DiffSetupPage.ShowAsync(Frame);
+            if (diffSetup != null)
+            {
+                ContinueImageDiff(diffSetup);
+            }
         }
 
         private CanvasBitmap GetDiffBitmapForCurrentChannelView(DiffResult diff)
@@ -342,17 +346,6 @@ namespace ImageViewer
             _currentDiff = diff;
             ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
             AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-            var param = e.Parameter;
-            if (param is DiffSetupResult diffSetup)
-            {
-                Frame.BackStack.Clear();
-                ContinueImageDiff(diffSetup);
-            }
         }
 
         private void ImageRectangle_PointerMoved(object sender, PointerRoutedEventArgs e)
