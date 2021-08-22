@@ -1,7 +1,7 @@
 ﻿using System;
 using Windows.UI.Xaml.Data;
 
-namespace ImageViewer
+namespace ImageViewer.Converters
 {
     class FloatToPercentageConverter: IValueConverter
     {

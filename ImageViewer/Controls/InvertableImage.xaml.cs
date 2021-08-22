@@ -12,7 +12,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 
-namespace ImageViewer
+namespace ImageViewer.Controls
 {
     public sealed partial class InvertableImage : UserControl
     {

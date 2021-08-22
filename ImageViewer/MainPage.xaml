@@ -3,9 +3,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ImageViewer"
+    xmlns:controls="using:ImageViewer.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:wctc="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -17,42 +18,42 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <controls:TabbedCommandBar x:Name="MainMenu" Height="95">
-            <controls:TabbedCommandBar.PaneFooter>
+        <wctc:TabbedCommandBar x:Name="MainMenu" Height="95">
+            <wctc:TabbedCommandBar.PaneFooter>
                 <CommandBar Background="Transparent" DefaultLabelPosition="Right">
                     <AppBarButton Label="About" Icon="Help" Click="AboutButton_Click" />
                 </CommandBar>
-            </controls:TabbedCommandBar.PaneFooter>
-            <controls:TabbedCommandBar.MenuItems>
-                <controls:TabbedCommandBarItem Header="Home">
+            </wctc:TabbedCommandBar.PaneFooter>
+            <wctc:TabbedCommandBar.MenuItems>
+                <wctc:TabbedCommandBarItem Header="Home">
                     <AppBarButton Icon="TwoPage" Label="Diff Images" Click="DiffImagesButton_Click" />
                     <AppBarButton Icon="OpenFile" Label="Open Image" Click="OpenFileButton_Click" />
                     <AppBarButton x:Name="ClipboardButon" Icon="Paste" Label="Paste" Click="ClipboardButon_Click" />
                     <AppBarButton x:Name="ScreenCaptureButton" Icon="GoToStart" Label="Screen Capture" Click="ScreenCaptureButton_Click" Visibility="Collapsed" />
                     <AppBarButton x:Name="SaveAsButton" Icon="SaveLocal" Label="Save As" Click="SaveAsButton_Click" IsEnabled="False" />
-                </controls:TabbedCommandBarItem>
-                <controls:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
+                </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton Icon="Stop" Label="Show Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
                     <AppBarElementContainer>
-                        <controls:ColorPickerButton SelectedColor="{Binding Color, ElementName=ImageBorderBrush, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding Color, ElementName=ImageBorderBrush, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton Icon="ViewAll" Label="Show Grid" Checked="GridLinesButton_Checked" Unchecked="GridLinesButton_Unchecked" IsChecked="False" />
                     <AppBarElementContainer>
-                        <controls:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=page, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=page, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="NoneInputModeButton" Label="None" Checked="NoneInputModeButton_Checked" Unchecked="NoneInputModeButton_Unchecked" >
-                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=NoneInputModeButton, Mode=OneWay}" />
+                        <controls:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=NoneInputModeButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarToggleButton x:Name="DragInputModeButton" Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True"  />
                     <AppBarToggleButton x:Name="MeasureInputModeButton" Label="Measure" Checked="MeasureInputModeButton_Checked" Unchecked="MeasureInputModeButton_Unchecked" >
-                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_measure_512690.svg" Invert="{Binding IsChecked, ElementName=MeasureInputModeButton, Mode=OneWay}" />
+                        <controls:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_measure_512690.svg" Invert="{Binding IsChecked, ElementName=MeasureInputModeButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="CompactOverlayButton" Icon="Pictures" Label="Compact Overlay" Visibility="Collapsed" Checked="CompactOverlayButton_Checked" Unchecked="CompactOverlayButton_Unchecked" />
-                </controls:TabbedCommandBarItem>
-                <controls:TabbedCommandBarItem x:Name="MeasureMenu" Header="Measure" IsContextual="True" Visibility="Collapsed">
+                </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="MeasureMenu" Header="Measure" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="X" Style="{StaticResource MenuControlHeader}" />
@@ -78,10 +79,10 @@
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarElementContainer>
-                        <controls:ColorPickerButton SelectedColor="{Binding Color, ElementName=MeasureRectangleStrokeBrush, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding Color, ElementName=MeasureRectangleStrokeBrush, Mode=TwoWay}" />
                     </AppBarElementContainer>
-                </controls:TabbedCommandBarItem>
-                <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
+                </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer Margin="5, 0, 5, 0">
                         <CheckBox x:Name="ColorChannelsDiffStatus" IsEnabled="False" Content="Color channels match" Style="{StaticResource ReadOnlyFriendlyCheckBox}"  />
                     </AppBarElementContainer>
@@ -95,16 +96,16 @@
                     <AppBarElementContainer>
                         <RadioButton x:Name="AlphaDiffButton" Content="Alpha" GroupName="DiffChannelView" Checked="AlphaDiffButton_Checked" />
                     </AppBarElementContainer>
-                </controls:TabbedCommandBarItem>
-                <controls:TabbedCommandBarItem x:Name="CaptureMenu" Header="Screen Capture" IsContextual="True" Visibility="Collapsed">
+                </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="CaptureMenu" Header="Screen Capture" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton x:Name="ShowCursorButton" Label="Show Cursor" IsEnabled="True" Checked="ShowCursorButton_Checked" Unchecked="ShowCursorButton_Unchecked" >
-                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=ShowCursorButton, Mode=OneWay}" />
+                        <controls:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=ShowCursorButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarToggleButton x:Name="PlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="PlayPauseButton_Checked" Unchecked="PlayPauseButton_Unchecked" />
                     <AppBarToggleButton x:Name="CaptureBorderButton" Icon="Stop" Label="Show Border" Checked="CaptureBorderButton_Checked" Unchecked="CaptureBorderButton_Unchecked" IsChecked="True" Visibility="Collapsed" />
-                </controls:TabbedCommandBarItem>
-            </controls:TabbedCommandBar.MenuItems>
-        </controls:TabbedCommandBar>
+                </wctc:TabbedCommandBarItem>
+            </wctc:TabbedCommandBar.MenuItems>
+        </wctc:TabbedCommandBar>
 
         <Grid x:Name="ImageScrollViewerContainer" Grid.Row="1">
             <ScrollViewer x:Name="ImageScrollViewer"
@@ -149,17 +150,17 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal" Grid.Column="0">
-                <local:InvertableImage SourcePath="Assets/Icons/noun_Move_140460.svg" Style="{StaticResource BottomBarInvertableImage}" />
+                <controls:InvertableImage SourcePath="Assets/Icons/noun_Move_140460.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <TextBlock x:Name="PositionTextBlock" Grid.Column="0" VerticalAlignment="Center" d:Text="186, 50px" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <local:InvertableImage SourcePath="Assets/Icons/noun_size_2476868.svg" Style="{StaticResource BottomBarInvertableImage}" />
+                <controls:InvertableImage SourcePath="Assets/Icons/noun_size_2476868.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <TextBlock x:Name="ImageSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Grid.Column="2">
-                <local:InvertableImage SourcePath="Assets/Icons/noun_measure_512690.svg" Style="{StaticResource BottomBarInvertableImage}" />
+                <controls:InvertableImage SourcePath="Assets/Icons/noun_measure_512690.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <TextBlock x:Name="MeasureSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
             </StackPanel>
 

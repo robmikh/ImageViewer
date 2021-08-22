@@ -1,9 +1,11 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:local="using:ImageViewer"
+    xmlns:converters="using:ImageViewer.Converters"
+    xmlns:controls="using:ImageViewer.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <local:FloatToPercentageConverter x:Key="FloatToPercentageConverter" />
+    <converters:FloatToPercentageConverter x:Key="FloatToPercentageConverter" />
     <Style x:Key="ReadOnlyFriendlyCheckBox" TargetType="CheckBox">
         <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
         <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>
@@ -333,7 +335,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="10, 0, 5, 0" />
     </Style>
-    <Style TargetType="local:InvertableImage" x:Key="BottomBarInvertableImage">
+    <Style TargetType="controls:InvertableImage" x:Key="BottomBarInvertableImage">
         <Setter Property="Width" Value="25" />
         <Setter Property="Height" Value="25" />
         <Setter Property="VerticalAlignment" Value="Center" />
