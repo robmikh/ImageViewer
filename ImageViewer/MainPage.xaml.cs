@@ -123,6 +123,7 @@ namespace ImageViewer
             ImageGrid.Width = size.Width;
             ImageGrid.Height = size.Height;
 
+            _currentImage?.Dispose();
             _currentImage = image;
 
             GenerateBackground();
@@ -199,6 +200,7 @@ namespace ImageViewer
             if (viewMode == ViewMode.Capture)
             {
                 ShowCursorButton.IsChecked = true;
+                PlayPauseButton.IsChecked = true;
             }
         }
 
@@ -546,6 +548,22 @@ namespace ImageViewer
             if (_currentImage is CaptureImage image)
             {
                 image.ShowCursor = false;
+            }
+        }
+
+        private void PlayPauseButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                image.Play();
+            }
+        }
+
+        private void PlayPauseButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                image.Pause();
             }
         }
     }

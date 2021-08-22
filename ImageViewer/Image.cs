@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
+using System;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -9,7 +10,7 @@ using Windows.UI.Composition;
 
 namespace ImageViewer
 {
-    interface IImage
+    interface IImage : IDisposable
     {
         BitmapSize Size { get; }
         CanvasBitmap GetSnapshot();
@@ -47,6 +48,11 @@ namespace ImageViewer
                 drawingSession.DrawImage(Bitmap);
             }
             return imageSurface;
+        }
+
+        public void Dispose()
+        {
+            Bitmap.Dispose();
         }
     }
 
@@ -97,6 +103,11 @@ namespace ImageViewer
         public void Pause()
         {
             _capture.Pause();
+        }
+
+        public void Dispose()
+        {
+            _capture.Dispose();
         }
 
         public bool ShowCursor
