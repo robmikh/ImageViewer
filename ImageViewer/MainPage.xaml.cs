@@ -424,6 +424,37 @@ namespace ImageViewer
             await dialog.ShowAsync();
         }
 
+        private ICompositionSurface GenerateSurfaceFromTiledBrush(ICanvasBrush brush, int surfaceWidth, int surfaceHeight)
+        {
+            ICompositionSurface resultSurface = null;
+            // We're picking 4000 arbitrarily here.
+            var tileWidth = 4000;
+            var tileHeight = 4000;
+            if (surfaceWidth > tileWidth || surfaceHeight > tileHeight)
+            {
+                var surface = _compositionGraphics.CreateVirtualDrawingSurface(
+                    new SizeInt32() { Width = surfaceWidth, Height = surfaceHeight },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                TiledBrushRenderer.Render(surface, _gridLinesCavnasBrush, tileWidth, tileHeight);
+                resultSurface = surface;
+            }
+            else
+            {
+                var surface = _compositionGraphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = surfaceWidth, Height = surfaceHeight },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                using (var drawingSession = CanvasComposition.CreateDrawingSession(surface))
+                {
+                    drawingSession.Clear(Colors.Transparent);
+                    drawingSession.FillRectangle(0, 0, surfaceWidth, surfaceHeight, _gridLinesCavnasBrush);
+                }
+                resultSurface = surface;
+            }
+            return resultSurface;
+        }
+
         private void GenerateGridLines()
         {
             if (_currentImage != null)
@@ -434,59 +465,8 @@ namespace ImageViewer
                 var gridMultiplier = 10;
                 var surfaceWidth = width * gridMultiplier;
                 var surfaceHeight = height * gridMultiplier;
-                var gridLinesSurface = _compositionGraphics.CreateVirtualDrawingSurface(
-                    new SizeInt32() { Width = surfaceWidth, Height = surfaceHeight },
-                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                    DirectXAlphaMode.Premultiplied);
-                // We're picking 4000 arbitrarily here.
-                var tileWidth = 4000;
-                var tileHeight = 4000;
-                if (surfaceWidth > tileWidth || surfaceHeight > tileHeight)
-                {
-                    var widthInTiles = surfaceWidth / tileWidth;
-                    if (surfaceWidth % tileWidth > 0)
-                    {
-                        widthInTiles += 1;
-                    }
-                    var heightInTiles = surfaceHeight / tileHeight;
-                    if (surfaceHeight % tileHeight > 0)
-                    {
-                        heightInTiles += 1;
-                    }
-                    for (var i = 0; i < widthInTiles; i++)
-                    {
-                        var tileLeft = i * tileWidth;
-                        for (var j = 0; j < heightInTiles; j++)
-                        {
-                            var tileTop = j * tileHeight;
-                            var currentTileWidth = tileWidth;
-                            if (tileLeft + tileWidth > surfaceWidth)
-                            {
-                                currentTileWidth = surfaceWidth - tileLeft;
-                            }
-                            var currentTileHeight = tileHeight;
-                            if (tileTop + tileHeight > surfaceHeight)
-                            {
-                                currentTileHeight = surfaceHeight - tileTop;
-                            }
-                            var updateRect = new Rect(tileLeft, tileTop, currentTileWidth, currentTileHeight);
-                            using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface, updateRect))
-                            {
-                                drawingSession.Clear(Colors.Transparent);
-                                drawingSession.FillRectangle(0, 0, (float)currentTileWidth, (float)currentTileHeight, _gridLinesCavnasBrush);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface))
-                    {
-                        drawingSession.Clear(Colors.Transparent);
-                        drawingSession.FillRectangle(0, 0, size.Width * gridMultiplier, size.Height * gridMultiplier, _gridLinesCavnasBrush);
-                    }
-                }
 
+                var gridLinesSurface = GenerateSurfaceFromTiledBrush(_gridLinesCavnasBrush, surfaceWidth, surfaceHeight);
                 _gridLinesBrush.Surface = gridLinesSurface;
             }
         }
