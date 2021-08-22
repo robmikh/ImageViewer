@@ -110,6 +110,10 @@ namespace ImageViewer
             {
                 CompactOverlayButton.Visibility = Visibility.Visible;
             }
+            if (GraphicsCaptureSession.IsSupported())
+            {
+                ScreenCaptureButton.Visibility = Visibility.Visible;
+            }
         }
 
         public async Task OpenFileAsync(IImportedFile file)
