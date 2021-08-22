@@ -50,6 +50,7 @@ namespace ImageViewer
         private DiffResult _currentDiff;
 
         private Point _lastPosition;
+        private Point _startMeasurePoint;
         private bool _borderEnabled = true;
         private bool _gridLinesEnabled = false;
         private IImage _currentImage;
@@ -137,6 +138,12 @@ namespace ImageViewer
             if (_gridLinesEnabled)
             {
                 GenerateGridLines();
+            }
+            if (_inputMode == InputMode.Measure)
+            {
+                MeasureSizeTextBlock.Text = "";
+                MeasureRectangle.Width = 0;
+                MeasureRectangle.Height = 0;
             }
 
             if (resetScrollViewer)
@@ -278,6 +285,17 @@ namespace ImageViewer
             if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
             {
                 _lastPosition = e.GetCurrentPoint((ScrollViewer)sender).Position;
+
+                if (_inputMode == InputMode.Measure)
+                {
+                    _startMeasurePoint = e.GetCurrentPoint(MeasureCanvas).Position;
+                    _startMeasurePoint.X = (int)_startMeasurePoint.X;
+                    _startMeasurePoint.Y = (int)_startMeasurePoint.Y;
+                    MeasureRectangle.Width = 0;
+                    MeasureRectangle.Height = 0;
+                    Canvas.SetLeft(MeasureRectangle, _startMeasurePoint.X);
+                    Canvas.SetTop(MeasureRectangle, _startMeasurePoint.Y);
+                }
             }
         }
         
@@ -313,6 +331,29 @@ namespace ImageViewer
                 scrollViewer.ChangeView(horizontalOffset, verticalOffset, null, true);
 
                 _lastPosition = position;
+            }
+            else if (_inputMode == InputMode.Measure && pointer.IsInContact)
+            {
+                var point = e.GetCurrentPoint(MeasureCanvas);
+                var position = point.Position;
+                position.X = (int)position.X + 1;
+                position.Y = (int)position.Y + 1;
+
+                var diffX = (int)(position.X - _startMeasurePoint.X);
+                var diffY = (int)(position.Y - _startMeasurePoint.Y);
+
+                MeasureRectangle.Width = Math.Abs(diffX);
+                MeasureRectangle.Height = Math.Abs(diffY);
+                if (diffX < 0)
+                {
+                    Canvas.SetLeft(MeasureRectangle, position.X);
+                }
+                if (diffY < 0)
+                {
+                    Canvas.SetTop(MeasureRectangle, position.Y);
+                }
+
+                MeasureSizeTextBlock.Text = $"{Math.Abs(diffX)} x {Math.Abs(diffY)}px";
             }
         }
 
@@ -561,6 +602,10 @@ namespace ImageViewer
             {
                 MeasureInputModeButton.IsChecked = false;
             }
+            if (MeasureCanvas != null)
+            {
+                MeasureCanvas.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void DragButton_Unchecked(object sender, RoutedEventArgs e)
@@ -579,6 +624,7 @@ namespace ImageViewer
             _inputMode = InputMode.None;
             DragInputModeButton.IsChecked = false;
             MeasureInputModeButton.IsChecked = false;
+            MeasureCanvas.Visibility = Visibility.Collapsed;
         }
 
         private void NoneInputModeButton_Unchecked(object sender, RoutedEventArgs e)
@@ -597,10 +643,15 @@ namespace ImageViewer
             _inputMode = InputMode.Measure;
             DragInputModeButton.IsChecked = false;
             NoneInputModeButton.IsChecked = false;
+            MeasureCanvas.Visibility = Visibility.Visible;
+            MeasureSizeTextBlock.Text = "";
+            MeasureRectangle.Width = 0;
+            MeasureRectangle.Height = 0;
         }
 
         private void MeasureInputModeButton_Unchecked(object sender, RoutedEventArgs e)
         {
+            MeasureSizeTextBlock.Text = "";
             if ((!NoneInputModeButton.IsChecked.HasValue || !NoneInputModeButton.IsChecked.Value) &&
                 (!DragInputModeButton.IsChecked.HasValue || !DragInputModeButton.IsChecked.Value) &&
                 (!MeasureInputModeButton.IsChecked.HasValue || !MeasureInputModeButton.IsChecked.Value))

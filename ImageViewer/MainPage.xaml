@@ -90,6 +90,9 @@
                         </Border.BorderBrush>
                         <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
+                            <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
+                                <Rectangle x:Name="MeasureRectangle" Stroke="Red" StrokeThickness="1" Width="0" Height="0" />
+                            </Canvas>
                             <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
                         </Grid>
                     </Border>
@@ -99,6 +102,7 @@
 
         <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition />
@@ -115,7 +119,12 @@
                 <TextBlock x:Name="ImageSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
             </StackPanel>
 
-            <Grid Grid.Column="3">
+            <StackPanel Orientation="Horizontal" Grid.Column="2">
+                <Image Source="/Assets/Icons/noun_measure_512690.svg" Width="25" VerticalAlignment="Center" Margin="0, 5, 5, 0" />
+                <TextBlock x:Name="MeasureSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
+            </StackPanel>
+
+            <Grid Grid.Column="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
