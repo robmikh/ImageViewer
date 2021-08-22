@@ -5,6 +5,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Foundation.Metadata;
@@ -16,6 +17,7 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
+using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -120,6 +122,7 @@ namespace ImageViewer
             {
                 CaptureBorderButton.Visibility = Visibility.Visible;
             }
+            Window.Current.CoreWindow.KeyUp += CoreWindow_KeyUp;
         }
 
         public async Task OpenFileAsync(IImportedFile file)
@@ -689,6 +692,37 @@ namespace ImageViewer
             if (_currentImage is CaptureImage image)
             {
                 await image.SetBorderAsync(false);
+            }
+        }
+
+        private void ClipboardButon_Click(object sender, RoutedEventArgs e)
+        {
+            ImportFromClipboard();
+        }
+
+        private async void ImportFromClipboard()
+        {
+            var view = Clipboard.GetContent();
+            if (view.Contains(StandardDataFormats.Bitmap))
+            {
+                var bitmap = await view.GetBitmapAsync();
+                using (var stream = await bitmap.OpenReadAsync())
+                {
+                    var canvasBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, stream, 96.0f);
+                    OpenImage(new CanvasBitmapImage(canvasBitmap), ViewMode.Image);
+                    _currentFile = null;
+                    _currentDiff = null;
+                }
+            }
+        }
+
+        private void CoreWindow_KeyUp(CoreWindow sender, KeyEventArgs args)
+        {
+            var key = args.VirtualKey;
+            var isControlDown = (sender.GetKeyState(VirtualKey.Control) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+            if (key == VirtualKey.V && isControlDown)
+            {
+                ImportFromClipboard();
             }
         }
     }

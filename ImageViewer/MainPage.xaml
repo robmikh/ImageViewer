@@ -27,6 +27,7 @@
                 <controls:TabbedCommandBarItem Header="Home">
                     <AppBarButton Icon="TwoPage" Label="Diff Images" Click="DiffImagesButton_Click" />
                     <AppBarButton Icon="OpenFile" Label="Open Image" Click="OpenFileButton_Click" />
+                    <AppBarButton x:Name="ClipboardButon" Icon="Paste" Label="Paste" Click="ClipboardButon_Click" />
                     <AppBarButton x:Name="ScreenCaptureButton" Icon="GoToStart" Label="Screen Capture" Click="ScreenCaptureButton_Click" Visibility="Collapsed" />
                     <AppBarButton x:Name="SaveAsButton" Icon="SaveLocal" Label="Save As" Click="SaveAsButton_Click" IsEnabled="False" />
                 </controls:TabbedCommandBarItem>
