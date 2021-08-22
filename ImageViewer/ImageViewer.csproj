@@ -133,6 +133,7 @@
     <Compile Include="BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CaptureSnapshot.cs" />
     <Compile Include="DiffSetupPage.xaml.cs">
       <DependentUpon>DiffSetupPage.xaml</DependentUpon>
     </Compile>
@@ -148,6 +149,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleCapture.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

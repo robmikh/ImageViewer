@@ -1,6 +1,8 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
+using System.Threading.Tasks;
 using Windows.Graphics;
+using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
 using Windows.UI;
@@ -48,4 +50,44 @@ namespace ImageViewer
             return imageSurface;
         }
     }
+
+    class CaptureImage : IImage
+    {
+        private CanvasDevice _device;
+        private SimpleCapture _capture;
+
+        public GraphicsCaptureItem Item { get; }
+
+        public BitmapSize Size { get; }
+
+        public CaptureImage(GraphicsCaptureItem item, CanvasDevice device)
+        {
+            Item = item;
+            var itemSize = item.Size;
+            var size = new BitmapSize();
+            size.Width = (uint)itemSize.Width;
+            size.Height = (uint)itemSize.Height;
+            Size = size;
+            _device = device;
+
+            _capture = new SimpleCapture(device, item);
+            _capture.StartCapture();
+        }
+
+        public CanvasBitmap GetSnapshot()
+        {
+            // TODO: Make async?
+            var task = CaptureSnapshot.TakeAsync(Item, Size, _device);
+            Task.WaitAll(task);
+            var bitmap = task.Result;
+            return bitmap;
+        }
+
+        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
+        {
+            var compositor = graphics.Compositor;
+            return _capture.CreateSurface(compositor);
+        }
+    }
+
 }

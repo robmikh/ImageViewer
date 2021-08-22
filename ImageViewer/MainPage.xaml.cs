@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Graphics;
+using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -494,6 +496,18 @@ namespace ImageViewer
             if (_currentDiff != null)
             {
                 OpenImage(new CanvasBitmapImage(_currentDiff.AlphaDiffBitmap), ViewMode.Diff, false);
+            }
+        }
+
+        private async void ScreenCaptureButton_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new GraphicsCapturePicker();
+            var item = await picker.PickSingleItemAsync();
+            if (item != null)
+            {
+                OpenImage(new CaptureImage(item, _canvasDevice), ViewMode.Image);
+                _currentFile = null;
+                _currentDiff = null;
             }
         }
     }
