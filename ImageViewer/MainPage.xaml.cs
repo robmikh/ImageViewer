@@ -82,6 +82,7 @@ namespace ImageViewer
 
         public MainPage()
         {
+            var themeHelper = ThemeHelper.EnsureThemeHelper(this);
             this.InitializeComponent();
 
             var graphicsManager = GraphicsManager.Current;

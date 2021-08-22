@@ -154,6 +154,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleCapture.cs" />
+    <Compile Include="ThemeHelper.cs" />
     <Compile Include="TiledBrushRenderer.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -53,6 +53,7 @@ namespace ImageViewer
         private InteropBrush _controlBrush;
         private CompositionEffectBrush _effectBrush;
         private CompositionSurfaceBrush _surfaceBrush;
+        private bool _isDarkTheme = false;
 
         public InvertableImage()
         {
@@ -64,6 +65,16 @@ namespace ImageViewer
             _effectBrush.SetSourceParameter(EffectImageProperty, _surfaceBrush);
             _controlBrush = new InteropBrush(_surfaceBrush);
             MainGrid.Background = _controlBrush;
+
+            _isDarkTheme = ThemeHelper.Current.CurrentTheme == EffectiveTheme.Dark;
+            ApplyInvert(Invert);
+            ThemeHelper.Current.ThemeChanged += Current_ThemeChanged;
+        }
+
+        private void Current_ThemeChanged(object sender, ThemeChangedEventArgs args)
+        {
+            _isDarkTheme = args.Theme == EffectiveTheme.Dark;
+            ApplyInvert(Invert);
         }
 
         public string SourcePath
@@ -118,7 +129,7 @@ namespace ImageViewer
 
         private void ApplyInvert(bool invert)
         {
-            if (invert)
+            if (invert != _isDarkTheme)
             {
                 _controlBrush.SetBrush(_effectBrush);
             }
