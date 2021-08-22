@@ -21,6 +21,20 @@ namespace ImageViewer
 {
     public sealed partial class MainPage : Page
     {
+        private static readonly DependencyProperty GridLinesColorProperty = DependencyProperty.Register(nameof(GridLinesColor), typeof(Color), typeof(MainPage), new PropertyMetadata(Colors.LightGray, OnGridLinesColorChanged));
+
+        private static void OnGridLinesColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var page = (MainPage)d;
+            var color = (Color)e.NewValue;
+            var brush = page.CreateGridLinesBrush(page._canvasDevice, color);
+            page._gridLinesCavnasBrush = brush;
+            if (page._gridLinesEnabled)
+            {
+                page.GenerateGridLines();
+            }
+        }
+
         private Compositor _compositor;
         private CanvasDevice _canvasDevice;
         private CompositionGraphicsDevice _compositionGraphics;
@@ -54,6 +68,12 @@ namespace ImageViewer
         }
         private ViewMode _viewMode = ViewMode.Image;
 
+        public Color GridLinesColor
+        {
+            get { return (Color)GetValue(GridLinesColorProperty); }
+            set { SetValue(GridLinesColorProperty, value); }
+        }
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -64,7 +84,7 @@ namespace ImageViewer
 
             // Generate the background bitmap
             _backgroundCavnasBrush = CreateBackgroundBrush(_canvasDevice);
-            _gridLinesCavnasBrush = CreateGridLinesBrush(_canvasDevice);
+            _gridLinesCavnasBrush = CreateGridLinesBrush(_canvasDevice, GridLinesColor);
 
             // Create brushes
             _backgroundBrush = _compositor.CreateSurfaceBrush();
@@ -178,13 +198,13 @@ namespace ImageViewer
             return brush;
         }
 
-        private ICanvasBrush CreateGridLinesBrush(ICanvasResourceCreator device)
+        private ICanvasBrush CreateGridLinesBrush(ICanvasResourceCreator device, Color gridLinesColor)
         {
             var bitmap = new CanvasRenderTarget(device, 10, 10, 96); // TODO: Dpi?
             using (var drawingSession = bitmap.CreateDrawingSession())
             {
                 drawingSession.Clear(Colors.Transparent);
-                drawingSession.DrawRectangle(-0.5f, -0.5f, 10, 10, Colors.LightGray, 0.5f);
+                drawingSession.DrawRectangle(-0.5f, -0.5f, 10, 10, gridLinesColor, 0.5f);
             }
 
             var brush = new CanvasImageBrush(device, bitmap);
