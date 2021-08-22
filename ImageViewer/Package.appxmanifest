@@ -5,8 +5,9 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap6="http://schemas.microsoft.com/appx/manifest/uap/windows10/6" 
+  xmlns:uap11="http://schemas.microsoft.com/appx/manifest/uap/windows10/11" 
   xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
-  IgnorableNamespaces="uap mp uap6 desktop4">
+  IgnorableNamespaces="uap mp uap6 uap11 desktop4">
 
   <Identity
     Name="9efc3c67-c8c1-47f8-8b44-91881fd2bdeb"
@@ -68,5 +69,6 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <uap6:Capability Name="graphicsCapture" />
+    <uap11:Capability Name="graphicsCaptureWithoutBorder" />
   </Capabilities>
 </Package>

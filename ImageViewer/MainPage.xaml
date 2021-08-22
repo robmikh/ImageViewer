@@ -100,6 +100,7 @@
                         <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=ShowCursorButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarToggleButton x:Name="PlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="PlayPauseButton_Checked" Unchecked="PlayPauseButton_Unchecked" />
+                    <AppBarToggleButton x:Name="CaptureBorderButton" Icon="Stop" Label="Show Border" Checked="CaptureBorderButton_Checked" Unchecked="CaptureBorderButton_Unchecked" IsChecked="True" Visibility="Collapsed" />
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>

@@ -3,6 +3,7 @@ using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Numerics;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
@@ -57,6 +58,15 @@ namespace ImageViewer
         public void SetCursorCaptureState(bool showCursor)
         {
             _session.IsCursorCaptureEnabled = showCursor;
+        }
+
+        public async Task SetIsBorderRequiredAsync(bool isRequired)
+        {
+            if (Capabilities.IsCaptureBorderPropertyAvailable)
+            {
+                var access = await GraphicsCaptureAccess.RequestAccessAsync(GraphicsCaptureAccessKind.Borderless);
+                _session.IsBorderRequired = isRequired;
+            }
         }
 
         public void Dispose()

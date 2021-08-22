@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -119,6 +120,10 @@ namespace ImageViewer
                 _capture.SetCursorCaptureState(_showCursor);
             }
         }
-    }
 
+        public async Task SetBorderAsync(bool showBorder)
+        {
+            await _capture.SetIsBorderRequiredAsync(showBorder);
+        }
+    }
 }

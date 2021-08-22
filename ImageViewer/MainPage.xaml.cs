@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
 using Windows.Foundation;
+using Windows.Foundation.Metadata;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -114,6 +115,10 @@ namespace ImageViewer
             if (GraphicsCaptureSession.IsSupported())
             {
                 ScreenCaptureButton.Visibility = Visibility.Visible;
+            }
+            if (Capabilities.IsCaptureBorderPropertyAvailable)
+            {
+                CaptureBorderButton.Visibility = Visibility.Visible;
             }
         }
 
@@ -668,6 +673,22 @@ namespace ImageViewer
             {
                 _inputMode = InputMode.None;
                 NoneInputModeButton.IsChecked = true;
+            }
+        }
+
+        private async void CaptureBorderButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                await image.SetBorderAsync(true);
+            }
+        }
+
+        private async void CaptureBorderButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                await image.SetBorderAsync(false);
             }
         }
     }
