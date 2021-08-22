@@ -505,7 +505,9 @@ namespace ImageViewer
             var item = await picker.PickSingleItemAsync();
             if (item != null)
             {
-                OpenImage(new CaptureImage(item, _canvasDevice), ViewMode.Image);
+                // Use a seperate device so we don't have to deal
+                // with synchronization with D2D
+                OpenImage(new CaptureImage(item, new CanvasDevice()), ViewMode.Image);
                 _currentFile = null;
                 _currentDiff = null;
             }

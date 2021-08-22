@@ -1,6 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
-using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -51,6 +50,7 @@ namespace ImageViewer
         }
     }
 
+    // TODO: Don't use Win2D for Capture
     class CaptureImage : IImage
     {
         private CanvasDevice _device;
@@ -77,10 +77,9 @@ namespace ImageViewer
         public CanvasBitmap GetSnapshot()
         {
             // TODO: Make async?
-            var task = CaptureSnapshot.TakeAsync(Item, Size, _device);
-            Task.WaitAll(task);
-            var bitmap = task.Result;
-            return bitmap;
+            // Use a seperate device so we don't have to deal
+            // with synchronization with D2D
+            return CaptureSnapshot.Take(Item, Size, new CanvasDevice());
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.Numerics;
 using System.Threading;
+using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -68,40 +70,27 @@ namespace ImageViewer
         {
             var newSize = false;
 
-            //_pauseEvent.WaitOne();
+            _pauseEvent.WaitOne();
 
             using (var frame = sender.TryGetNextFrame())
             {
-
-                if (frame.ContentSize.Width != _lastSize.Width ||
-                    frame.ContentSize.Height != _lastSize.Height)
-                {
-                    // The thing we have been capturing has changed size.
-                    // We need to resize our swap chain first, then blit the pixels.
-                    // After we do that, retire the frame and then recreate our frame pool.
-                    newSize = true;
-                    _lastSize = frame.ContentSize;
-                    _swapChain.ResizeBuffers(_lastSize.Width, _lastSize.Height);
-                }
+                var contentSize = frame.ContentSize;
 
                 using (var bitmap = CanvasBitmap.CreateFromDirect3D11Surface(_device, frame.Surface))
                 using (var drawingSession = _swapChain.CreateDrawingSession(Colors.Transparent))
                 {
-                    drawingSession.DrawImage(bitmap);
+                    drawingSession.DrawImage(bitmap, Vector2.Zero, new Rect()
+                    {
+                        X = 0,
+                        Y = 0,
+                        Width = Math.Min(_lastSize.Width, contentSize.Width),
+                        Height = Math.Min(_lastSize.Height, contentSize.Height),
+                    });
                 }
 
             } // retire the frame
 
             _swapChain.Present();
-
-            //if (newSize)
-            //{
-            //    _framePool.Recreate(
-            //        _device,
-            //        DirectXPixelFormat.B8G8R8A8UIntNormalized,
-            //        2,
-            //        _lastSize);
-            //}
         }
 
         private GraphicsCaptureItem _item;

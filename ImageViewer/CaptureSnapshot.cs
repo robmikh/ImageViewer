@@ -1,5 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
-using System.Threading.Tasks;
+using System.Threading;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -10,7 +10,7 @@ namespace ImageViewer
 {
     static class CaptureSnapshot
     {
-        public static async Task<CanvasBitmap> TakeAsync(GraphicsCaptureItem item, BitmapSize bitmapSize, CanvasDevice device)
+        public static CanvasBitmap Take(GraphicsCaptureItem item, BitmapSize bitmapSize, CanvasDevice device)
         {
             var size = new SizeInt32();
             size.Width = (int)bitmapSize.Width;
@@ -20,12 +20,13 @@ namespace ImageViewer
                 device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, size);
             var session = framePool.CreateCaptureSession(item);
 
-            var completion = new TaskCompletionSource<CanvasBitmap>();
+            CanvasRenderTarget renderTarget = null;
+            var captureEvent = new ManualResetEvent(false);
             framePool.FrameArrived += (s, a) =>
             {
                 var frame = s.TryGetNextFrame();
                 // TODO: Dpi?
-                var renderTarget = new CanvasRenderTarget(device, size.Width, size.Height, 96.0f); 
+                renderTarget = new CanvasRenderTarget(device, size.Width, size.Height, 96.0f); 
                 using (var bitmap = CanvasBitmap.CreateFromDirect3D11Surface(device, frame.Surface, 96.0f))
                 using (var drawingSession = renderTarget.CreateDrawingSession())
                 {
@@ -33,16 +34,16 @@ namespace ImageViewer
                     drawingSession.DrawImage(bitmap);
                 }
 
-                completion.SetResult(renderTarget);
+                captureEvent.Set();
 
                 session.Dispose();
                 s.Dispose();
             };
 
             session.StartCapture();
+            captureEvent.WaitOne();
 
-            var result = await completion.Task;
-            return result;
+            return renderTarget;
         }
     }
 }
