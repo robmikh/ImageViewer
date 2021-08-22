@@ -55,6 +55,7 @@ namespace ImageViewer
     {
         private CanvasDevice _device;
         private SimpleCapture _capture;
+        private bool _showCursor = true;
 
         public GraphicsCaptureItem Item { get; }
 
@@ -86,6 +87,26 @@ namespace ImageViewer
         {
             var compositor = graphics.Compositor;
             return _capture.CreateSurface(compositor);
+        }
+
+        public void Play()
+        {
+            _capture.Continue();
+        }
+
+        public void Pause()
+        {
+            _capture.Pause();
+        }
+
+        public bool ShowCursor
+        {
+            get { return _showCursor; }
+            set
+            {
+                _showCursor = value;
+                _capture.SetCursorCaptureState(_showCursor);
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -67,6 +68,7 @@ namespace ImageViewer
         {
             Image,
             Diff,
+            Capture,
         }
         private ViewMode _viewMode = ViewMode.Image;
 
@@ -170,16 +172,34 @@ namespace ImageViewer
             }
         }
 
+        private TabbedCommandBarItem GetMenuForViewMode(ViewMode viewMode)
+        {
+            switch (viewMode)
+            {
+                case ViewMode.Diff:
+                    return DiffMenu;
+                case ViewMode.Capture:
+                    return CaptureMenu;
+                default:
+                    return ViewMenu;
+            }
+        }
+
         private void OnBitmapOpened(ViewMode viewMode)
         {
             ImageBorder.Visibility = Visibility.Visible;
             ViewMenu.Visibility = Visibility.Visible;
             DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
-            MainMenu.SelectedItem = viewMode == ViewMode.Diff ? DiffMenu : ViewMenu;
+            CaptureMenu.Visibility = viewMode == ViewMode.Capture ? Visibility.Visible : Visibility.Collapsed;
+            MainMenu.SelectedItem = GetMenuForViewMode(viewMode);
             var size = _currentImage.Size;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
             SaveAsButton.IsEnabled = true;
+            if (viewMode == ViewMode.Capture)
+            {
+                ShowCursorButton.IsChecked = true;
+            }
         }
 
         private async Task SaveToFileAsync(StorageFile file)
@@ -507,9 +527,25 @@ namespace ImageViewer
             {
                 // Use a seperate device so we don't have to deal
                 // with synchronization with D2D
-                OpenImage(new CaptureImage(item, new CanvasDevice()), ViewMode.Image);
+                OpenImage(new CaptureImage(item, new CanvasDevice()), ViewMode.Capture);
                 _currentFile = null;
                 _currentDiff = null;
+            }
+        }
+
+        private void ShowCursorButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                image.ShowCursor = true;
+            }
+        }
+
+        private void ShowCursorButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_currentImage is CaptureImage image)
+            {
+                image.ShowCursor = false;
             }
         }
     }

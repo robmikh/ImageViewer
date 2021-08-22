@@ -54,6 +54,11 @@ namespace ImageViewer
             return CanvasComposition.CreateCompositionSurfaceForSwapChain(compositor, _swapChain);
         }
 
+        public void SetCursorCaptureState(bool showCursor)
+        {
+            _session.IsCursorCaptureEnabled = showCursor;
+        }
+
         public void Dispose()
         {
             _session?.Dispose();
@@ -68,8 +73,6 @@ namespace ImageViewer
 
         private void OnFrameArrived(Direct3D11CaptureFramePool sender, object args)
         {
-            var newSize = false;
-
             _pauseEvent.WaitOne();
 
             using (var frame = sender.TryGetNextFrame())

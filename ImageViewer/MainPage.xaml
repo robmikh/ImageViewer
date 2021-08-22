@@ -57,6 +57,9 @@
                         <RadioButton x:Name="AlphaDiffButton" Content="Alpha" GroupName="DiffChannelView" Checked="AlphaDiffButton_Checked" />
                     </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
+                <controls:TabbedCommandBarItem x:Name="CaptureMenu" Header="Screen Capture" IsContextual="True" Visibility="Collapsed">
+                    <AppBarToggleButton x:Name="ShowCursorButton" Icon="TouchPointer" Label="Show Cursor" IsEnabled="True" Checked="ShowCursorButton_Checked" Unchecked="ShowCursorButton_Unchecked" />
+                </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
         </controls:TabbedCommandBar>
 
