@@ -293,8 +293,8 @@ namespace ImageViewer
                     _startMeasurePoint.Y = (int)_startMeasurePoint.Y;
                     MeasureRectangle.Width = 0;
                     MeasureRectangle.Height = 0;
-                    Canvas.SetLeft(MeasureRectangle, _startMeasurePoint.X);
-                    Canvas.SetTop(MeasureRectangle, _startMeasurePoint.Y);
+                    MeasureRectangleTranslation.X = _startMeasurePoint.X;
+                    MeasureRectangleTranslation.Y = _startMeasurePoint.Y;
                 }
             }
         }
@@ -346,11 +346,11 @@ namespace ImageViewer
                 MeasureRectangle.Height = Math.Abs(diffY);
                 if (diffX < 0)
                 {
-                    Canvas.SetLeft(MeasureRectangle, position.X);
+                    MeasureRectangleTranslation.X = position.X;
                 }
                 if (diffY < 0)
                 {
-                    Canvas.SetTop(MeasureRectangle, position.Y);
+                    MeasureRectangleTranslation.Y = position.Y;
                 }
 
                 MeasureSizeTextBlock.Text = $"{Math.Abs(diffX)} x {Math.Abs(diffY)}px";
@@ -647,11 +647,13 @@ namespace ImageViewer
             MeasureSizeTextBlock.Text = "";
             MeasureRectangle.Width = 0;
             MeasureRectangle.Height = 0;
+            MeasureMenu.Visibility = Visibility.Visible;
         }
 
         private void MeasureInputModeButton_Unchecked(object sender, RoutedEventArgs e)
         {
             MeasureSizeTextBlock.Text = "";
+            MeasureMenu.Visibility = Visibility.Collapsed;
             if ((!NoneInputModeButton.IsChecked.HasValue || !NoneInputModeButton.IsChecked.Value) &&
                 (!DragInputModeButton.IsChecked.HasValue || !DragInputModeButton.IsChecked.Value) &&
                 (!MeasureInputModeButton.IsChecked.HasValue || !MeasureInputModeButton.IsChecked.Value))

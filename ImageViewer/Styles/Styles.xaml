@@ -329,5 +329,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}" x:Key="MenuControlHeader">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="10, 0, 5, 0" />
+    </Style>
 
 </ResourceDictionary>

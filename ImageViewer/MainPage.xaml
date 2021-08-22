@@ -5,7 +5,9 @@
     xmlns:local="using:ImageViewer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -16,7 +18,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <controls:TabbedCommandBar x:Name="MainMenu">
+        <controls:TabbedCommandBar x:Name="MainMenu" Height="95">
             <controls:TabbedCommandBar.PaneFooter>
                 <CommandBar Background="Transparent" DefaultLabelPosition="Right">
                     <AppBarButton Label="About" Icon="Help" Click="AboutButton_Click" />
@@ -49,6 +51,35 @@
                     </AppBarToggleButton>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="CompactOverlayButton" Icon="Pictures" Label="Compact Overlay" Visibility="Collapsed" Checked="CompactOverlayButton_Checked" Unchecked="CompactOverlayButton_Unchecked" />
+                </controls:TabbedCommandBarItem>
+                <controls:TabbedCommandBarItem x:Name="MeasureMenu" Header="Measure" IsContextual="True" Visibility="Collapsed">
+                    <AppBarElementContainer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="X" Style="{StaticResource MenuControlHeader}" />
+                            <muxc:NumberBox Value="{Binding X, ElementName=MeasureRectangleTranslation, Mode=TwoWay}" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Y" Style="{StaticResource MenuControlHeader}" />
+                            <muxc:NumberBox Value="{Binding Y, ElementName=MeasureRectangleTranslation, Mode=TwoWay}" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Width" Style="{StaticResource MenuControlHeader}" />
+                            <muxc:NumberBox Value="{Binding Width, ElementName=MeasureRectangle, Mode=TwoWay}" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Height" Style="{StaticResource MenuControlHeader}" />
+                            <muxc:NumberBox Value="{Binding Height, ElementName=MeasureRectangle, Mode=TwoWay}" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer>
+                        <controls:ColorPickerButton SelectedColor="{Binding Color, ElementName=MeasureRectangleStrokeBrush, Mode=TwoWay}" />
+                    </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer Margin="5, 0, 5, 0">
@@ -91,7 +122,14 @@
                         <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
                             <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
-                                <Rectangle x:Name="MeasureRectangle" Stroke="Red" StrokeThickness="1" Width="0" Height="0" />
+                                <Rectangle x:Name="MeasureRectangle" StrokeThickness="1" Width="0" Height="0">
+                                    <Rectangle.Stroke>
+                                        <SolidColorBrush x:Name="MeasureRectangleStrokeBrush" Color="Red" />
+                                    </Rectangle.Stroke>
+                                    <Rectangle.RenderTransform>
+                                        <TranslateTransform x:Name="MeasureRectangleTranslation" X="0" Y="0" />
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
                             </Canvas>
                             <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
                         </Grid>
