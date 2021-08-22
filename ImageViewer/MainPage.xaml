@@ -41,6 +41,7 @@
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
+                    <AppBarToggleButton x:Name="CompactOverlayButton" Icon="Pictures" Label="Compact Overlay" Visibility="Collapsed" Checked="CompactOverlayButton_Checked" Unchecked="CompactOverlayButton_Unchecked" />
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
                     <AppBarElementContainer Margin="5, 0, 5, 0">

@@ -16,6 +16,7 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -103,6 +104,10 @@ namespace ImageViewer
             GridLinesRectangle.Fill = new InteropBrush(_gridLinesBrush);
 
             ImageBorder.Visibility = Visibility.Collapsed;
+            if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+            {
+                CompactOverlayButton.Visibility = Visibility.Visible;
+            }
         }
 
         public async Task OpenFileAsync(IImportedFile file)
@@ -545,6 +550,16 @@ namespace ImageViewer
             {
                 image.Pause();
             }
+        }
+
+        private async void CompactOverlayButton_Checked(object sender, RoutedEventArgs e)
+        {
+            var result = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+        }
+
+        private async void CompactOverlayButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var result = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
         }
     }
 }
