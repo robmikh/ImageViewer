@@ -40,7 +40,14 @@
                         <controls:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=page, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
-                    <AppBarToggleButton Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True" />
+                    <AppBarToggleButton x:Name="NoneInputModeButton" Label="None" Checked="NoneInputModeButton_Checked" Unchecked="NoneInputModeButton_Unchecked" >
+                        <Image Source="Assets/Icons/noun_Cursor_4161365.svg" />
+                    </AppBarToggleButton>
+                    <AppBarToggleButton x:Name="DragInputModeButton" Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True"  />
+                    <AppBarToggleButton x:Name="MeasureInputModeButton" Label="Measure" Checked="MeasureInputModeButton_Checked" Unchecked="MeasureInputModeButton_Unchecked" >
+                        <Image Source="Assets/Icons/noun_measure_512690.svg" />
+                    </AppBarToggleButton>
+                    <AppBarSeparator />
                     <AppBarToggleButton x:Name="CompactOverlayButton" Icon="Pictures" Label="Compact Overlay" Visibility="Collapsed" Checked="CompactOverlayButton_Checked" Unchecked="CompactOverlayButton_Unchecked" />
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">

@@ -61,7 +61,8 @@ namespace ImageViewer
         enum InputMode
         {
             None,
-            Drag
+            Drag,
+            Measure
         }
         private InputMode _inputMode = InputMode.Drag;
 
@@ -349,16 +350,6 @@ namespace ImageViewer
             }
         }
 
-        private void DragButton_Checked(object sender, RoutedEventArgs e)
-        {
-            _inputMode = InputMode.Drag;
-        }
-
-        private void DragButton_Unchecked(object sender, RoutedEventArgs e)
-        {
-            _inputMode = InputMode.None;
-        }
-
         private void BorderButton_Checked(object sender, RoutedEventArgs e)
         {
             _borderEnabled = true;
@@ -560,6 +551,63 @@ namespace ImageViewer
         private async void CompactOverlayButton_Unchecked(object sender, RoutedEventArgs e)
         {
             var result = await ApplicationView.GetForCurrentView().TryEnterViewModeAsync(ApplicationViewMode.Default);
+        }
+
+        private void DragButton_Checked(object sender, RoutedEventArgs e)
+        {
+            _inputMode = InputMode.Drag;
+            NoneInputModeButton.IsChecked = false;
+            if (MeasureInputModeButton != null)
+            {
+                MeasureInputModeButton.IsChecked = false;
+            }
+        }
+
+        private void DragButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((!NoneInputModeButton.IsChecked.HasValue || !NoneInputModeButton.IsChecked.Value) &&
+                (!DragInputModeButton.IsChecked.HasValue || !DragInputModeButton.IsChecked.Value) &&
+                (!MeasureInputModeButton.IsChecked.HasValue || !MeasureInputModeButton.IsChecked.Value))
+            {
+                _inputMode = InputMode.None;
+                NoneInputModeButton.IsChecked = true;
+            }
+        }
+
+        private void NoneInputModeButton_Checked(object sender, RoutedEventArgs e)
+        {
+            _inputMode = InputMode.None;
+            DragInputModeButton.IsChecked = false;
+            MeasureInputModeButton.IsChecked = false;
+        }
+
+        private void NoneInputModeButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((!NoneInputModeButton.IsChecked.HasValue || !NoneInputModeButton.IsChecked.Value) &&
+                (!DragInputModeButton.IsChecked.HasValue || !DragInputModeButton.IsChecked.Value) &&
+                (!MeasureInputModeButton.IsChecked.HasValue || !MeasureInputModeButton.IsChecked.Value))
+            {
+                _inputMode = InputMode.None;
+                NoneInputModeButton.IsChecked = true;
+            }
+        }
+
+        private void MeasureInputModeButton_Checked(object sender, RoutedEventArgs e)
+        {
+            _inputMode = InputMode.Measure;
+            DragInputModeButton.IsChecked = false;
+            NoneInputModeButton.IsChecked = false;
+        }
+
+        private void MeasureInputModeButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if ((!NoneInputModeButton.IsChecked.HasValue || !NoneInputModeButton.IsChecked.Value) &&
+                (!DragInputModeButton.IsChecked.HasValue || !DragInputModeButton.IsChecked.Value) &&
+                (!MeasureInputModeButton.IsChecked.HasValue || !MeasureInputModeButton.IsChecked.Value))
+            {
+                _inputMode = InputMode.None;
+                NoneInputModeButton.IsChecked = true;
+            }
         }
     }
 }

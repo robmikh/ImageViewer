@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\Icons\noun_Cursor_4161365.svg" />
+    <Content Include="Assets\Icons\noun_measure_512690.svg" />
     <Content Include="Assets\Icons\noun_Move_140460.svg" />
     <Content Include="Assets\Icons\noun_size_2476868.svg" />
     <Content Include="Assets\Tiles\LargeTile.scale-100.png" />
