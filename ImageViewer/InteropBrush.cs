@@ -9,5 +9,10 @@ namespace ImageViewer
         {
             CompositionBrush = brush;
         }
+
+        public void SetBrush(CompositionBrush brush)
+        {
+            CompositionBrush = brush;
+        }
     }
 }

@@ -15,7 +15,6 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
-using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -85,9 +84,10 @@ namespace ImageViewer
         {
             this.InitializeComponent();
 
-            _canvasDevice = new CanvasDevice();
-            _compositor = Window.Current.Compositor;
-            _compositionGraphics = CanvasComposition.CreateCompositionGraphicsDevice(_compositor, _canvasDevice);
+            var graphicsManager = GraphicsManager.Current;
+            _canvasDevice = graphicsManager.CanvasDevice;
+            _compositor = graphicsManager.Compositor;
+            _compositionGraphics = graphicsManager.CompositionGraphicsDevice;
 
             // Generate the background bitmap
             _backgroundCavnasBrush = CreateBackgroundBrush(_canvasDevice);

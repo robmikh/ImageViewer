@@ -42,11 +42,11 @@
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="NoneInputModeButton" Label="None" Checked="NoneInputModeButton_Checked" Unchecked="NoneInputModeButton_Unchecked" >
-                        <Image Source="Assets/Icons/noun_Cursor_4161365.svg" />
+                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=NoneInputModeButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarToggleButton x:Name="DragInputModeButton" Icon="TouchPointer" Label="Drag" Checked="DragButton_Checked" Unchecked="DragButton_Unchecked" IsChecked="True"  />
                     <AppBarToggleButton x:Name="MeasureInputModeButton" Label="Measure" Checked="MeasureInputModeButton_Checked" Unchecked="MeasureInputModeButton_Unchecked" >
-                        <Image Source="Assets/Icons/noun_measure_512690.svg" />
+                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_measure_512690.svg" Invert="{Binding IsChecked, ElementName=MeasureInputModeButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="CompactOverlayButton" Icon="Pictures" Label="Compact Overlay" Visibility="Collapsed" Checked="CompactOverlayButton_Checked" Unchecked="CompactOverlayButton_Unchecked" />
@@ -97,7 +97,7 @@
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="CaptureMenu" Header="Screen Capture" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton x:Name="ShowCursorButton" Label="Show Cursor" IsEnabled="True" Checked="ShowCursorButton_Checked" Unchecked="ShowCursorButton_Unchecked" >
-                        <Image Source="Assets/Icons/noun_Cursor_4161365.svg" />
+                        <local:InvertableImage Width="50" Height="50" SourcePath="Assets/Icons/noun_Cursor_4161365.svg" Invert="{Binding IsChecked, ElementName=ShowCursorButton, Mode=OneWay}" />
                     </AppBarToggleButton>
                     <AppBarToggleButton x:Name="PlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="PlayPauseButton_Checked" Unchecked="PlayPauseButton_Unchecked" />
                 </controls:TabbedCommandBarItem>

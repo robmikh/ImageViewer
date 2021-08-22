@@ -142,9 +142,13 @@
       <DependentUpon>FileSelectionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="FloatToPercentageConverter.cs" />
+    <Compile Include="GraphicsManager.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="ImageDiffer.cs" />
     <Compile Include="InteropBrush.cs" />
+    <Compile Include="InvertableImage.xaml.cs">
+      <DependentUpon>InvertableImage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -232,6 +236,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="FileSelectionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InvertableImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
