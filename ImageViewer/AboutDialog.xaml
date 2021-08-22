@@ -22,5 +22,6 @@
         <TextBlock Text="3rd party attribution" Style="{StaticResource SubtitleTextBlockStyle}" />
         <TextBlock Text="Move by Joseph Augustine from the Noun Project" />
         <TextBlock Text="size by nico bayu saputro from the Noun Project" />
+        <TextBlock Text="Cursor by Sudarto Wasmad from the Noun Project" />
     </StackPanel>
 </ContentDialog>

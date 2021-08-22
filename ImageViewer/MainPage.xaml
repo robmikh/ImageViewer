@@ -59,7 +59,9 @@
                     </AppBarElementContainer>
                 </controls:TabbedCommandBarItem>
                 <controls:TabbedCommandBarItem x:Name="CaptureMenu" Header="Screen Capture" IsContextual="True" Visibility="Collapsed">
-                    <AppBarToggleButton x:Name="ShowCursorButton" Icon="TouchPointer" Label="Show Cursor" IsEnabled="True" Checked="ShowCursorButton_Checked" Unchecked="ShowCursorButton_Unchecked" />
+                    <AppBarToggleButton x:Name="ShowCursorButton" Label="Show Cursor" IsEnabled="True" Checked="ShowCursorButton_Checked" Unchecked="ShowCursorButton_Unchecked" >
+                        <Image Source="Assets/Icons/noun_Cursor_4161365.svg" />
+                    </AppBarToggleButton>
                     <AppBarToggleButton x:Name="PlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="PlayPauseButton_Checked" Unchecked="PlayPauseButton_Unchecked" />
                 </controls:TabbedCommandBarItem>
             </controls:TabbedCommandBar.MenuItems>
