@@ -380,14 +380,41 @@ namespace ImageViewer
                 var width = (int)size.Width;
                 var height = (int)size.Height;
                 var gridMultiplier = 10;
-                var gridLinesSurface = _compositionGraphics.CreateDrawingSurface2(
-                    new SizeInt32() { Width = width * gridMultiplier, Height = height * gridMultiplier },
+                var surfaceWidth = width * gridMultiplier;
+                var surfaceHeight = height * gridMultiplier;
+                var gridLinesSurface = _compositionGraphics.CreateVirtualDrawingSurface(
+                    new SizeInt32() { Width = surfaceWidth, Height = surfaceHeight },
                     DirectXPixelFormat.B8G8R8A8UIntNormalized,
                     DirectXAlphaMode.Premultiplied);
-                using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface))
+                // TODO: Proper support for large virtual surfaces.
+                // For now we are going to split very large sizes into 4 on each side.
+                // We're picking 4000 arbitrarily here.
+                if (surfaceWidth > 4000 || surfaceHeight > 4000)
                 {
-                    drawingSession.Clear(Colors.Transparent);
-                    drawingSession.FillRectangle(0, 0, size.Width * gridMultiplier, size.Height * gridMultiplier, _gridLinesCavnasBrush);
+                    var tileWidth = surfaceWidth / 4.0;
+                    var tileHeight = surfaceHeight / 4.0;
+                    for (var i = 0; i < 4; i++)
+                    {
+                        var tileLeft = i * tileWidth;
+                        for (var j = 0; j < 4; j++)
+                        {
+                            var tileTop = j * tileHeight;
+                            var updateRect = new Rect(tileLeft, tileTop, tileWidth, tileHeight);
+                            using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface, updateRect))
+                            {
+                                drawingSession.Clear(Colors.Transparent);
+                                drawingSession.FillRectangle(0, 0, (float)tileWidth, (float)tileHeight, _gridLinesCavnasBrush);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface))
+                    {
+                        drawingSession.Clear(Colors.Transparent);
+                        drawingSession.FillRectangle(0, 0, size.Width * gridMultiplier, size.Height * gridMultiplier, _gridLinesCavnasBrush);
+                    }
                 }
 
                 _gridLinesBrush.Surface = gridLinesSurface;
