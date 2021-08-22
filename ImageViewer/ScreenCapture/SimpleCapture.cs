@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas;
+﻿using ImageViewer.System;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Numerics;
@@ -11,7 +12,7 @@ using Windows.Graphics.DirectX;
 using Windows.UI;
 using Windows.UI.Composition;
 
-namespace ImageViewer
+namespace ImageViewer.ScreenCapture
 {
     class SimpleCapture : IDisposable
     {

@@ -1,7 +1,7 @@
 ﻿using Windows.Foundation;
 using Windows.UI.Xaml;
 
-namespace ImageViewer
+namespace ImageViewer.System
 {
     class ThemeChangedEventArgs
     {

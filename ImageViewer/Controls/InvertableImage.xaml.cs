@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas.Effects;
+﻿using ImageViewer.System;
+using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.Svg;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;

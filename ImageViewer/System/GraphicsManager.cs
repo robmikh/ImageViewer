@@ -3,7 +3,7 @@ using Microsoft.Graphics.Canvas.UI.Composition;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
 
-namespace ImageViewer
+namespace ImageViewer.System
 {
     // TODO: Handle device lost
     class GraphicsManager

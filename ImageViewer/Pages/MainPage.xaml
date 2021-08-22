@@ -1,5 +1,5 @@
-﻿<Page x:Name="page"
-    x:Class="ImageViewer.MainPage"
+﻿<Page x:Name="CurrentPage"
+    x:Class="ImageViewer.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ImageViewer"
@@ -40,7 +40,7 @@
                     <AppBarSeparator />
                     <AppBarToggleButton Icon="ViewAll" Label="Show Grid" Checked="GridLinesButton_Checked" Unchecked="GridLinesButton_Unchecked" IsChecked="False" />
                     <AppBarElementContainer>
-                        <wctc:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=page, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=CurrentPage, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="NoneInputModeButton" Label="None" Checked="NoneInputModeButton_Checked" Unchecked="NoneInputModeButton_Unchecked" >

@@ -1,4 +1,6 @@
-﻿using Microsoft.Graphics.Canvas;
+﻿using ImageViewer.Dialogs;
+using ImageViewer.System;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Brushes;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using Microsoft.Toolkit.Uwp.UI.Controls;
@@ -8,7 +10,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Input;
 using Windows.Foundation;
-using Windows.Foundation.Metadata;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -23,7 +24,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 
-namespace ImageViewer
+namespace ImageViewer.Pages
 {
     public sealed partial class MainPage : Page
     {

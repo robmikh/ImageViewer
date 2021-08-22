@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas;
+﻿using ImageViewer.Dialogs;
+using Microsoft.Graphics.Canvas;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

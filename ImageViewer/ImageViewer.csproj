@@ -124,18 +124,18 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AboutDialog.xaml.cs">
+    <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BinaryDetailsInputDialog.xaml.cs">
+    <Compile Include="Dialogs\BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Capabilities.cs" />
-    <Compile Include="CaptureSnapshot.cs" />
-    <Compile Include="DiffSetupPage.xaml.cs">
+    <Compile Include="System\Capabilities.cs" />
+    <Compile Include="ScreenCapture\CaptureSnapshot.cs" />
+    <Compile Include="Pages\DiffSetupPage.xaml.cs">
       <DependentUpon>DiffSetupPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="FileImporter.cs" />
@@ -143,19 +143,19 @@
       <DependentUpon>FileSelectionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\FloatToPercentageConverter.cs" />
-    <Compile Include="GraphicsManager.cs" />
+    <Compile Include="System\GraphicsManager.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="ImageDiffer.cs" />
     <Compile Include="InteropBrush.cs" />
     <Compile Include="Controls\InvertableImage.xaml.cs">
       <DependentUpon>InvertableImage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleCapture.cs" />
-    <Compile Include="ThemeHelper.cs" />
+    <Compile Include="ScreenCapture\SimpleCapture.cs" />
+    <Compile Include="System\ThemeHelper.cs" />
     <Compile Include="TiledBrushRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -225,15 +225,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="AboutDialog.xaml">
+    <Page Include="Dialogs\AboutDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BinaryDetailsInputDialog.xaml">
+    <Page Include="Dialogs\BinaryDetailsInputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="DiffSetupPage.xaml">
+    <Page Include="Pages\DiffSetupPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -245,7 +245,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainPage.xaml">
+    <Page Include="Pages\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -274,6 +274,7 @@
   <ItemGroup>
     <None Include="ImageViewer_TemporaryKey.pfx" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -2,7 +2,7 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace ImageViewer
+namespace ImageViewer.Pages
 {
     public class DiffSetupResult
     {

@@ -6,7 +6,7 @@ using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
 using Windows.UI;
 
-namespace ImageViewer
+namespace ImageViewer.ScreenCapture
 {
     static class CaptureSnapshot
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageViewer.Pages;
+using System;
 using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;

@@ -1,6 +1,6 @@
 ﻿using Windows.UI.Xaml.Controls;
 
-namespace ImageViewer
+namespace ImageViewer.Dialogs
 {
     public sealed partial class AboutDialog : ContentDialog
     {

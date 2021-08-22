@@ -1,7 +1,7 @@
 ﻿using Windows.Foundation.Metadata;
 using Windows.Graphics.Capture;
 
-namespace ImageViewer
+namespace ImageViewer.System
 {
     static class Capabilities
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas;
+﻿using ImageViewer.ScreenCapture;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Threading.Tasks;
