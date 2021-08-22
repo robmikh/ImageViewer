@@ -129,13 +129,16 @@ namespace ImageViewer
             }
         }
 
-        private void OpenImage(IImage image, ViewMode viewMode, bool resetScrollViewer = true)
+        private void OpenImage(IImage image, ViewMode viewMode, bool resetImage = true)
         {
             var size = image.Size;
             ImageGrid.Width = size.Width;
             ImageGrid.Height = size.Height;
 
-            _currentImage?.Dispose();
+            if (resetImage)
+            {
+                _currentImage?.Dispose();
+            }
             _currentImage = image;
 
             GenerateBackground();
@@ -151,7 +154,7 @@ namespace ImageViewer
                 MeasureRectangle.Height = 0;
             }
 
-            if (resetScrollViewer)
+            if (resetImage)
             {
                 ImageScrollViewer.ChangeView(0, 0, 1, true);
             }
