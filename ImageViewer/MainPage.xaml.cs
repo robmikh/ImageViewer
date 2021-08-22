@@ -33,6 +33,7 @@ namespace ImageViewer
 
         private Point _lastPosition;
         private bool _borderEnabled = true;
+        private bool _gridLinesEnabled = false;
         private CanvasBitmap _currentBitmap;
 
         private CompositionSurfaceBrush _backgroundBrush;
@@ -143,6 +144,10 @@ namespace ImageViewer
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
             SaveAsButton.IsEnabled = true;
+            if (_gridLinesEnabled)
+            {
+                GenerateGridLines();
+            }
         }
 
         private async Task SaveToFileAsync(StorageFile file)
@@ -378,24 +383,42 @@ namespace ImageViewer
                     new SizeInt32() { Width = surfaceWidth, Height = surfaceHeight },
                     DirectXPixelFormat.B8G8R8A8UIntNormalized,
                     DirectXAlphaMode.Premultiplied);
-                // TODO: Proper support for large virtual surfaces.
-                // For now we are going to split very large sizes into 4 on each side.
                 // We're picking 4000 arbitrarily here.
-                if (surfaceWidth > 4000 || surfaceHeight > 4000)
+                var tileWidth = 4000;
+                var tileHeight = 4000;
+                if (surfaceWidth > tileWidth || surfaceHeight > tileHeight)
                 {
-                    var tileWidth = surfaceWidth / 4.0;
-                    var tileHeight = surfaceHeight / 4.0;
-                    for (var i = 0; i < 4; i++)
+                    var widthInTiles = surfaceWidth / tileWidth;
+                    if (surfaceWidth % tileWidth > 0)
+                    {
+                        widthInTiles += 1;
+                    }
+                    var heightInTiles = surfaceHeight / tileHeight;
+                    if (surfaceHeight % tileHeight > 0)
+                    {
+                        heightInTiles += 1;
+                    }
+                    for (var i = 0; i < widthInTiles; i++)
                     {
                         var tileLeft = i * tileWidth;
-                        for (var j = 0; j < 4; j++)
+                        for (var j = 0; j < heightInTiles; j++)
                         {
                             var tileTop = j * tileHeight;
-                            var updateRect = new Rect(tileLeft, tileTop, tileWidth, tileHeight);
+                            var currentTileWidth = tileWidth;
+                            if (tileLeft + tileWidth > surfaceWidth)
+                            {
+                                currentTileWidth = surfaceWidth - tileLeft;
+                            }
+                            var currentTileHeight = tileHeight;
+                            if (tileTop + tileHeight > surfaceHeight)
+                            {
+                                currentTileHeight = surfaceHeight - tileTop;
+                            }
+                            var updateRect = new Rect(tileLeft, tileTop, currentTileWidth, currentTileHeight);
                             using (var drawingSession = CanvasComposition.CreateDrawingSession(gridLinesSurface, updateRect))
                             {
                                 drawingSession.Clear(Colors.Transparent);
-                                drawingSession.FillRectangle(0, 0, (float)tileWidth, (float)tileHeight, _gridLinesCavnasBrush);
+                                drawingSession.FillRectangle(0, 0, (float)currentTileWidth, (float)currentTileHeight, _gridLinesCavnasBrush);
                             }
                         }
                     }
@@ -415,12 +438,14 @@ namespace ImageViewer
 
         private void GridLinesButton_Checked(object sender, RoutedEventArgs e)
         {
+            _gridLinesEnabled = true;
             GenerateGridLines();
             GridLinesRectangle.Visibility = Visibility.Visible;
         }
 
         private void GridLinesButton_Unchecked(object sender, RoutedEventArgs e)
         {
+            _gridLinesEnabled = false;
             _gridLinesBrush.Surface = null;
             GridLinesRectangle.Visibility = Visibility.Collapsed;
         }
