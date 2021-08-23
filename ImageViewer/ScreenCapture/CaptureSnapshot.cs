@@ -23,8 +23,8 @@ namespace ImageViewer.ScreenCapture
             var completionSource = new TaskCompletionSource<Direct3D11Texture2D>();
             framePool.FrameArrived += (s, a) =>
             {
-                using (var lockSession = device.Multithread.Lock())
                 using (var frame = s.TryGetNextFrame())
+                using (var lockSession = device.Multithread.Lock())
                 {
                     var frameTexture = Direct3D11Texture2D.CreateFromDirect3DSurface(frame.Surface);
                     var description = frameTexture.Description2D;
