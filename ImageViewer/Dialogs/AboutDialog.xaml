@@ -15,11 +15,13 @@
             <Paragraph>ImageViewer is an image viewing and diffing tool.</Paragraph>
         </RichTextBlock>
 
+        <TextBlock x:Name="VersionTextBlock" Margin="0, 5, 0, 5" />
+
         <HyperlinkButton NavigateUri="https://github.com/robmikh/ImageViewer">
             GitHub
         </HyperlinkButton>
 
-        <TextBlock Text="3rd party attribution" Style="{StaticResource SubtitleTextBlockStyle}" />
+        <TextBlock Text="3rd party attribution" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0, 0, 0, 5" />
         <TextBlock Text="Move by Joseph Augustine from the Noun Project" />
         <TextBlock Text="size by nico bayu saputro from the Noun Project" />
         <TextBlock Text="Cursor by Sudarto Wasmad from the Noun Project" />

@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using Windows.ApplicationModel;
+using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer.Dialogs
 {
@@ -7,6 +8,9 @@ namespace ImageViewer.Dialogs
         public AboutDialog()
         {
             this.InitializeComponent();
+
+            var version = Package.Current.Id.Version;
+            VersionTextBlock.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
         }
     }
 }
