@@ -10,15 +10,15 @@
   IgnorableNamespaces="uap mp uap6 uap11 desktop4">
 
   <Identity
-    Name="9efc3c67-c8c1-47f8-8b44-91881fd2bdeb"
-    Publisher="CN=robmi"
-    Version="1.0.10.0" />
+    Name="19348RobertMikhayelyanApp.RobmikhImageViewer"
+    Publisher="CN=8F43D630-18C6-4037-AB42-E933EF41D095"
+    Version="1.0.13.0" />
 
-  <mp:PhoneIdentity PhoneProductId="9efc3c67-c8c1-47f8-8b44-91881fd2bdeb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="20c2f337-6675-44b9-84e6-b14155977cf9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>ImageViewer</DisplayName>
-    <PublisherDisplayName>robmi</PublisherDisplayName>
+    <DisplayName>Robmikh ImageViewer</DisplayName>
+    <PublisherDisplayName>Robert Mikhayelyan Apps</PublisherDisplayName>
     <Logo>Assets\Tiles\StoreLogo.png</Logo>
   </Properties>
 
@@ -39,8 +39,7 @@
         DisplayName="ImageViewer"
         Square150x150Logo="Assets\Tiles\Square150x150Logo.png"
         Square44x44Logo="Assets\Tiles\Square44x44Logo.png"
-        Description="ImageViewer"
-        BackgroundColor="transparent">
+        BackgroundColor="transparent" Description="ImageViewer is an image viewing and diffing tool.">
         <uap:DefaultTile Wide310x150Logo="Assets\Tiles\Wide310x150Logo.png" Square71x71Logo="Assets\Tiles\SmallTile.png" Square310x310Logo="Assets\Tiles\LargeTile.png" ShortName="ImageViewer">
           <uap:ShowNameOnTiles>
             <uap:ShowOn Tile="square150x150Logo"/>
