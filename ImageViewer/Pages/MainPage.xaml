@@ -33,14 +33,14 @@
                     <AppBarButton x:Name="SaveAsButton" Icon="SaveLocal" Label="Save As" Click="SaveAsButton_Click" IsEnabled="False" />
                 </wctc:TabbedCommandBarItem>
                 <wctc:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
-                    <AppBarToggleButton Icon="Stop" Label="Show Border" Checked="BorderButton_Checked" Unchecked="BorderButton_Unchecked" IsChecked="True" />
+                    <AppBarToggleButton Icon="Stop" Label="Show Border" IsChecked="{Binding IsBorderVisible, ElementName=MainImageViewer, Mode=TwoWay}" />
                     <AppBarElementContainer>
-                        <wctc:ColorPickerButton SelectedColor="{Binding Color, ElementName=ImageBorderBrush, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding BorderColor, ElementName=MainImageViewer, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
-                    <AppBarToggleButton Icon="ViewAll" Label="Show Grid" Checked="GridLinesButton_Checked" Unchecked="GridLinesButton_Unchecked" IsChecked="False" />
+                    <AppBarToggleButton Icon="ViewAll" Label="Show Grid" IsChecked="{Binding AreGridLinesVisible, ElementName=MainImageViewer, Mode=TwoWay}" />
                     <AppBarElementContainer>
-                        <wctc:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=CurrentPage, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding GridLinesColor, ElementName=MainImageViewer, Mode=TwoWay}" />
                     </AppBarElementContainer>
                     <AppBarSeparator />
                     <AppBarToggleButton x:Name="NoneInputModeButton" Label="None" Checked="NoneInputModeButton_Checked" Unchecked="NoneInputModeButton_Unchecked" >
@@ -57,29 +57,29 @@
                     <AppBarElementContainer>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="X" Style="{StaticResource MenuControlHeader}" />
-                            <muxc:NumberBox Value="{Binding X, ElementName=MeasureRectangleTranslation, Mode=TwoWay}" />
+                            <muxc:NumberBox Value="{Binding MeasurePositionX, ElementName=MainImageViewer, Mode=TwoWay}" />
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarElementContainer>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Y" Style="{StaticResource MenuControlHeader}" />
-                            <muxc:NumberBox Value="{Binding Y, ElementName=MeasureRectangleTranslation, Mode=TwoWay}" />
+                            <muxc:NumberBox Value="{Binding MeasurePositionY, ElementName=MainImageViewer, Mode=TwoWay}" />
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarElementContainer>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Width" Style="{StaticResource MenuControlHeader}" />
-                            <muxc:NumberBox Value="{Binding Width, ElementName=MeasureRectangle, Mode=TwoWay}" />
+                            <muxc:NumberBox Value="{Binding MeasureWidth, ElementName=MainImageViewer, Mode=TwoWay}" />
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarElementContainer>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Height" Style="{StaticResource MenuControlHeader}" />
-                            <muxc:NumberBox Value="{Binding Height, ElementName=MeasureRectangle, Mode=TwoWay}" />
+                            <muxc:NumberBox Value="{Binding MeasureHeight, ElementName=MainImageViewer, Mode=TwoWay}" />
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarElementContainer>
-                        <wctc:ColorPickerButton SelectedColor="{Binding Color, ElementName=MeasureRectangleStrokeBrush, Mode=TwoWay}" />
+                        <wctc:ColorPickerButton SelectedColor="{Binding MeasureColor, ElementName=MainImageViewer, Mode=TwoWay}" />
                     </AppBarElementContainer>
                 </wctc:TabbedCommandBarItem>
                 <wctc:TabbedCommandBarItem x:Name="DiffMenu" Header="Diff" IsContextual="True" Visibility="Collapsed">
@@ -107,38 +107,7 @@
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>
 
-        <Grid x:Name="ImageScrollViewerContainer" Grid.Row="1">
-            <ScrollViewer x:Name="ImageScrollViewer"
-            ZoomMode="Enabled"
-            HorizontalScrollMode="Enabled"
-            VerticalScrollMode="Enabled"
-            HorizontalScrollBarVisibility="Visible" 
-            VerticalScrollBarVisibility="Visible"
-            PointerPressed="ScrollViewer_PointerPressed"
-            PointerMoved="ScrollViewer_PointerMoved" MaxZoomFactor="20">
-                <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border x:Name="ImageBorder" BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border.BorderBrush>
-                            <SolidColorBrush x:Name="ImageBorderBrush" Color="Black" />
-                        </Border.BorderBrush>
-                        <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
-                            <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
-                                <Rectangle x:Name="MeasureRectangle" StrokeThickness="1" Width="0" Height="0">
-                                    <Rectangle.Stroke>
-                                        <SolidColorBrush x:Name="MeasureRectangleStrokeBrush" Color="Red" />
-                                    </Rectangle.Stroke>
-                                    <Rectangle.RenderTransform>
-                                        <TranslateTransform x:Name="MeasureRectangleTranslation" X="0" Y="0" />
-                                    </Rectangle.RenderTransform>
-                                </Rectangle>
-                            </Canvas>
-                            <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
-                        </Grid>
-                    </Border>
-                </Border>
-            </ScrollViewer>
-        </Grid>
+        <controls:ImageViewer x:Name="MainImageViewer" Grid.Row="1" />
 
         <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}">
             <Grid.ColumnDefinitions>
@@ -151,7 +120,7 @@
 
             <StackPanel Orientation="Horizontal" Grid.Column="0">
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_Move_140460.svg" Style="{StaticResource BottomBarInvertableImage}" />
-                <TextBlock x:Name="PositionTextBlock" Grid.Column="0" VerticalAlignment="Center" d:Text="186, 50px" />
+                <TextBlock x:Name="PositionTextBlock" VerticalAlignment="Center" d:Text="186, 50px" Text="{Binding CursorPosition, ElementName=MainImageViewer, Mode=OneWay, Converter={StaticResource NullablePositionToStringConverter}}" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Grid.Column="1">
@@ -161,7 +130,12 @@
 
             <StackPanel Orientation="Horizontal" Grid.Column="2">
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_measure_512690.svg" Style="{StaticResource BottomBarInvertableImage}" />
-                <TextBlock x:Name="MeasureSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
+                <StackPanel x:Name="MeasureSizeTextBlocks" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                    <TextBlock VerticalAlignment="Center" d:Text="300" Text="{Binding MeasureWidth, ElementName=MainImageViewer, Mode=OneWay}" />
+                    <TextBlock VerticalAlignment="Center" Text="x " />
+                    <TextBlock VerticalAlignment="Center" d:Text="300" Text="{Binding MeasureHeight, ElementName=MainImageViewer, Mode=OneWay}" />
+                    <TextBlock VerticalAlignment="Center" Text="px" />
+                </StackPanel>
             </StackPanel>
 
             <Grid Grid.Column="4">
@@ -169,8 +143,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding ZoomFactor, ElementName=ImageScrollViewer, Mode=OneWay, Converter={StaticResource FloatToPercentageConverter}}" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 5, 0" />
-                <Slider x:Name="ZoomSlider" Grid.Column="1" Value="{Binding ZoomFactor, ElementName=ImageScrollViewer, Mode=TwoWay}" Minimum="{Binding MinZoomFactor, ElementName=ImageScrollViewer}" Maximum="{Binding MaxZoomFactor, ElementName=ImageScrollViewer}" StepFrequency="0.1" Margin="5, 0, 5, 0" IsEnabled="False" />
+                <TextBlock Text="{Binding ScrollViewer.ZoomFactor, ElementName=MainImageViewer, Mode=OneWay, Converter={StaticResource FloatToPercentageConverter}}" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 5, 0" />
+                <Slider x:Name="ZoomSlider" Grid.Column="1" Value="{Binding ScrollViewer.ZoomFactor, ElementName=MainImageViewer, Mode=TwoWay}" Minimum="{Binding ScrollViewer.MinZoomFactor, ElementName=MainImageViewer}" Maximum="{Binding ScrollViewer.MaxZoomFactor, ElementName=MainImageViewer}" StepFrequency="0.1" Margin="5, 0, 5, 0" IsEnabled="False" />
             </Grid>
         </Grid>
     </Grid>

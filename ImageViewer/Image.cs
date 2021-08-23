@@ -12,7 +12,7 @@ using Windows.UI.Composition;
 
 namespace ImageViewer
 {
-    interface IImage : IDisposable
+    public interface IImage : IDisposable
     {
         BitmapSize Size { get; }
         CanvasBitmap GetSnapshot();

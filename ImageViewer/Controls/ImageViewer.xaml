@@ -1,0 +1,46 @@
+﻿<UserControl
+    x:Name="CurrentControl"
+    x:Class="ImageViewer.Controls.ImageViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ImageViewer.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid x:Name="ImageScrollViewerContainer" >
+        <ScrollViewer x:Name="ImageScrollViewer"
+            ZoomMode="Enabled"
+            HorizontalScrollMode="Enabled"
+            VerticalScrollMode="Enabled"
+            HorizontalScrollBarVisibility="Visible" 
+            VerticalScrollBarVisibility="Visible"
+            PointerPressed="ScrollViewer_PointerPressed"
+            PointerMoved="ScrollViewer_PointerMoved"
+            MaxZoomFactor="20">
+            <Border BorderThickness="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border x:Name="ImageBorder" BorderThickness="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border.BorderBrush>
+                        <SolidColorBrush x:Name="ImageBorderBrush" Color="{Binding BorderColor, ElementName=CurrentControl, Mode=OneWay}" />
+                    </Border.BorderBrush>
+                    <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
+                        <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
+                            <Rectangle x:Name="MeasureRectangle" StrokeThickness="1" Width="{Binding MeasureWidth, ElementName=CurrentControl, Mode=OneWay}" Height="{Binding MeasureHeight, ElementName=CurrentControl, Mode=OneWay}">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush x:Name="MeasureRectangleStrokeBrush" Color="{Binding MeasureColor, ElementName=CurrentControl, Mode=OneWay}" />
+                                </Rectangle.Stroke>
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform X="{Binding MeasurePositionX, ElementName=CurrentControl, Mode=OneWay}" Y="{Binding MeasurePositionY, ElementName=CurrentControl, Mode=OneWay}" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                        </Canvas>
+                        <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
+                    </Grid>
+                </Border>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

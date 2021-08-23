@@ -124,6 +124,11 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Controls\ImageViewer.xaml.cs">
+      <DependentUpon>ImageViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\NullableMeasureSizeToStringConverter.cs" />
+    <Compile Include="Converters\NullablePositionToStringConverter.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>
@@ -225,6 +230,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Controls\ImageViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\AboutDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

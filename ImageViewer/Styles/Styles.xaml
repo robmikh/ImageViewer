@@ -6,6 +6,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <converters:FloatToPercentageConverter x:Key="FloatToPercentageConverter" />
+    <converters:NullablePositionToStringConverter x:Key="NullablePositionToStringConverter" />
+    <converters:NullableMeasureSizeToStringConverter x:Key="NullableMeasureSizeToStringConverter" />
     <Style x:Key="ReadOnlyFriendlyCheckBox" TargetType="CheckBox">
         <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
         <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>
