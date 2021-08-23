@@ -1,16 +1,16 @@
-﻿using Microsoft.Graphics.Canvas;
-using System.Threading;
+﻿using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
+using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
-using Windows.UI;
+using WinRTInteropTools;
 
 namespace ImageViewer.ScreenCapture
 {
     static class CaptureSnapshot
     {
-        public static CanvasBitmap Take(GraphicsCaptureItem item, BitmapSize bitmapSize, CanvasDevice device)
+        public static async Task<Direct3D11Texture2D> TakeAsync(GraphicsCaptureItem item, BitmapSize bitmapSize, Direct3D11Device device)
         {
             var size = new SizeInt32();
             size.Width = (int)bitmapSize.Width;
@@ -20,30 +20,32 @@ namespace ImageViewer.ScreenCapture
                 device, DirectXPixelFormat.B8G8R8A8UIntNormalized, 1, size);
             var session = framePool.CreateCaptureSession(item);
 
-            CanvasRenderTarget renderTarget = null;
-            var captureEvent = new ManualResetEvent(false);
+            var completionSource = new TaskCompletionSource<Direct3D11Texture2D>();
             framePool.FrameArrived += (s, a) =>
             {
-                var frame = s.TryGetNextFrame();
-                // TODO: Dpi?
-                renderTarget = new CanvasRenderTarget(device, size.Width, size.Height, 96.0f); 
-                using (var bitmap = CanvasBitmap.CreateFromDirect3D11Surface(device, frame.Surface, 96.0f))
-                using (var drawingSession = renderTarget.CreateDrawingSession())
+                using (var lockSession = device.Multithread.Lock())
+                using (var frame = s.TryGetNextFrame())
                 {
-                    drawingSession.Clear(Colors.Transparent);
-                    drawingSession.DrawImage(bitmap);
+                    var frameTexture = Direct3D11Texture2D.CreateFromDirect3DSurface(frame.Surface);
+                    var description = frameTexture.Description2D;
+                    description.Usage = Direct3DUsage.Staging;
+                    description.BindFlags = 0;
+                    description.CpuAccessFlags = Direct3D11CpuAccessFlag.AccessRead;
+                    description.MiscFlags = 0;
+                    var copyTexture = device.CreateTexture2D(description);
+
+                    device.ImmediateContext.CopyResource(copyTexture, frameTexture);
+
+                    s.Dispose();
+                    framePool.Dispose();
+
+                    completionSource.SetResult(copyTexture);
                 }
-
-                captureEvent.Set();
-
-                session.Dispose();
-                s.Dispose();
             };
 
             session.StartCapture();
-            captureEvent.WaitOne();
-
-            return renderTarget;
+            var texture = await completionSource.Task;
+            return texture;
         }
     }
 }

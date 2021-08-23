@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
-using Windows.UI;
 using Windows.UI.Composition;
 using WinRTInteropTools;
 
@@ -91,6 +90,7 @@ namespace ImageViewer.ScreenCapture
             {
                 var contentSize = frame.ContentSize;
 
+                using (var lockSession = _device.Multithread.Lock())
                 using (var sourceTexture = Direct3D11Texture2D.CreateFromDirect3DSurface(frame.Surface))
                 using (var backBuffer = _swapChain.GetBuffer(0))
                 using (var renderTargetView = _device.CreateRenderTargetView(backBuffer))

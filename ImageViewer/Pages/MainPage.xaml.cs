@@ -132,10 +132,9 @@ namespace ImageViewer.Pages
         {
             if (MainImageViewer.Image != null)
             {
-                var bitmap = MainImageViewer.Image.GetSnapshot();
                 using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                    await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream);
                 }
             }
         }
@@ -220,9 +219,7 @@ namespace ImageViewer.Pages
             var item = await picker.PickSingleItemAsync();
             if (item != null)
             {
-                // Use a seperate device so we don't have to deal
-                // with synchronization with D2D
-                OpenImage(new CaptureImage(item, new Direct3D11Device()), ViewMode.Capture);
+                OpenImage(new CaptureImage(item, GraphicsManager.Current.CaptureDevice), ViewMode.Capture);
                 _currentFile = null;
             }
         }

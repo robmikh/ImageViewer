@@ -7,6 +7,7 @@ using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Composition;
 using WinRTInteropTools;
@@ -16,7 +17,8 @@ namespace ImageViewer
     public interface IImage : IDisposable
     {
         BitmapSize Size { get; }
-        CanvasBitmap GetSnapshot();
+        // TODO: Format?
+        Task SaveSnapshotToStreamAsync(IRandomAccessStream stream);
         ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics);
     }
 
@@ -31,9 +33,9 @@ namespace ImageViewer
             Bitmap = bitmap;
         }
 
-        public CanvasBitmap GetSnapshot()
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
         {
-            return Bitmap;
+            await Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
@@ -112,9 +114,10 @@ namespace ImageViewer
             return _surface;
         }
 
-        public CanvasBitmap GetSnapshot()
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
         {
-            return GetBitmapForViewMode(_viewMode);
+            var bitmap = GetBitmapForViewMode(_viewMode);
+            await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
         }
 
         public void Dispose()
@@ -137,7 +140,6 @@ namespace ImageViewer
         }
     }
 
-    // TODO: Don't use Win2D for Capture
     class CaptureImage : IImage
     {
         private Direct3D11Device _device;
@@ -162,12 +164,21 @@ namespace ImageViewer
             _capture.StartCapture();
         }
 
-        public CanvasBitmap GetSnapshot()
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
         {
-            // TODO: Make async?
-            // Use a seperate device so we don't have to deal
-            // with synchronization with D2D
-            return CaptureSnapshot.Take(Item, Size, new CanvasDevice());
+            var texture = await CaptureSnapshot.TakeAsync(Item, Size, _device);
+            var bytes = texture.GetBytes();
+
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            encoder.SetPixelData(
+                BitmapPixelFormat.Bgra8,
+                BitmapAlphaMode.Premultiplied,
+                Size.Width,
+                Size.Height,
+                1.0,
+                1.0,
+                bytes);
+            await encoder.FlushAsync();
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)

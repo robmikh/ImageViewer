@@ -2,6 +2,7 @@
 using Microsoft.Graphics.Canvas.UI.Composition;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
+using WinRTInteropTools;
 
 namespace ImageViewer.System
 {
@@ -21,6 +22,8 @@ namespace ImageViewer.System
             }
         }
 
+        private Direct3D11Device _captureDevice = null;
+
         private GraphicsManager(Compositor compositor, CanvasDevice canvasDevice)
         {
             Compositor = compositor;
@@ -31,5 +34,16 @@ namespace ImageViewer.System
         public Compositor Compositor { get; }
         public CanvasDevice CanvasDevice { get; }
         public CompositionGraphicsDevice CompositionGraphicsDevice { get; }
+        public Direct3D11Device CaptureDevice
+        {
+            get
+            {
+                if (_captureDevice == null)
+                {
+                    _captureDevice = new Direct3D11Device();
+                }
+                return _captureDevice;
+            }
+        }
     }
 }
