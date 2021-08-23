@@ -58,6 +58,84 @@ namespace ImageViewer
         }
     }
 
+    public enum DiffViewMode
+    {
+        Color,
+        Alpha
+    }
+
+    class DiffImage : IImage
+    {
+        private DiffViewMode _viewMode = DiffViewMode.Color;
+        private CompositionDrawingSurface _surface;
+
+        public DiffResult Diff { get; }
+        public DiffViewMode ViewMode
+        {
+            get { return _viewMode; }
+            set
+            {
+                _viewMode = value;
+                UpdateSurface();
+            }
+        }
+        public BitmapSize Size => Diff.ColorDiffBitmap.SizeInPixels;
+
+        public DiffImage(DiffResult diff)
+        {
+            Diff = diff;
+        }
+
+        private void UpdateSurface()
+        {
+            using (var drawingSession = CanvasComposition.CreateDrawingSession(_surface))
+            {
+                drawingSession.Clear(Colors.Transparent);
+                drawingSession.DrawImage(GetBitmapForViewMode(_viewMode));
+            }
+        }
+
+        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
+        {
+            if (_surface == null)
+            {
+                var size = Size;
+                var width = (int)size.Width;
+                var height = (int)size.Height;
+                _surface = graphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = width, Height = height },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                UpdateSurface();
+            }
+            return _surface;
+        }
+
+        public CanvasBitmap GetSnapshot()
+        {
+            return GetBitmapForViewMode(_viewMode);
+        }
+
+        public void Dispose()
+        {
+            Diff.ColorDiffBitmap.Dispose();
+            Diff.AlphaDiffBitmap.Dispose();
+        }
+
+        private CanvasBitmap GetBitmapForViewMode(DiffViewMode viewMode)
+        {
+            switch(viewMode)
+            {
+                case DiffViewMode.Color:
+                    return Diff.ColorDiffBitmap;
+                case DiffViewMode.Alpha:
+                    return Diff.AlphaDiffBitmap;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+    }
+
     // TODO: Don't use Win2D for Capture
     class CaptureImage : IImage
     {

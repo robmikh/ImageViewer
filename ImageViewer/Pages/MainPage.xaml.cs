@@ -34,7 +34,6 @@ namespace ImageViewer.Pages
         private CompositionGraphicsDevice _compositionGraphics;
 
         private StorageFile _currentFile;
-        private DiffResult _currentDiff;
 
         enum ViewMode
         {
@@ -77,7 +76,6 @@ namespace ImageViewer.Pages
             {
                 OpenImage(new CanvasBitmapImage(fileBitmap), ViewMode.Image);
                 _currentFile = file.File;
-                _currentDiff = null;
             }
         }
 
@@ -173,28 +171,11 @@ namespace ImageViewer.Pages
             }
         }
 
-        private CanvasBitmap GetDiffBitmapForCurrentChannelView(DiffResult diff)
-        {
-            if (ColorDiffButton.IsChecked.HasValue && ColorDiffButton.IsChecked.Value)
-            {
-                return diff.ColorDiffBitmap;
-            }
-            if (AlphaDiffButton.IsChecked.HasValue && AlphaDiffButton.IsChecked.Value)
-            {
-                return diff.AlphaDiffBitmap;
-            }
-            // If we get here, set the current channel view to color
-            ColorDiffButton.IsChecked = true;
-            return diff.ColorDiffBitmap;
-        }
-
         private async void ContinueImageDiff(DiffSetupResult diffSetup)
         {
             var diff = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
-            var bitmap = GetDiffBitmapForCurrentChannelView(diff);
-            OpenImage(new CanvasBitmapImage(bitmap), ViewMode.Diff);
+            OpenImage(new DiffImage(diff), ViewMode.Diff);
             _currentFile = null;
-            _currentDiff = diff;
             ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
             AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
         }
@@ -207,17 +188,17 @@ namespace ImageViewer.Pages
 
         private void ColorDiffButton_Checked(object sender, RoutedEventArgs e)
         {
-            if (_currentDiff != null)
+            if (MainImageViewer != null && MainImageViewer.Image is DiffImage image)
             {
-                OpenImage(new CanvasBitmapImage(_currentDiff.ColorDiffBitmap), ViewMode.Diff);
+                image.ViewMode = DiffViewMode.Color;
             }
         }
 
         private void AlphaDiffButton_Checked(object sender, RoutedEventArgs e)
         {
-            if (_currentDiff != null)
+            if (MainImageViewer != null && MainImageViewer.Image is DiffImage image)
             {
-                OpenImage(new CanvasBitmapImage(_currentDiff.AlphaDiffBitmap), ViewMode.Diff);
+                image.ViewMode = DiffViewMode.Alpha;
             }
         }
 
@@ -231,7 +212,6 @@ namespace ImageViewer.Pages
                 // with synchronization with D2D
                 OpenImage(new CaptureImage(item, new CanvasDevice()), ViewMode.Capture);
                 _currentFile = null;
-                _currentDiff = null;
             }
         }
 
@@ -373,7 +353,6 @@ namespace ImageViewer.Pages
                     var canvasBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, stream, 96.0f);
                     OpenImage(new CanvasBitmapImage(canvasBitmap), ViewMode.Image);
                     _currentFile = null;
-                    _currentDiff = null;
                 }
             }
         }
