@@ -10,17 +10,31 @@ namespace ImageViewer
 {
     public class DiffResult
     {
-        public CanvasBitmap ColorDiffBitmap { get; }
-        public CanvasBitmap AlphaDiffBitmap { get; }
+        private int _width;
+        private int _height;
+
+        public Color[] ColorDiffPixels { get; }
+        public Color[] AlphaDiffPixels { get; }
+        public CanvasBitmap ColorDiffBitmap { get; private set; }
+        public CanvasBitmap AlphaDiffBitmap { get; private set; }
         public bool ColorChannelsMatch { get; }
         public bool AlphaChannelsMatch { get; }
 
-        public DiffResult(CanvasBitmap colorBitmap, CanvasBitmap alphaBitmap, bool colorsMatch, bool alphasMatch)
+        public DiffResult(CanvasDevice device, Color[] colorPixels, Color[] alphaPixels, int width, int height, bool colorsMatch, bool alphasMatch)
         {
-            ColorDiffBitmap = colorBitmap;
-            AlphaDiffBitmap = alphaBitmap;
+            _width = width;
+            _height = height;
+            ColorDiffPixels = colorPixels;
+            AlphaDiffPixels = alphaPixels;
+            ReplaceDeviceResources(device);
             ColorChannelsMatch = colorsMatch;
             AlphaChannelsMatch = alphasMatch;
+        }
+
+        public void ReplaceDeviceResources(CanvasDevice device)
+        {
+            ColorDiffBitmap = CanvasBitmap.CreateFromColors(device, ColorDiffPixels, _width, _height);
+            AlphaDiffBitmap = CanvasBitmap.CreateFromColors(device, AlphaDiffPixels, _width, _height);
         }
     }
 
@@ -94,9 +108,9 @@ namespace ImageViewer
             }
 
             var size = image1.SizeInPixels;
-            var colorBitmap = CanvasBitmap.CreateFromColors(device, colorDiffPixels.ToArray(), (int)size.Width, (int)size.Height);
-            var alphaBitmap = CanvasBitmap.CreateFromColors(device, alphaDiffPixels.ToArray(), (int)size.Width, (int)size.Height);
-            return new DiffResult(colorBitmap, alphaBitmap, identicalColors, identicalAlpha);
+            var colorDiff = colorDiffPixels.ToArray();
+            var alphaDiff = alphaDiffPixels.ToArray();
+            return new DiffResult(device, colorDiff, alphaDiff, (int)size.Width, (int)size.Height, identicalColors, identicalAlpha);
         }
     }
 }

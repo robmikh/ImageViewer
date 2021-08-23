@@ -121,6 +121,45 @@ namespace ImageViewer.Controls
             ImageRectangle.Fill = new InteropBrush(_imageBrush);
             GridLinesRectangle.Fill = new InteropBrush(_gridLinesBrush);
             ImageBorder.Visibility = Visibility.Collapsed;
+
+            graphicsManager.CompositionGraphicsDevice.RenderingDeviceReplaced += OnRenderingDeviceReplaced;
+            graphicsManager.CaptureDeviceReplaced += OnCaptureDeviceReplaced;
+            Unloaded += OnUnloaded;
+        }
+
+        private void OnCaptureDeviceReplaced(object sender, WinRTInteropTools.Direct3D11Device e)
+        {
+            if (Image != null && Image is CaptureImage captureImage)
+            {
+                captureImage.RegenerateSurface();
+                // TODO: Unfortunately the CaptureImage's regeneration
+                // is destructive to the surface. Get a new one.
+                GenerateImage();
+            }
+        }
+
+        private void OnRenderingDeviceReplaced(CompositionGraphicsDevice sender, RenderingDeviceReplacedEventArgs args)
+        {
+            var graphicsManager = GraphicsManager.Current;
+            _canvasDevice = graphicsManager.CanvasDevice;
+            _backgroundCavnasBrush = CreateBackgroundBrush(_canvasDevice);
+            _gridLinesCavnasBrush = CreateGridLinesBrush(_canvasDevice, GridLinesColor);
+            GenerateBackground();
+            UpdateGridLines();
+            UpdateBorder();
+
+            if (Image != null)
+            {
+                Image.RegenerateSurface();
+            }
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            Unloaded -= OnUnloaded;
+            var graphicsManager = GraphicsManager.Current;
+            graphicsManager.CompositionGraphicsDevice.RenderingDeviceReplaced -= OnRenderingDeviceReplaced;
+            graphicsManager.CaptureDeviceReplaced -= OnCaptureDeviceReplaced;
         }
 
         public ScrollViewer ScrollViewer => ImageScrollViewer;

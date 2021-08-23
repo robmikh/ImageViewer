@@ -12,11 +12,11 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
+using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using WinRTInteropTools;
 
 namespace ImageViewer.Pages
 {
@@ -30,9 +30,6 @@ namespace ImageViewer.Pages
 
     public sealed partial class MainPage : Page
     {
-        private CanvasDevice _canvasDevice;
-        private StorageFile _currentFile;
-
         enum ViewMode
         {
             Image,
@@ -45,9 +42,6 @@ namespace ImageViewer.Pages
         {
             var themeHelper = ThemeHelper.EnsureThemeHelper(this);
             this.InitializeComponent();
-
-            var graphicsManager = GraphicsManager.Current;
-            _canvasDevice = graphicsManager.CanvasDevice;
 
             var settings = ApplicationSettings.GetCachedSettings<Settings>();
             MainImageViewer.IsBorderVisible = settings.ShowImageBorder;
@@ -72,13 +66,8 @@ namespace ImageViewer.Pages
 
         public async Task OpenFileAsync(IImportedFile file)
         {
-            var fileBitmap = await file.ImportFileAsync(_canvasDevice);
-
-            if (fileBitmap != null)
-            {
-                OpenImage(new CanvasBitmapImage(fileBitmap), ViewMode.Image);
-                _currentFile = file.File;
-            }
+            var image = await FileImage.CreateAsync(file);
+            OpenImage(image, ViewMode.Image);
         }
 
         public void CacheCurrentSettings()
@@ -153,10 +142,19 @@ namespace ImageViewer.Pages
             if (MainImageViewer.Image != null)
             {
                 var currentName = "image";
-                if (_currentFile != null)
+                if (MainImageViewer.Image is FileImage fileImage)
                 {
-                    currentName = _currentFile.Name;
+                    currentName = fileImage.File.File.Name;
                     currentName = $"{currentName.Substring(0, currentName.LastIndexOf('.'))}.modified";
+                }
+                else if (MainImageViewer.Image is CaptureImage captureImage)
+                {
+                    currentName = "capture";
+                }
+                else if (MainImageViewer.Image is DiffImage diffImage)
+                {
+                    var modeString = diffImage.ViewMode == DiffViewMode.Color ? "Color" : "Alpha";
+                    currentName = $"diff-{modeString}";
                 }
                 var picker = new FileSavePicker();
                 picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
@@ -184,9 +182,9 @@ namespace ImageViewer.Pages
 
         private async void ContinueImageDiff(DiffSetupResult diffSetup)
         {
-            var diff = await ImageDiffer.GenerateDiff(_canvasDevice, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
+            var device = GraphicsManager.Current.CanvasDevice;
+            var diff = await ImageDiffer.GenerateDiff(device, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
             OpenImage(new DiffImage(diff), ViewMode.Diff);
-            _currentFile = null;
             ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
             AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
         }
@@ -220,7 +218,6 @@ namespace ImageViewer.Pages
             if (item != null)
             {
                 OpenImage(new CaptureImage(item, GraphicsManager.Current.CaptureDevice), ViewMode.Capture);
-                _currentFile = null;
             }
         }
 
@@ -359,9 +356,8 @@ namespace ImageViewer.Pages
                 var bitmap = await view.GetBitmapAsync();
                 using (var stream = await bitmap.OpenReadAsync())
                 {
-                    var canvasBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, stream, 96.0f);
+                    var canvasBitmap = await CanvasBitmap.LoadAsync(GraphicsManager.Current.CanvasDevice, stream, 96.0f);
                     OpenImage(new CanvasBitmapImage(canvasBitmap), ViewMode.Image);
-                    _currentFile = null;
                 }
             }
         }

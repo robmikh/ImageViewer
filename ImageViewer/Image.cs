@@ -1,4 +1,5 @@
 ﻿using ImageViewer.ScreenCapture;
+using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
@@ -20,17 +21,33 @@ namespace ImageViewer
         // TODO: Format?
         Task SaveSnapshotToStreamAsync(IRandomAccessStream stream);
         ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics);
+        void RegenerateSurface();
     }
 
     class CanvasBitmapImage : IImage
     {
-        public CanvasBitmap Bitmap { get; }
+        private CompositionDrawingSurface _surface;
+        private byte[] _bytes;
+        private BitmapSize _size;
 
-        public BitmapSize Size => Bitmap.SizeInPixels;
+        public CanvasBitmap Bitmap { get; private set; }
+
+        public BitmapSize Size => _size;
 
         public CanvasBitmapImage(CanvasBitmap bitmap)
         {
             Bitmap = bitmap;
+            _size = Bitmap.SizeInPixels;
+            _bytes = bitmap.GetPixelBytes();
+        }
+
+        private void UpdateSurface()
+        {
+            using (var drawingSession = CanvasComposition.CreateDrawingSession(_surface))
+            {
+                drawingSession.Clear(Colors.Transparent);
+                drawingSession.DrawImage(Bitmap);
+            }
         }
 
         public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
@@ -40,24 +57,100 @@ namespace ImageViewer
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
         {
-            var size = Size;
-            var width = (int)size.Width;
-            var height = (int)size.Height;
-            var imageSurface = graphics.CreateDrawingSurface2(
-                new SizeInt32() { Width = width, Height = height },
-                DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                DirectXAlphaMode.Premultiplied);
-            using (var drawingSession = CanvasComposition.CreateDrawingSession(imageSurface))
+            if (_surface == null)
             {
-                drawingSession.Clear(Colors.Transparent);
-                drawingSession.DrawImage(Bitmap);
+                var size = Size;
+                var width = (int)size.Width;
+                var height = (int)size.Height;
+                _surface = graphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = width, Height = height },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                UpdateSurface();
             }
-            return imageSurface;
+            return _surface;
         }
 
         public void Dispose()
         {
             Bitmap.Dispose();
+        }
+
+        public void RegenerateSurface()
+        {
+            Bitmap = CanvasBitmap.CreateFromBytes(GraphicsManager.Current.CanvasDevice, _bytes, (int)_size.Width, (int)_size.Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+            if (_surface != null)
+            {
+                UpdateSurface();
+            }
+        }
+    }
+
+    class FileImage : IImage
+    {
+        public static async Task<FileImage> CreateAsync(IImportedFile file)
+        {
+            var bitmap = await file.ImportFileAsync(GraphicsManager.Current.CanvasDevice);
+            var image = new FileImage(bitmap, file);
+            return image;
+        }
+
+        private CanvasBitmap _bitmap;
+        private CompositionDrawingSurface _surface;
+
+        public CanvasBitmap Bitmap => _bitmap;
+        public IImportedFile File { get; }
+
+        public BitmapSize Size => _bitmap.SizeInPixels;
+
+        private FileImage(CanvasBitmap bitmap, IImportedFile file)
+        {
+            _bitmap = bitmap;
+            File = file;
+        }
+
+        private void UpdateSurface()
+        {
+            using (var drawingSession = CanvasComposition.CreateDrawingSession(_surface))
+            {
+                drawingSession.Clear(Colors.Transparent);
+                drawingSession.DrawImage(Bitmap);
+            }
+        }
+
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        {
+            await Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+        }
+
+        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
+        {
+            if (_surface == null)
+            {
+                var size = Size;
+                var width = (int)size.Width;
+                var height = (int)size.Height;
+                _surface = graphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = width, Height = height },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                UpdateSurface();
+            }
+            return _surface;
+        }
+
+        public void Dispose()
+        {
+            Bitmap.Dispose();
+        }
+
+        public async void RegenerateSurface()
+        {
+            _bitmap = await File.ImportFileAsync(GraphicsManager.Current.CanvasDevice);
+            if (_surface != null)
+            {
+                UpdateSurface();
+            }
         }
     }
 
@@ -138,6 +231,15 @@ namespace ImageViewer
                     throw new InvalidOperationException();
             }
         }
+
+        public void RegenerateSurface()
+        {
+            Diff.ReplaceDeviceResources(GraphicsManager.Current.CanvasDevice);
+            if (_surface != null)
+            {
+                UpdateSurface();
+            }
+        }
     }
 
     class CaptureImage : IImage
@@ -215,6 +317,12 @@ namespace ImageViewer
         public async Task SetBorderAsync(bool showBorder)
         {
             await _capture.SetIsBorderRequiredAsync(showBorder);
+        }
+
+        public void RegenerateSurface()
+        {
+            _device = GraphicsManager.Current.CaptureDevice;
+            _capture.Recreate(_device);
         }
     }
 }

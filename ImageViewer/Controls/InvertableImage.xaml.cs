@@ -54,7 +54,9 @@ namespace ImageViewer.Controls
         private InteropBrush _controlBrush;
         private CompositionEffectBrush _effectBrush;
         private CompositionSurfaceBrush _surfaceBrush;
+        private CompositionDrawingSurface _surface;
         private bool _isDarkTheme = false;
+        private Uri _uri;
 
         public InvertableImage()
         {
@@ -70,6 +72,24 @@ namespace ImageViewer.Controls
             _isDarkTheme = ThemeHelper.Current.CurrentTheme == EffectiveTheme.Dark;
             ApplyInvert(Invert);
             ThemeHelper.Current.ThemeChanged += Current_ThemeChanged;
+
+            GraphicsManager.Current.CompositionGraphicsDevice.RenderingDeviceReplaced += OnDeviceReplaced;
+            Unloaded += OnUnloaded;
+        }
+
+        private void OnDeviceReplaced(CompositionGraphicsDevice sender, RenderingDeviceReplacedEventArgs args)
+        {
+            if (_surface != null && _uri != null)
+            {
+                LoadImage(_uri);
+            }
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            Unloaded -= OnUnloaded;
+            ThemeHelper.Current.ThemeChanged -= Current_ThemeChanged;
+            GraphicsManager.Current.CompositionGraphicsDevice.RenderingDeviceReplaced -= OnDeviceReplaced;
         }
 
         private void Current_ThemeChanged(object sender, ThemeChangedEventArgs args)
@@ -92,6 +112,7 @@ namespace ImageViewer.Controls
 
         private async void LoadImage(Uri uri)
         {
+            _uri = uri;
             if (uri != null)
             {
                 var graphicsManager = GraphicsManager.Current;
@@ -114,6 +135,7 @@ namespace ImageViewer.Controls
                             drawingSession.Clear(Colors.Transparent);
                             drawingSession.DrawSvg(document, size);
                         }
+                        _surface = surface;
                         _surfaceBrush.Surface = surface;
                     }
                     else
@@ -124,6 +146,7 @@ namespace ImageViewer.Controls
             }
             else
             {
+                _surface = null;
                 _surfaceBrush.Surface = null;
             }
         }
