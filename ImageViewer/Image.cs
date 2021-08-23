@@ -9,6 +9,7 @@ using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
 using Windows.UI;
 using Windows.UI.Composition;
+using WinRTInteropTools;
 
 namespace ImageViewer
 {
@@ -139,7 +140,7 @@ namespace ImageViewer
     // TODO: Don't use Win2D for Capture
     class CaptureImage : IImage
     {
-        private CanvasDevice _device;
+        private Direct3D11Device _device;
         private SimpleCapture _capture;
         private bool _showCursor = true;
 
@@ -147,7 +148,7 @@ namespace ImageViewer
 
         public BitmapSize Size { get; }
 
-        public CaptureImage(GraphicsCaptureItem item, CanvasDevice device)
+        public CaptureImage(GraphicsCaptureItem item, Direct3D11Device device)
         {
             Item = item;
             var itemSize = item.Size;

@@ -16,6 +16,7 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using WinRTInteropTools;
 
 namespace ImageViewer.Pages
 {
@@ -221,7 +222,7 @@ namespace ImageViewer.Pages
             {
                 // Use a seperate device so we don't have to deal
                 // with synchronization with D2D
-                OpenImage(new CaptureImage(item, new CanvasDevice()), ViewMode.Capture);
+                OpenImage(new CaptureImage(item, new Direct3D11Device()), ViewMode.Capture);
                 _currentFile = null;
             }
         }
