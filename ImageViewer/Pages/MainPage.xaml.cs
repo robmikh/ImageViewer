@@ -2,37 +2,25 @@
 using ImageViewer.Dialogs;
 using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Brushes;
-using Microsoft.Graphics.Canvas.UI.Composition;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Devices.Input;
-using Windows.Foundation;
-using Windows.Graphics;
 using Windows.Graphics.Capture;
-using Windows.Graphics.DirectX;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
-using Windows.UI;
-using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 
 namespace ImageViewer.Pages
 {
     public sealed partial class MainPage : Page
     {
-        private Compositor _compositor;
         private CanvasDevice _canvasDevice;
-        private CompositionGraphicsDevice _compositionGraphics;
-
         private StorageFile _currentFile;
 
         enum ViewMode
@@ -50,8 +38,6 @@ namespace ImageViewer.Pages
 
             var graphicsManager = GraphicsManager.Current;
             _canvasDevice = graphicsManager.CanvasDevice;
-            _compositor = graphicsManager.Compositor;
-            _compositionGraphics = graphicsManager.CompositionGraphicsDevice;
 
             if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
