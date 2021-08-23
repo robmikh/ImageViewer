@@ -12,7 +12,6 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -26,6 +25,7 @@ namespace ImageViewer.Pages
         public Color ImageBorderColor = Colors.Black;
         public bool ShowGridLines = false;
         public Color GridLinesColor = Colors.LightGray;
+        public Color MeasureColor = Colors.Gray;
     }
 
     public sealed partial class MainPage : Page
@@ -48,6 +48,7 @@ namespace ImageViewer.Pages
             MainImageViewer.BorderColor = settings.ImageBorderColor;
             MainImageViewer.AreGridLinesVisible = settings.ShowGridLines;
             MainImageViewer.GridLinesColor = settings.GridLinesColor;
+            MainImageViewer.MeasureColor = settings.MeasureColor;
 
             if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
@@ -77,6 +78,7 @@ namespace ImageViewer.Pages
             settings.ImageBorderColor = MainImageViewer.BorderColor;
             settings.ShowGridLines = MainImageViewer.AreGridLinesVisible;
             settings.GridLinesColor = MainImageViewer.GridLinesColor;
+            settings.MeasureColor = MainImageViewer.MeasureColor;
             ApplicationSettings.CacheSettings(settings);
         }
 

@@ -33,6 +33,8 @@ namespace ImageViewer
 
         public void ReplaceDeviceResources(CanvasDevice device)
         {
+            ColorDiffBitmap?.Dispose();
+            AlphaDiffBitmap?.Dispose();
             ColorDiffBitmap = CanvasBitmap.CreateFromColors(device, ColorDiffPixels, _width, _height);
             AlphaDiffBitmap = CanvasBitmap.CreateFromColors(device, AlphaDiffPixels, _width, _height);
         }
