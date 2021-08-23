@@ -132,7 +132,7 @@
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_measure_512690.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <StackPanel x:Name="MeasureSizeTextBlocks" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                     <TextBlock VerticalAlignment="Center" d:Text="300" Text="{Binding MeasureWidth, ElementName=MainImageViewer, Mode=OneWay}" />
-                    <TextBlock VerticalAlignment="Center" Text="x " />
+                    <TextBlock VerticalAlignment="Center" Text="x" Margin="3, 0, 3, 0" />
                     <TextBlock VerticalAlignment="Center" d:Text="300" Text="{Binding MeasureHeight, ElementName=MainImageViewer, Mode=OneWay}" />
                     <TextBlock VerticalAlignment="Center" Text="px" />
                 </StackPanel>

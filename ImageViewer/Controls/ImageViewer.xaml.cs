@@ -419,9 +419,10 @@ namespace ImageViewer.Controls
 
                 GenerateBackground();
                 GenerateImage();
+                UpdateGridLines();
+                UpdateBorder();
 
                 ImageScrollViewer.ChangeView(0, 0, 1, true);
-                UpdateBorder();
                 ImageBorder.Visibility = Visibility.Visible;
             }
             else
@@ -470,7 +471,6 @@ namespace ImageViewer.Controls
                     MeasureCanvas.Visibility = Visibility.Collapsed;
                     break;
             }
-            
         }
     }
 }

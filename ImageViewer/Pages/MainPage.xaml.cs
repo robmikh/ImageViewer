@@ -11,6 +11,7 @@ using Windows.Graphics.Capture;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -18,6 +19,14 @@ using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer.Pages
 {
+    class Settings
+    {
+        public bool ShowImageBorder = false;
+        public Color ImageBorderColor = Colors.Black;
+        public bool ShowGridLines = false;
+        public Color GridLinesColor = Colors.LightGray;
+    }
+
     public sealed partial class MainPage : Page
     {
         private CanvasDevice _canvasDevice;
@@ -38,6 +47,12 @@ namespace ImageViewer.Pages
 
             var graphicsManager = GraphicsManager.Current;
             _canvasDevice = graphicsManager.CanvasDevice;
+
+            var settings = ApplicationSettings.GetCachedSettings<Settings>();
+            MainImageViewer.IsBorderVisible = settings.ShowImageBorder;
+            MainImageViewer.BorderColor = settings.ImageBorderColor;
+            MainImageViewer.AreGridLinesVisible = settings.ShowGridLines;
+            MainImageViewer.GridLinesColor = settings.GridLinesColor;
 
             if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
@@ -63,6 +78,16 @@ namespace ImageViewer.Pages
                 OpenImage(new CanvasBitmapImage(fileBitmap), ViewMode.Image);
                 _currentFile = file.File;
             }
+        }
+
+        public void CacheCurrentSettings()
+        {
+            var settings = new Settings();
+            settings.ShowImageBorder = MainImageViewer.IsBorderVisible;
+            settings.ImageBorderColor = MainImageViewer.BorderColor;
+            settings.ShowGridLines = MainImageViewer.AreGridLinesVisible;
+            settings.GridLinesColor = MainImageViewer.GridLinesColor;
+            ApplicationSettings.CacheSettings(settings);
         }
 
         private void OpenImage(IImage image, ViewMode viewMode)

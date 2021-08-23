@@ -68,7 +68,16 @@ namespace ImageViewer
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
-            //TODO: Save application state and stop any background activity
+
+            var rootFrame = Window.Current.Content as Frame;
+            if (rootFrame != null)
+            {
+                if (rootFrame.Content is MainPage mainPage)
+                {
+                    mainPage.CacheCurrentSettings();
+                }
+            }
+
             deferral.Complete();
         }
 

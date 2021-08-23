@@ -138,6 +138,7 @@
     <Compile Include="Dialogs\BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="System\ApplicationSettings.cs" />
     <Compile Include="System\Capabilities.cs" />
     <Compile Include="ScreenCapture\CaptureSnapshot.cs" />
     <Compile Include="Pages\DiffSetupPage.xaml.cs">
