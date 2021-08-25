@@ -6,6 +6,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Capture;
 using Windows.Storage;
@@ -85,6 +86,7 @@ namespace ImageViewer.Pages
         private void OpenImage(IImage image, ViewMode viewMode)
         {
             MainImageViewer.Image = image;
+            var titleBar = ApplicationView.GetForCurrentView().Title = image.DisplayName;
             _viewMode = viewMode;
             OnBitmapOpened(viewMode);
         }
@@ -185,8 +187,10 @@ namespace ImageViewer.Pages
         private async void ContinueImageDiff(DiffSetupResult diffSetup)
         {
             var device = GraphicsManager.Current.CanvasDevice;
-            var diff = await ImageDiffer.GenerateDiff(device, diffSetup.SelectedFile1, diffSetup.SelectedFile2);
-            OpenImage(new DiffImage(diff), ViewMode.Diff);
+            var file1 = diffSetup.SelectedFile1;
+            var file2 = diffSetup.SelectedFile2;
+            var diff = await ImageDiffer.GenerateDiff(device, file1, file2);
+            OpenImage(new DiffImage(diff, file1.File.Name, file2.File.Name), ViewMode.Diff);
             ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
             AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
         }
@@ -359,7 +363,7 @@ namespace ImageViewer.Pages
                 using (var stream = await bitmap.OpenReadAsync())
                 {
                     var canvasBitmap = await CanvasBitmap.LoadAsync(GraphicsManager.Current.CanvasDevice, stream, 96.0f);
-                    OpenImage(new CanvasBitmapImage(canvasBitmap), ViewMode.Image);
+                    OpenImage(new CanvasBitmapImage(canvasBitmap, "Clipboard"), ViewMode.Image);
                 }
             }
         }

@@ -17,6 +17,7 @@ namespace ImageViewer
 {
     public interface IImage : IDisposable
     {
+        string DisplayName { get; }
         BitmapSize Size { get; }
         // TODO: Format?
         Task SaveSnapshotToStreamAsync(IRandomAccessStream stream);
@@ -32,11 +33,13 @@ namespace ImageViewer
 
         public CanvasBitmap Bitmap { get; private set; }
 
+        public string DisplayName { get; }
         public BitmapSize Size => _size;
 
-        public CanvasBitmapImage(CanvasBitmap bitmap)
+        public CanvasBitmapImage(CanvasBitmap bitmap, string displayName)
         {
             Bitmap = bitmap;
+            DisplayName = displayName;
             _size = Bitmap.SizeInPixels;
             _bytes = bitmap.GetPixelBytes();
         }
@@ -99,6 +102,7 @@ namespace ImageViewer
         private CompositionDrawingSurface _surface;
 
         public CanvasBitmap Bitmap => _bitmap;
+        public string DisplayName => File.File.Name;
         public IImportedFile File { get; }
 
         public BitmapSize Size => _bitmap.SizeInPixels;
@@ -164,6 +168,8 @@ namespace ImageViewer
     {
         private DiffViewMode _viewMode = DiffViewMode.Color;
         private CompositionDrawingSurface _surface;
+        private string _file1Name;
+        private string _file2Name;
 
         public DiffResult Diff { get; }
         public DiffViewMode ViewMode
@@ -175,11 +181,15 @@ namespace ImageViewer
                 UpdateSurface();
             }
         }
+        public string DisplayName { get; }
         public BitmapSize Size => Diff.ColorDiffBitmap.SizeInPixels;
 
-        public DiffImage(DiffResult diff)
+        public DiffImage(DiffResult diff, string file1Name, string file2Name)
         {
             Diff = diff;
+            _file1Name = file1Name;
+            _file2Name = file2Name;
+            DisplayName = $"{_file1Name} vs {_file2Name}";
         }
 
         private void UpdateSurface()
@@ -250,11 +260,13 @@ namespace ImageViewer
 
         public GraphicsCaptureItem Item { get; }
 
+        public string DisplayName { get; }
         public BitmapSize Size { get; }
 
         public CaptureImage(GraphicsCaptureItem item, Direct3D11Device device)
         {
             Item = item;
+            DisplayName = item.DisplayName;
             var itemSize = item.Size;
             var size = new BitmapSize();
             size.Width = (uint)itemSize.Width;
