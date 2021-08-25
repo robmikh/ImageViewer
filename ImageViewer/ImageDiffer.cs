@@ -76,10 +76,10 @@ namespace ImageViewer
                 var pixel1 = pixels1[i];
                 var pixel2 = pixels2[i];
 
-                var diffB = pixel1.B - pixel2.B;
-                var diffG = pixel1.G - pixel2.G;
-                var diffR = pixel1.R - pixel2.R;
-                var diffA = pixel1.A - pixel2.A;
+                var diffB = Math.Abs(pixel1.B - pixel2.B);
+                var diffG = Math.Abs(pixel1.G - pixel2.G);
+                var diffR = Math.Abs(pixel1.R - pixel2.R);
+                var diffA = Math.Abs(pixel1.A - pixel2.A);
 
                 if (diffB != 0 || diffG != 0 || diffR != 0)
                 {
