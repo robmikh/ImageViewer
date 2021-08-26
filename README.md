@@ -1,6 +1,8 @@
 # ImageViewer
 A tool for viewing image files and bitmaps on Windows 10.
 
+<a href='https://www.microsoft.com/store/productId/9PHZ5ZTK9P5G'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='English badge' height='50px'/></a>
+
 ![image](https://user-images.githubusercontent.com/7089228/130989911-d813dde3-16fd-4ba5-adbd-f3e0ded84e84.png)
 
 ## 3rd party attribution
