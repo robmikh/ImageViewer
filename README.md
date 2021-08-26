@@ -1,7 +1,7 @@
 # ImageViewer
 A tool for viewing image files and bitmaps on Windows 10.
 
-![image](https://user-images.githubusercontent.com/7089228/130316482-d0cb0ce8-79a8-4730-b776-5854aa87971c.png)
+![image](https://user-images.githubusercontent.com/7089228/130989911-d813dde3-16fd-4ba5-adbd-f3e0ded84e84.png)
 
 ## 3rd party attribution
   * [Move](ImageViewer/Assets/Icons/noun_Move_140460.svg) by Joseph Augustine from the [Noun Project](https://thenounproject.com/search/?q=move&i=140460)
