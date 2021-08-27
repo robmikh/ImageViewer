@@ -5,10 +5,11 @@ using Microsoft.Graphics.Canvas;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Capture;
+using Windows.Graphics.Display;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -51,7 +52,8 @@ namespace ImageViewer.Pages
             MainImageViewer.GridLinesColor = settings.GridLinesColor;
             MainImageViewer.MeasureColor = settings.MeasureColor;
 
-            if (ApplicationView.GetForCurrentView().IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+            var applicationView = ApplicationView.GetForCurrentView();
+            if (applicationView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
                 CompactOverlayButton.Visibility = Visibility.Visible;
             }

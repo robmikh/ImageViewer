@@ -7,6 +7,7 @@ using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.DirectX;
+using Windows.Graphics.Display;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
@@ -96,6 +97,8 @@ namespace ImageViewer.Controls
         private Point _lastPosition;
         private Point _startMeasurePoint;
 
+        private float _lastDpiScale = 1.0f;
+
         public ImageViewer()
         {
             this.InitializeComponent();
@@ -125,6 +128,35 @@ namespace ImageViewer.Controls
             graphicsManager.CompositionGraphicsDevice.RenderingDeviceReplaced += OnRenderingDeviceReplaced;
             graphicsManager.CaptureDeviceReplaced += OnCaptureDeviceReplaced;
             Unloaded += OnUnloaded;
+
+            var displayInfo = DisplayInformation.GetForCurrentView();
+            var dpiScale = (float)displayInfo.RawPixelsPerViewPixel;
+            ProcessDpiChanged(dpiScale);
+            displayInfo.DpiChanged += OnDpiChanged;
+        }
+
+        private void OnDpiChanged(DisplayInformation sender, object args)
+        {
+            var dpiScale = (float)sender.RawPixelsPerViewPixel;
+            ProcessDpiChanged(dpiScale);
+        }
+
+        private void ProcessDpiChanged(float dpiScale)
+        {
+            _lastDpiScale = dpiScale;
+            RefreshImageGridSize();
+        }
+
+        private void RefreshImageGridSize()
+        {
+            var image = Image;
+            if (image != null)
+            {
+                var size = Image.Size;
+                var scale = 1.0f / _lastDpiScale;
+                ImageGrid.Width = size.Width * scale;
+                ImageGrid.Height = size.Height * scale;
+            }
         }
 
         private void OnCaptureDeviceReplaced(object sender, WinRTInteropTools.Direct3D11Device e)
@@ -160,6 +192,8 @@ namespace ImageViewer.Controls
             var graphicsManager = GraphicsManager.Current;
             graphicsManager.CompositionGraphicsDevice.RenderingDeviceReplaced -= OnRenderingDeviceReplaced;
             graphicsManager.CaptureDeviceReplaced -= OnCaptureDeviceReplaced;
+            var displayInfo = DisplayInformation.GetForCurrentView();
+            displayInfo.DpiChanged -= OnDpiChanged;
         }
 
         public ScrollViewer ScrollViewer => ImageScrollViewer;
@@ -452,9 +486,7 @@ namespace ImageViewer.Controls
         {
             if (Image != null)
             {
-                var size = Image.Size;
-                ImageGrid.Width = size.Width;
-                ImageGrid.Height = size.Height;
+                RefreshImageGridSize();
 
                 GenerateBackground();
                 GenerateImage();
