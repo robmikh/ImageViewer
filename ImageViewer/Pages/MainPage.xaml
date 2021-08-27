@@ -109,7 +109,7 @@
 
         <controls:ImageViewer x:Name="MainImageViewer" Grid.Row="1" />
 
-        <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}">
+        <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
@@ -118,17 +118,17 @@
                 <ColumnDefinition Width="250"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" Grid.Column="0">
+            <StackPanel x:Name="PositionContainer" Orientation="Horizontal" Grid.Column="0">
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_Move_140460.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <TextBlock x:Name="PositionTextBlock" VerticalAlignment="Center" d:Text="186, 50px" Text="{Binding CursorPosition, ElementName=MainImageViewer, Mode=OneWay, Converter={StaticResource NullablePositionToStringConverter}}" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Grid.Column="1">
+            <StackPanel x:Name="SizeContainer" Orientation="Horizontal" Grid.Column="1">
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_size_2476868.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <TextBlock x:Name="ImageSizeTextBlock" VerticalAlignment="Center" d:Text="300 x 300px" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Grid.Column="2">
+            <StackPanel x:Name="MeasureContainer" Orientation="Horizontal" Grid.Column="2">
                 <controls:InvertableImage SourcePath="Assets/Icons/noun_measure_512690.svg" Style="{StaticResource BottomBarInvertableImage}" />
                 <StackPanel x:Name="MeasureSizeTextBlocks" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                     <TextBlock VerticalAlignment="Center" d:Text="300" Text="{Binding MeasureWidth, ElementName=MainImageViewer, Mode=OneWay}" />
@@ -137,8 +137,15 @@
                     <TextBlock VerticalAlignment="Center" Text="px" />
                 </StackPanel>
             </StackPanel>
+        </Grid>
 
-            <Grid Grid.Column="4">
+        <!-- We keep this part of the bottom bar separate so that it draws on top. -->
+        <Grid Grid.Row="2" SizeChanged="OnBottomBarSizeChanged"> 
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="250"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />

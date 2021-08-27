@@ -5,11 +5,9 @@ using Microsoft.Graphics.Canvas;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Capture;
-using Windows.Graphics.Display;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
@@ -39,6 +37,15 @@ namespace ImageViewer.Pages
             Capture,
         }
         private ViewMode _viewMode = ViewMode.Image;
+        // These are awful names but ¯\_(ツ)_/¯
+        enum BottomBarMode
+        {
+            Full,
+            OneLess,
+            TwoLess,
+            Empty
+        }
+        private BottomBarMode _bottomBarMode = BottomBarMode.Full;
 
         public MainPage()
         {
@@ -377,6 +384,52 @@ namespace ImageViewer.Pages
             if (key == VirtualKey.V && isControlDown)
             {
                 ImportFromClipboard();
+            }
+        }
+
+        private void OnBottomBarSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var width = e.NewSize.Width;
+            global::System.Diagnostics.Debug.WriteLine($"Width: {width}");
+            if (width >= 850)
+            {
+                if (_bottomBarMode != BottomBarMode.Full)
+                {
+                    _bottomBarMode = BottomBarMode.Full;
+                    PositionContainer.Visibility = Visibility.Visible;
+                    SizeContainer.Visibility = Visibility.Visible;
+                    MeasureContainer.Visibility = Visibility.Visible;
+                }
+            }
+            else if (width < 850 && width >= 650)
+            {
+                if (_bottomBarMode != BottomBarMode.OneLess)
+                {
+                    _bottomBarMode = BottomBarMode.OneLess;
+                    PositionContainer.Visibility = Visibility.Visible;
+                    SizeContainer.Visibility = Visibility.Visible;
+                    MeasureContainer.Visibility = Visibility.Collapsed;
+                }
+            }
+            else if (width < 650 && width >= 450)
+            {
+                if (_bottomBarMode != BottomBarMode.TwoLess)
+                {
+                    _bottomBarMode = BottomBarMode.TwoLess;
+                    PositionContainer.Visibility = Visibility.Visible;
+                    SizeContainer.Visibility = Visibility.Collapsed;
+                    MeasureContainer.Visibility = Visibility.Collapsed;
+                }
+            }
+            else if (width < 450)
+            {
+                if (_bottomBarMode != BottomBarMode.Empty)
+                {
+                    _bottomBarMode = BottomBarMode.Empty;
+                    PositionContainer.Visibility = Visibility.Collapsed;
+                    SizeContainer.Visibility = Visibility.Collapsed;
+                    MeasureContainer.Visibility = Visibility.Collapsed;
+                }
             }
         }
     }
