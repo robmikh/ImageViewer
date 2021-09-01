@@ -43,6 +43,7 @@ namespace ImageViewer.Controls
         private static readonly DependencyProperty GridLinesColorProperty = DependencyProperty.Register(nameof(GridLinesColor), typeof(Color), typeof(ImageViewer), new PropertyMetadata(Colors.LightGray, OnGridLinesColorChanged));
         private static readonly DependencyProperty BorderColorProperty = DependencyProperty.Register(nameof(BorderColor), typeof(Color), typeof(ImageViewer), new PropertyMetadata(Colors.Black));
         private static readonly DependencyProperty MeasureColorProperty = DependencyProperty.Register(nameof(MeasureColor), typeof(Color), typeof(ImageViewer), new PropertyMetadata(Colors.Red));
+        private static readonly DependencyProperty CurrentColorProperty = DependencyProperty.Register(nameof(CurrentColor), typeof(Color?), typeof(ImageViewer), new PropertyMetadata(null));
 
         private static void OnInputModePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -270,6 +271,12 @@ namespace ImageViewer.Controls
             set { SetValue(MeasureColorProperty, value); }
         }
 
+        public Color? CurrentColor
+        {
+            get { return (Color?)GetValue(CurrentColorProperty); }
+            set { SetValue(CurrentColorProperty, value); }
+        }
+
         private ICanvasBrush CreateBackgroundBrush(ICanvasResourceCreator device)
         {
             var bitmap = new CanvasRenderTarget(device, 16, 16, 96); // TODO: Dpi?
@@ -479,6 +486,15 @@ namespace ImageViewer.Controls
                 {
                     MeasurePositionY = (int)position.Y;
                 }
+            }
+
+            if (Image != null)
+            {
+                var point = e.GetCurrentPoint(ImageRectangle);
+                var position = point.Position;
+
+                var color = Image.GetColorFromPixel((int)position.X, (int)position.Y);
+                CurrentColor = color;
             }
         }
 

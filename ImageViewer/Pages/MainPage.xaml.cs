@@ -390,7 +390,6 @@ namespace ImageViewer.Pages
         private void OnBottomBarSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var width = e.NewSize.Width;
-            global::System.Diagnostics.Debug.WriteLine($"Width: {width}");
             if (width >= 850)
             {
                 if (_bottomBarMode != BottomBarMode.Full)

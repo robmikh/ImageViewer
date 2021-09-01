@@ -137,6 +137,12 @@
                     <TextBlock VerticalAlignment="Center" Text="px" />
                 </StackPanel>
             </StackPanel>
+
+            <Rectangle Grid.Column="3">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="{Binding ElementName=MainImageViewer, Path=CurrentColor, Mode=OneWay}" />
+                </Rectangle.Fill>
+            </Rectangle>
         </Grid>
 
         <!-- We keep this part of the bottom bar separate so that it draws on top. -->

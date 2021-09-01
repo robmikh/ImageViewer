@@ -23,12 +23,13 @@ namespace ImageViewer
         Task SaveSnapshotToStreamAsync(IRandomAccessStream stream);
         ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics);
         void RegenerateSurface();
+        Color? GetColorFromPixel(int x, int y);
     }
 
     class CanvasBitmapImage : IImage
     {
         private CompositionDrawingSurface _surface;
-        private byte[] _bytes;
+        private Color[] _colors;
         private BitmapSize _size;
 
         public CanvasBitmap Bitmap { get; private set; }
@@ -41,7 +42,7 @@ namespace ImageViewer
             Bitmap = bitmap;
             DisplayName = displayName;
             _size = Bitmap.SizeInPixels;
-            _bytes = bitmap.GetPixelBytes();
+            _colors = bitmap.GetPixelColors();
         }
 
         private void UpdateSurface()
@@ -81,15 +82,25 @@ namespace ImageViewer
 
         public void RegenerateSurface()
         {
-            Bitmap = CanvasBitmap.CreateFromBytes(GraphicsManager.Current.CanvasDevice, _bytes, (int)_size.Width, (int)_size.Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+            Bitmap = CanvasBitmap.CreateFromColors(GraphicsManager.Current.CanvasDevice, _colors, (int)_size.Width, (int)_size.Height);
             if (_surface != null)
             {
                 UpdateSurface();
             }
         }
+
+        public Color? GetColorFromPixel(int x, int y)
+        {
+            if (x >= 0 && x < _size.Width && y >= 0 && y < _size.Height)
+            {
+                var i = (y * _size.Width) + x;
+                return _colors[i];
+            }
+            return null;
+        }
     }
 
-    class FileImage : IImage
+    class FileImage : CanvasBitmapImage
     {
         public static async Task<FileImage> CreateAsync(IImportedFile file)
         {
@@ -98,63 +109,11 @@ namespace ImageViewer
             return image;
         }
 
-        private CanvasBitmap _bitmap;
-        private CompositionDrawingSurface _surface;
-
-        public CanvasBitmap Bitmap => _bitmap;
-        public string DisplayName => File.File.Name;
         public IImportedFile File { get; }
 
-        public BitmapSize Size => _bitmap.SizeInPixels;
-
-        private FileImage(CanvasBitmap bitmap, IImportedFile file)
+        private FileImage(CanvasBitmap bitmap, IImportedFile file) : base(bitmap, file.File.Name)
         {
-            _bitmap = bitmap;
             File = file;
-        }
-
-        private void UpdateSurface()
-        {
-            using (var drawingSession = CanvasComposition.CreateDrawingSession(_surface))
-            {
-                drawingSession.Clear(Colors.Transparent);
-                drawingSession.DrawImage(Bitmap);
-            }
-        }
-
-        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
-        {
-            await Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
-        }
-
-        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
-        {
-            if (_surface == null)
-            {
-                var size = Size;
-                var width = (int)size.Width;
-                var height = (int)size.Height;
-                _surface = graphics.CreateDrawingSurface2(
-                    new SizeInt32() { Width = width, Height = height },
-                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                    DirectXAlphaMode.Premultiplied);
-                UpdateSurface();
-            }
-            return _surface;
-        }
-
-        public void Dispose()
-        {
-            Bitmap.Dispose();
-        }
-
-        public async void RegenerateSurface()
-        {
-            _bitmap = await File.ImportFileAsync(GraphicsManager.Current.CanvasDevice);
-            if (_surface != null)
-            {
-                UpdateSurface();
-            }
         }
     }
 
@@ -250,6 +209,11 @@ namespace ImageViewer
                 UpdateSurface();
             }
         }
+
+        public Color? GetColorFromPixel(int x, int y)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     class CaptureImage : IImage
@@ -335,6 +299,11 @@ namespace ImageViewer
         {
             _device = GraphicsManager.Current.CaptureDevice;
             _capture.Recreate(_device);
+        }
+
+        public Color? GetColorFromPixel(int x, int y)
+        {
+            throw new NotImplementedException();
         }
     }
 }
