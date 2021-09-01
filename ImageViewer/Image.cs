@@ -257,8 +257,16 @@ namespace ImageViewer
 
         public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
         {
-            var texture = await CaptureSnapshot.TakeAsync(Item, Size, _device);
-            var bytes = texture.GetBytes();
+            byte[] bytes = null;
+            if (_isPlaying)
+            {
+                var texture = await CaptureSnapshot.TakeAsync(Item, Size, _device);
+                bytes = texture.GetBytes();
+            }
+            else
+            {
+                bytes = (byte[])_pauseData.Clone();
+            }
 
             var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
             encoder.SetPixelData(
