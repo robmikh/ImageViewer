@@ -212,7 +212,18 @@ namespace ImageViewer
 
         public Color? GetColorFromPixel(int x, int y)
         {
-            throw new NotImplementedException();
+            if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
+            {
+                var i = (y * Size.Width) + x;
+                switch (_viewMode)
+                {
+                    case DiffViewMode.Color:
+                        return Diff.ColorDiffPixels[i];
+                    case DiffViewMode.Alpha:
+                        return Diff.AlphaDiffPixels[i];
+                }
+            }
+            return null;
         }
     }
 
