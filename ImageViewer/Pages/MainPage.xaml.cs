@@ -28,6 +28,17 @@ namespace ImageViewer.Pages
         public Color MeasureColor = Colors.Gray;
     }
 
+    class BottomBarSegment
+    {
+        public FrameworkElement Control { get; set; }
+    }
+
+    class Range
+    {
+        public int Min = 0;
+        public int Max = 0;
+    }
+
     public sealed partial class MainPage : Page
     {
         enum ViewMode
@@ -37,15 +48,9 @@ namespace ImageViewer.Pages
             Capture,
         }
         private ViewMode _viewMode = ViewMode.Image;
-        // These are awful names but ¯\_(ツ)_/¯
-        enum BottomBarMode
-        {
-            Full,
-            OneLess,
-            TwoLess,
-            Empty
-        }
-        private BottomBarMode _bottomBarMode = BottomBarMode.Full;
+        private BottomBarSegment[] _bottomBarSegments;
+        private int _currentBottomBarSegmentLevel = 0;
+        private Range[] _bottomBarLayoutRanges;
 
         public MainPage()
         {
@@ -58,6 +63,16 @@ namespace ImageViewer.Pages
             MainImageViewer.AreGridLinesVisible = settings.ShowGridLines;
             MainImageViewer.GridLinesColor = settings.GridLinesColor;
             MainImageViewer.MeasureColor = settings.MeasureColor;
+
+            _bottomBarSegments = new BottomBarSegment[]
+                {
+                    new BottomBarSegment() { Control = PositionContainer },
+                    new BottomBarSegment() { Control = SizeContainer },
+                    new BottomBarSegment() { Control = MeasureContainer },
+                    new BottomBarSegment() { Control = ColorContainer },
+                };
+            _currentBottomBarSegmentLevel = _bottomBarSegments.Length;
+            ComputeSegmentLayoutRanges();
 
             var applicationView = ApplicationView.GetForCurrentView();
             if (applicationView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
@@ -387,47 +402,67 @@ namespace ImageViewer.Pages
             }
         }
 
+        private Range ComputeSegmentLayoutRange(int i)
+        {
+            const int segmentWidth = 200;
+            const int sliderSegmentWidth = 250;
+
+            var min = (segmentWidth * (i + 1)) + sliderSegmentWidth;
+            var max = min + segmentWidth;
+            if (i == _bottomBarSegments.Length - 1)
+            {
+                max = int.MaxValue;
+            }
+
+            return new Range()
+            {
+                Min = min,
+                Max = max,
+            };
+        }
+
+        private void ComputeSegmentLayoutRanges()
+        {
+            var numSegments = _bottomBarSegments.Length;
+            var ranges = new List<Range>();
+            for (var i = 0; i < _bottomBarSegments.Length; i++)
+            {
+                ranges.Add(ComputeSegmentLayoutRange(i));
+            }
+            _bottomBarLayoutRanges = ranges.ToArray();
+        }
+
+        private void EvaluateBottomBarSegments()
+        {
+            for (var i = 0; i < _bottomBarSegments.Length; i++)
+            {
+                var segment = _bottomBarSegments[i];
+                if (i <= _currentBottomBarSegmentLevel)
+                {
+                    segment.Control.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    segment.Control.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
         private void OnBottomBarSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var width = e.NewSize.Width;
-            if (width >= 850)
+            for (var i = _bottomBarLayoutRanges.Length - 1; i >= 0; i--)
             {
-                if (_bottomBarMode != BottomBarMode.Full)
+                var range = _bottomBarLayoutRanges[i];
+
+                if (width < range.Max && width >= range.Min)
                 {
-                    _bottomBarMode = BottomBarMode.Full;
-                    PositionContainer.Visibility = Visibility.Visible;
-                    SizeContainer.Visibility = Visibility.Visible;
-                    MeasureContainer.Visibility = Visibility.Visible;
-                }
-            }
-            else if (width < 850 && width >= 650)
-            {
-                if (_bottomBarMode != BottomBarMode.OneLess)
-                {
-                    _bottomBarMode = BottomBarMode.OneLess;
-                    PositionContainer.Visibility = Visibility.Visible;
-                    SizeContainer.Visibility = Visibility.Visible;
-                    MeasureContainer.Visibility = Visibility.Collapsed;
-                }
-            }
-            else if (width < 650 && width >= 450)
-            {
-                if (_bottomBarMode != BottomBarMode.TwoLess)
-                {
-                    _bottomBarMode = BottomBarMode.TwoLess;
-                    PositionContainer.Visibility = Visibility.Visible;
-                    SizeContainer.Visibility = Visibility.Collapsed;
-                    MeasureContainer.Visibility = Visibility.Collapsed;
-                }
-            }
-            else if (width < 450)
-            {
-                if (_bottomBarMode != BottomBarMode.Empty)
-                {
-                    _bottomBarMode = BottomBarMode.Empty;
-                    PositionContainer.Visibility = Visibility.Collapsed;
-                    SizeContainer.Visibility = Visibility.Collapsed;
-                    MeasureContainer.Visibility = Visibility.Collapsed;
+                    if (i != _currentBottomBarSegmentLevel)
+                    {
+                        _currentBottomBarSegmentLevel = i;
+                        EvaluateBottomBarSegments();
+                    }
+                    break;
                 }
             }
         }

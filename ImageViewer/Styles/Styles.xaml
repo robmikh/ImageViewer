@@ -8,6 +8,7 @@
     <converters:FloatToPercentageConverter x:Key="FloatToPercentageConverter" />
     <converters:NullablePositionToStringConverter x:Key="NullablePositionToStringConverter" />
     <converters:NullableMeasureSizeToStringConverter x:Key="NullableMeasureSizeToStringConverter" />
+    <converters:ColorToTextConverter x:Key="ColorToTextConverter" />
     <Style x:Key="ReadOnlyFriendlyCheckBox" TargetType="CheckBox">
         <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
         <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>

@@ -128,6 +128,7 @@
     <Compile Include="Controls\ImageViewer.xaml.cs">
       <DependentUpon>ImageViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\ColorToTextConverter.cs" />
     <Compile Include="Converters\NullableMeasureSizeToStringConverter.cs" />
     <Compile Include="Converters\NullablePositionToStringConverter.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
