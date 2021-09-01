@@ -147,6 +147,10 @@ namespace ImageViewer.Pages
                 ShowCursorButton.IsChecked = true;
                 CapturePlayPauseButton.IsChecked = true;
             }
+            else if (viewMode == ViewMode.Video)
+            {
+                VideoPlayPauseButton.IsChecked = true;
+            }
         }
 
         private async Task SaveToFileAsync(StorageFile file)

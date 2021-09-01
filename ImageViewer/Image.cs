@@ -368,13 +368,16 @@ namespace ImageViewer
         private StorageFile _file;
         private MediaPlayer _player;
         private MediaPlayerSurface _surface;
+        private bool _isPlaying = false;
+        private Color[] _pauseData = null;
 
         private VideoImage(StorageFile file, MediaPlaybackItem item)
         {
             _file = file;
             _player = new MediaPlayer();
-            _player.Source = item;
             _player.IsLoopingEnabled = true;
+            _player.Volume = 0;
+            _player.Source = item;
             var compositor = GraphicsManager.Current.Compositor;
             _surface = _player.GetSurface(compositor);
 
@@ -392,6 +395,7 @@ namespace ImageViewer
             _player.SetSurfaceSize(new Size(size.Width, size.Height));
             Size = size;
             DisplayName = file.Name;
+            Play();
         }
 
         public string DisplayName { get; }
@@ -400,12 +404,22 @@ namespace ImageViewer
 
         public void Play()
         {
-            _player.Play();
+            if (!_isPlaying)
+            {
+                _isPlaying = true;
+                _pauseData = null;
+                _player.Play();
+            }
         }
 
         public void Pause()
         {
-            _player.Pause();
+            if (_isPlaying)
+            {
+                _isPlaying = false;
+                _player.Pause();
+                UpdatePauseData();
+            }
         }
 
         public void NextFrame()
@@ -416,6 +430,22 @@ namespace ImageViewer
         public void PreviousFrame()
         {
             _player.StepBackwardOneFrame();
+        }
+
+        private CanvasBitmap GetCurrentBitmap()
+        {
+            var device = GraphicsManager.Current.CanvasDevice;
+            var renderTarget = new CanvasRenderTarget(device, Size.Width, Size.Height, 96.0f);
+            _player.CopyFrameToVideoSurface(renderTarget);
+            return renderTarget;
+        }
+
+        private void UpdatePauseData()
+        {
+            using (var bitmap = GetCurrentBitmap())
+            {
+                _pauseData = bitmap.GetPixelColors();
+            }
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
@@ -435,6 +465,14 @@ namespace ImageViewer
 
         public Color? GetColorFromPixel(int x, int y)
         {
+            if (!_isPlaying && _pauseData != null)
+            {
+                if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
+                {
+                    var i = (y * Size.Width) + x;
+                    return _pauseData[i];
+                }
+            }
             return null;
         }
 
@@ -445,11 +483,9 @@ namespace ImageViewer
 
         public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
         {
-            var device = GraphicsManager.Current.CanvasDevice;
-            using (var renderTarget = new CanvasRenderTarget(device, Size.Width, Size.Height, 96.0f))
+            using (var bitmap = GetCurrentBitmap())
             {
-                _player.CopyFrameToVideoSurface(renderTarget);
-                await renderTarget.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
             }
         }
     }

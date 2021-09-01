@@ -106,7 +106,7 @@
                     <AppBarToggleButton x:Name="CaptureBorderButton" Icon="Stop" Label="Show Border" Checked="CaptureBorderButton_Checked" Unchecked="CaptureBorderButton_Unchecked" IsChecked="True" Visibility="Collapsed" />
                 </wctc:TabbedCommandBarItem>
                 <wctc:TabbedCommandBarItem x:Name="VideoMenu" Header="Video" IsContextual="True" Visibility="Collapsed">
-                    <AppBarToggleButton x:Name="VideoPlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="False" Checked="VideoPlayPauseButton_Checked" Unchecked="VideoPlayPauseButton_Unchecked" />
+                    <AppBarToggleButton x:Name="VideoPlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="VideoPlayPauseButton_Checked" Unchecked="VideoPlayPauseButton_Unchecked" />
                     <AppBarButton Icon="Previous" Label="Previous Frame" Click="VideoPreviousFrameButton_Click" />
                     <AppBarButton Icon="Next" Label="Next Frame" Click="VideoNextFrameButton_Click" />
                 </wctc:TabbedCommandBarItem>
