@@ -66,7 +66,6 @@
   </Applications>
 
   <Capabilities>
-    <Capability Name="internetClient" />
     <uap6:Capability Name="graphicsCapture" />
     <uap11:Capability Name="graphicsCaptureWithoutBorder" />
   </Capabilities>

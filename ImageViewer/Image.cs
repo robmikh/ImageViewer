@@ -4,10 +4,14 @@ using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
+using Windows.Media.Core;
+using Windows.Media.Playback;
+using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Composition;
@@ -347,6 +351,106 @@ namespace ImageViewer
                 }
             }
             return null;
+        }
+    }
+
+    class VideoImage : IImage
+    {
+        public static async Task<VideoImage> CreateAsync(StorageFile file)
+        {
+            var source = MediaSource.CreateFromStorageFile(file);
+            await source.OpenAsync();
+            var item = new MediaPlaybackItem(source);
+            var image = new VideoImage(file, item);
+            return image;
+        }
+
+        private StorageFile _file;
+        private MediaPlayer _player;
+        private MediaPlayerSurface _surface;
+
+        private VideoImage(StorageFile file, MediaPlaybackItem item)
+        {
+            _file = file;
+            _player = new MediaPlayer();
+            _player.Source = item;
+            _player.IsLoopingEnabled = true;
+            var compositor = GraphicsManager.Current.Compositor;
+            _surface = _player.GetSurface(compositor);
+
+            var size = new BitmapSize() { Width = 0, Height = 0 };
+            foreach (var track in item.VideoTracks)
+            {
+                var properties = track.GetEncodingProperties();
+                if (size.Width < properties.Width && size.Height < properties.Height)
+                {
+                    size.Width = properties.Width;
+                    size.Height = properties.Height;
+                }
+            }
+
+            _player.SetSurfaceSize(new Size(size.Width, size.Height));
+            Size = size;
+            DisplayName = file.Name;
+        }
+
+        public string DisplayName { get; }
+
+        public BitmapSize Size { get; }
+
+        public void Play()
+        {
+            _player.Play();
+        }
+
+        public void Pause()
+        {
+            _player.Pause();
+        }
+
+        public void NextFrame()
+        {
+            _player.StepForwardOneFrame();
+        }
+
+        public void PreviousFrame()
+        {
+            _player.StepBackwardOneFrame();
+        }
+
+        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
+        {
+            return _surface.CompositionSurface;
+        }
+
+        public void Dispose()
+        {
+            if (_player != null)
+            {
+                _player.Pause();
+                _player.Dispose();
+                _player = null;
+            }
+        }
+
+        public Color? GetColorFromPixel(int x, int y)
+        {
+            return null;
+        }
+
+        public void RegenerateSurface()
+        {
+            // Do nothing
+        }
+
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        {
+            var device = GraphicsManager.Current.CanvasDevice;
+            using (var renderTarget = new CanvasRenderTarget(device, Size.Width, Size.Height, 96.0f))
+            {
+                _player.CopyFrameToVideoSurface(renderTarget);
+                await renderTarget.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+            }
         }
     }
 }

@@ -46,6 +46,7 @@ namespace ImageViewer.Pages
             Image,
             Diff,
             Capture,
+            Video,
         }
         private ViewMode _viewMode = ViewMode.Image;
         private BottomBarSegment[] _bottomBarSegments;
@@ -123,6 +124,8 @@ namespace ImageViewer.Pages
                     return DiffMenu;
                 case ViewMode.Capture:
                     return CaptureMenu;
+                case ViewMode.Video:
+                    return VideoMenu;
                 default:
                     return ViewMenu;
             }
@@ -133,6 +136,7 @@ namespace ImageViewer.Pages
             ViewMenu.Visibility = Visibility.Visible;
             DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
             CaptureMenu.Visibility = viewMode == ViewMode.Capture ? Visibility.Visible : Visibility.Collapsed;
+            VideoMenu.Visibility = viewMode == ViewMode.Video ? Visibility.Visible : Visibility.Collapsed;
             MainMenu.SelectedItem = GetMenuForViewMode(viewMode);
             var size = MainImageViewer.Image.Size;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
@@ -141,7 +145,7 @@ namespace ImageViewer.Pages
             if (viewMode == ViewMode.Capture)
             {
                 ShowCursorButton.IsChecked = true;
-                PlayPauseButton.IsChecked = true;
+                CapturePlayPauseButton.IsChecked = true;
             }
         }
 
@@ -267,7 +271,7 @@ namespace ImageViewer.Pages
             }
         }
 
-        private void PlayPauseButton_Checked(object sender, RoutedEventArgs e)
+        private void CapturePlayPauseButton_Checked(object sender, RoutedEventArgs e)
         {
             if (MainImageViewer != null && MainImageViewer.Image is CaptureImage image)
             {
@@ -275,7 +279,7 @@ namespace ImageViewer.Pages
             }
         }
 
-        private void PlayPauseButton_Unchecked(object sender, RoutedEventArgs e)
+        private void CapturePlayPauseButton_Unchecked(object sender, RoutedEventArgs e)
         {
             if (MainImageViewer != null && MainImageViewer.Image is CaptureImage image)
             {
@@ -464,6 +468,52 @@ namespace ImageViewer.Pages
                     }
                     break;
                 }
+            }
+        }
+
+        private async void VideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new FileOpenPicker();
+            picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
+            picker.FileTypeFilter.Add(".mp4");
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var image = await VideoImage.CreateAsync(file);
+                OpenImage(image, ViewMode.Video);
+            }
+        }
+
+        private void VideoPlayPauseButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                image.Play();
+            }
+        }
+
+        private void VideoPlayPauseButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                image.Pause();
+            }
+        }
+
+        private void VideoPreviousFrameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                image.PreviousFrame();
+            }
+        }
+
+        private void VideoNextFrameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                image.NextFrame();
             }
         }
     }
