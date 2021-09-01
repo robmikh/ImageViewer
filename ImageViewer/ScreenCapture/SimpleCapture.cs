@@ -16,6 +16,7 @@ namespace ImageViewer.ScreenCapture
         {
             _item = item;
             _device = device;
+            _multithread = device.Multithread;
             _deviceContext = device.ImmediateContext;
             _pauseEvent = new ManualResetEvent(true);
             _lastSize = item.Size;
@@ -42,9 +43,16 @@ namespace ImageViewer.ScreenCapture
             _pauseEvent.Set();
         }
 
-        public void Pause()
+        public byte[] Pause()
         {
             _pauseEvent.Reset();
+            lock (_stateLock)
+            using (var lockSession = _multithread.Lock())
+            using (var frontBuffer = _swapChain.GetBuffer(1))
+            using (var texture = Direct3D11Texture2D.CreateFromDirect3DSurface(frontBuffer))
+            {
+                return texture.GetBytes();
+            }
         }
 
         public void StartCapture()
@@ -88,6 +96,7 @@ namespace ImageViewer.ScreenCapture
             var isPlaying = _pauseEvent.WaitOne(0);
             Pause();
             lock (_stateLock)
+            using (var lockSession = _multithread.Lock())
             {
                 _device = device;
                 _deviceContext = device.ImmediateContext;
@@ -149,6 +158,7 @@ namespace ImageViewer.ScreenCapture
         private SizeInt32 _lastSize;
 
         private Direct3D11Device _device;
+        private Direct3D11Multithread _multithread;
         private Direct3D11DeviceContext _deviceContext;
         private SwapChain _swapChain;
 

@@ -232,6 +232,8 @@ namespace ImageViewer
         private Direct3D11Device _device;
         private SimpleCapture _capture;
         private bool _showCursor = true;
+        private bool _isPlaying = true;
+        private byte[] _pauseData = null;
 
         public GraphicsCaptureItem Item { get; }
 
@@ -278,12 +280,21 @@ namespace ImageViewer
 
         public void Play()
         {
-            _capture.Continue();
+            if (!_isPlaying)
+            {
+                _isPlaying = true;
+                _pauseData = null;
+                _capture.Continue();
+            }
         }
 
         public void Pause()
         {
-            _capture.Pause();
+            if (_isPlaying)
+            {
+                _isPlaying = false;
+                _pauseData = _capture.Pause();
+            }
         }
 
         public void Dispose()
@@ -314,7 +325,20 @@ namespace ImageViewer
 
         public Color? GetColorFromPixel(int x, int y)
         {
-            throw new NotImplementedException();
+            if (!_isPlaying)
+            {
+                if (x >= 0 && x < Size.Width && y >= 0 && y < Size.Height)
+                {
+                    var i = (y * Size.Width) + x;
+                    i *= 4; // BGRA8
+                    var b = _pauseData[i];
+                    var g = _pauseData[i + 1];
+                    var r = _pauseData[i + 2];
+                    var a = _pauseData[i + 3];
+                    return new Color { A = a, R = r, G = g, B = b };
+                }
+            }
+            return null;
         }
     }
 }
