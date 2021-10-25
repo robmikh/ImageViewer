@@ -12,7 +12,7 @@
   <Identity
     Name="19348RobertMikhayelyanApp.RobmikhImageViewer"
     Publisher="CN=8F43D630-18C6-4037-AB42-E933EF41D095"
-    Version="1.0.16.0" />
+    Version="1.0.17.0" />
 
   <mp:PhoneIdentity PhoneProductId="20c2f337-6675-44b9-84e6-b14155977cf9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
