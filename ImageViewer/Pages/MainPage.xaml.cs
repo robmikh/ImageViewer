@@ -304,7 +304,7 @@ namespace ImageViewer.Pages
             var diffSetup = await DiffSetupPage.ShowAsync(Frame);
             if (diffSetup != null)
             {
-                OpenDiffAsync(diffSetup);
+                await OpenDiffAsync(diffSetup);
             }
         }
 
