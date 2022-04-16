@@ -66,6 +66,7 @@ namespace ImageViewer
             picker.FileTypeFilter.Add(".jpg");
             picker.FileTypeFilter.Add(".jpeg");
             picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".bmp");
             picker.FileTypeFilter.Add(".bin");
 
             IImportedFile result = null;

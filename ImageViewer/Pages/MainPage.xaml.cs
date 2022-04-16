@@ -97,6 +97,23 @@ namespace ImageViewer.Pages
             OpenImage(image, ViewMode.Image);
         }
 
+        public async Task OpenDiffAsync(DiffSetupResult diffSetup)
+        {
+            var device = GraphicsManager.Current.CanvasDevice;
+            var file1 = diffSetup.SelectedFile1;
+            var file2 = diffSetup.SelectedFile2;
+            var diff = await ImageDiffer.GenerateDiff(device, file1, file2);
+            OpenImage(new DiffImage(diff, file1.File.Name, file2.File.Name), ViewMode.Diff);
+            ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
+            AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
+        }
+
+        public async Task OpenVideoAsync(StorageFile file)
+        {
+            var image = await VideoImage.CreateAsync(file);
+            OpenImage(image, ViewMode.Video);
+        }
+
         public void CacheCurrentSettings()
         {
             var settings = new Settings();
@@ -212,19 +229,8 @@ namespace ImageViewer.Pages
             var diffSetup = await DiffSetupPage.ShowAsync(Frame);
             if (diffSetup != null)
             {
-                ContinueImageDiff(diffSetup);
+                OpenDiffAsync(diffSetup);
             }
-        }
-
-        private async void ContinueImageDiff(DiffSetupResult diffSetup)
-        {
-            var device = GraphicsManager.Current.CanvasDevice;
-            var file1 = diffSetup.SelectedFile1;
-            var file2 = diffSetup.SelectedFile2;
-            var diff = await ImageDiffer.GenerateDiff(device, file1, file2);
-            OpenImage(new DiffImage(diff, file1.File.Name, file2.File.Name), ViewMode.Diff);
-            ColorChannelsDiffStatus.IsChecked = diff.ColorChannelsMatch;
-            AlphaChannelsDiffStatus.IsChecked = diff.AlphaChannelsMatch;
         }
 
         private async void AboutButton_Click(object sender, RoutedEventArgs e)

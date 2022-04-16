@@ -57,6 +57,8 @@
               <uap:FileType>.jpg</uap:FileType>
               <uap:FileType>.png</uap:FileType>
               <uap:FileType>.bin</uap:FileType>
+              <uap:FileType>.bmp</uap:FileType>
+              <uap:FileType>.mp4</uap:FileType>
             </uap:SupportedFileTypes>
             <uap:DisplayName>ImageViewer</uap:DisplayName>
           </uap:FileTypeAssociation>
