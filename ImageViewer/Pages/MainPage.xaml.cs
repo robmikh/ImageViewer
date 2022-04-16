@@ -10,6 +10,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Capture;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -159,6 +160,7 @@ namespace ImageViewer.Pages
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
             SaveAsButton.IsEnabled = true;
+            CopyButton.IsEnabled = true;
             if (viewMode == ViewMode.Capture)
             {
                 ShowCursorButton.IsChecked = true;
@@ -221,6 +223,21 @@ namespace ImageViewer.Pages
                     await SaveToFileAsync(file);
                     await Launcher.LaunchFileAsync(file);
                 }
+            }
+        }
+
+        private async void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer.Image != null)
+            {
+                var dataPackage = new DataPackage();
+                dataPackage.RequestedOperation = DataPackageOperation.Copy;
+
+                var stream = new InMemoryRandomAccessStream();
+                await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream);
+
+                dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromStream(stream));
+                Clipboard.SetContent(dataPackage);
             }
         }
 

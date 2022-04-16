@@ -32,6 +32,7 @@
                     <AppBarButton x:Name="VideoButton" Icon="Video" Label="Open Video" Click="VideoButton_Click" />
                     <AppBarButton x:Name="ScreenCaptureButton" Icon="GoToStart" Label="Screen Capture" Click="ScreenCaptureButton_Click" Visibility="Collapsed" />
                     <AppBarButton x:Name="SaveAsButton" Icon="SaveLocal" Label="Save As" Click="SaveAsButton_Click" IsEnabled="False" />
+                    <AppBarButton x:Name="CopyButton" Icon="Copy" Label="Copy to Clipboard" Click="CopyButton_Click" IsEnabled="False" />
                 </wctc:TabbedCommandBarItem>
                 <wctc:TabbedCommandBarItem x:Name="ViewMenu" Header="View" IsContextual="True" Visibility="Collapsed">
                     <AppBarToggleButton Icon="Stop" Label="Show Border" IsChecked="{Binding IsBorderVisible, ElementName=MainImageViewer, Mode=TwoWay}" />
