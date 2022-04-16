@@ -5,6 +5,7 @@ using Microsoft.Graphics.Canvas;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Capture;
@@ -39,6 +40,14 @@ namespace ImageViewer.Pages
         public int Min = 0;
         public int Max = 0;
     }
+
+    enum FileType
+    {
+        Unknown,
+        Image,
+        Video
+    }
+
 
     public sealed partial class MainPage : Page
     {
@@ -113,6 +122,55 @@ namespace ImageViewer.Pages
         {
             var image = await VideoImage.CreateAsync(file);
             OpenImage(image, ViewMode.Video);
+        }
+
+        public async Task<bool> OpenStorageItemsAsync(IReadOnlyList<IStorageItem> items)
+        {
+            bool opened = false;
+
+            if (items.Count > 0)
+            {
+                // If we open two files, try to diff them
+                if (items.Count == 2)
+                {
+                    var item1 = items[0];
+                    var item2 = items[1];
+                    if (item1 is StorageFile file1 && item2 is StorageFile file2)
+                    {
+                        var importedFile1 = await FileImporter.ProcessStorageFileAsync(file1);
+                        var importedFile2 = await FileImporter.ProcessStorageFileAsync(file2);
+                        var diffSetup = new DiffSetupResult(importedFile1, importedFile2);
+                        await OpenDiffAsync(diffSetup);
+                        opened = true;
+                    }
+                }
+                else
+                {
+                    var item = items.First();
+                    if (item is StorageFile file)
+                    {
+                        var fileType = GetFileType(file);
+                        switch (fileType)
+                        {
+                            case FileType.Image:
+                                {
+                                    var importedFile = await FileImporter.ProcessStorageFileAsync(file);
+                                    await OpenFileAsync(importedFile);
+                                    opened = true;
+                                }
+                                break;
+                            case FileType.Video:
+                                {
+                                    await OpenVideoAsync(file);
+                                    opened = true;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return opened;
         }
 
         public void CacheCurrentSettings()
@@ -409,18 +467,23 @@ namespace ImageViewer.Pages
             ImportFromClipboard();
         }
 
-        private async void ImportFromClipboard()
+        private async Task ImportFromDataPackageView(DataPackageView view, string name)
         {
-            var view = Clipboard.GetContent();
             if (view.Contains(StandardDataFormats.Bitmap))
             {
                 var bitmap = await view.GetBitmapAsync();
                 using (var stream = await bitmap.OpenReadAsync())
                 {
                     var canvasBitmap = await CanvasBitmap.LoadAsync(GraphicsManager.Current.CanvasDevice, stream, 96.0f);
-                    OpenImage(new CanvasBitmapImage(canvasBitmap, "Clipboard"), ViewMode.Image);
+                    OpenImage(new CanvasBitmapImage(canvasBitmap, name), ViewMode.Image);
                 }
             }
+        }
+
+        private async void ImportFromClipboard()
+        {
+            var view = Clipboard.GetContent();
+            await ImportFromDataPackageView(view, "Clipboard");
         }
 
         private void CoreWindow_KeyUp(CoreWindow sender, KeyEventArgs args)
@@ -541,6 +604,90 @@ namespace ImageViewer.Pages
             if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
             {
                 image.NextFrame();
+            }
+        }
+
+        private async void MainImageViewer_DragOver(object sender, DragEventArgs e)
+        {
+            var deferral = e.GetDeferral();
+            bool valid = false;
+            string caption = "";
+            var view = e.DataView;
+            
+            // First check for storage items
+            if (view.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await view.GetStorageItemsAsync();
+
+                if (items.Count > 0)
+                {
+                    // If we open two files, try to diff them
+                    if (items.Count == 2)
+                    {
+                        var item1 = items[0];
+                        var item2 = items[1];
+                        if (item1 is StorageFile file1 && item2 is StorageFile file2)
+                        {
+                            var type1 = GetFileType(file1);
+                            var type2 = GetFileType(file2);
+                            valid = type1 == FileType.Image && type2 == FileType.Image;
+                            caption = "Diff";
+                        }
+                    }
+                    else
+                    {
+                        var item = items.First();
+                        if (item is StorageFile file)
+                        {
+                            var fileType = GetFileType(file);
+                            valid = fileType != FileType.Unknown;
+                            caption = "Open";
+                        }
+                    }
+                }
+            }
+            else if (view.Contains(StandardDataFormats.Bitmap))
+            {
+                valid = true;
+            }
+
+            if (valid)
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = caption;
+            }
+            deferral.Complete();
+        }
+
+        private async void MainImageViewer_Drop(object sender, DragEventArgs e)
+        {
+            var view = e.DataView;
+            if (view.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await view.GetStorageItemsAsync();
+                await OpenStorageItemsAsync(items);
+            }
+            else if (view.Contains(StandardDataFormats.Bitmap))
+            {
+                await ImportFromDataPackageView(view, "Drag and Drop");
+            }
+        }
+
+        private FileType GetFileType(StorageFile file)
+        {
+            var extension = file.FileType.ToLower();
+            switch (extension)
+            {
+                case ".jpg":
+                case ".jpeg":
+                case ".png":
+                case ".bmp":
+                case ".bin":
+                    return FileType.Image;
+                case ".mp4":
+                    return FileType.Video;
+                default:
+                    return FileType.Unknown;
             }
         }
     }

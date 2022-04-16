@@ -109,46 +109,7 @@ namespace ImageViewer
                 var files = args.Files;
 
                 Window.Current.Activate();
-                bool opened = false;
-
-                // If we open two files, try to diff them
-                if (files.Count == 2)
-                {
-                    var item1 = files[0];
-                    var item2 = files[1];
-                    if (item1 is StorageFile file1 && item2 is StorageFile file2)
-                    {
-                        var importedFile1 = await FileImporter.ProcessStorageFileAsync(file1);
-                        var importedFile2 = await FileImporter.ProcessStorageFileAsync(file2);
-                        var diffSetup = new DiffSetupResult(importedFile1, importedFile2);
-                        await page.OpenDiffAsync(diffSetup);
-                        opened = true;
-                    }
-                }
-                else
-                {
-                    var item = files.First();
-                    if (item is StorageFile file)
-                    {
-                        // Check to see if it's an image or a video
-                        var extension = file.FileType.ToLower();
-                        if (extension == ".jpg" ||
-                            extension == ".jpeg" ||
-                            extension == ".png" ||
-                            extension == ".bmp" ||
-                            extension == ".bin")
-                        {
-                            var importedFile = await FileImporter.ProcessStorageFileAsync(file);
-                            await page.OpenFileAsync(importedFile);
-                            opened = true;
-                        }
-                        else if (extension == ".mp4")
-                        {
-                            await page.OpenVideoAsync(file);
-                            opened = true;
-                        }
-                    }
-                }
+                var opened = await page.OpenStorageItemsAsync(files);
 
                 if (!opened)
                 {

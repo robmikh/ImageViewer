@@ -114,7 +114,7 @@
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>
 
-        <controls:ImageViewer x:Name="MainImageViewer" Grid.Row="1" />
+        <controls:ImageViewer x:Name="MainImageViewer" Grid.Row="1" AllowDrop="True" DragOver="MainImageViewer_DragOver" Drop="MainImageViewer_Drop" />
 
         <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}" >
             <Grid.ColumnDefinitions>
