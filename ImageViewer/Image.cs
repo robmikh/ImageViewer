@@ -3,6 +3,7 @@ using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics;
@@ -13,6 +14,7 @@ using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.System;
 using Windows.UI;
 using Windows.UI.Composition;
 using WinRTInteropTools;
@@ -370,9 +372,12 @@ namespace ImageViewer
         private MediaPlayerSurface _surface;
         private bool _isPlaying = false;
         private Color[] _pauseData = null;
+        private Timer _timer = null;
+        private DispatcherQueue _dispatcherQueue = null;
 
         private VideoImage(StorageFile file, MediaPlaybackItem item)
         {
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             _file = file;
             _player = new MediaPlayer();
             _player.IsLoopingEnabled = true;
@@ -425,11 +430,13 @@ namespace ImageViewer
         public void NextFrame()
         {
             _player.StepForwardOneFrame();
+            QueueDelayedUpdateToPauseData();
         }
 
         public void PreviousFrame()
         {
             _player.StepBackwardOneFrame();
+            QueueDelayedUpdateToPauseData();
         }
 
         private CanvasBitmap GetCurrentBitmap()
@@ -446,6 +453,23 @@ namespace ImageViewer
             {
                 _pauseData = bitmap.GetPixelColors();
             }
+        }
+
+        private void QueueDelayedUpdateToPauseData()
+        {
+            if (_timer == null)
+            {
+                _timer = new Timer(OnTimerTick, this, Timeout.Infinite, Timeout.Infinite);
+            }
+            _timer.Change(1000, Timeout.Infinite);
+        }
+
+        private void OnTimerTick(object state)
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                UpdatePauseData();
+            });
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
