@@ -110,6 +110,16 @@
                     <AppBarToggleButton x:Name="VideoPlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="VideoPlayPauseButton_Checked" Unchecked="VideoPlayPauseButton_Unchecked" />
                     <AppBarButton Icon="Previous" Label="Previous Frame" Click="VideoPreviousFrameButton_Click" />
                     <AppBarButton Icon="Next" Label="Next Frame" Click="VideoNextFrameButton_Click" />
+                    <AppBarElementContainer>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ElementName=VideoPlayerSeekSlider, Path=Value, Converter={StaticResource SecondsToTimestampConverter}, Mode=OneWay}" />
+                            <TextBlock Text="/" />
+                            <TextBlock Text="{Binding ElementName=VideoPlayerSeekSlider, Path=Maximum, Converter={StaticResource SecondsToTimestampConverter}, Mode=OneWay}" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer HorizontalAlignment="Stretch">
+                        <Slider x:Name="VideoPlayerSeekSlider" HorizontalAlignment="Stretch" MinWidth="250" MaxWidth="400" ThumbToolTipValueConverter="{StaticResource SecondsToTimestampConverter}" />
+                    </AppBarElementContainer>
                 </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>

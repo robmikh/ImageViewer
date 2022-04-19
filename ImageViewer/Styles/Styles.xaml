@@ -9,6 +9,7 @@
     <converters:NullablePositionToStringConverter x:Key="NullablePositionToStringConverter" />
     <converters:NullableMeasureSizeToStringConverter x:Key="NullableMeasureSizeToStringConverter" />
     <converters:ColorToTextConverter x:Key="ColorToTextConverter" />
+    <converters:SecondsToTimestampConverter x:Key="SecondsToTimestampConverter" />
     <Style x:Key="ReadOnlyFriendlyCheckBox" TargetType="CheckBox">
         <Setter Property="Background" Value="{ThemeResource CheckBoxBackgroundUnchecked}"/>
         <Setter Property="Foreground" Value="{ThemeResource CheckBoxForegroundUnchecked}"/>

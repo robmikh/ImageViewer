@@ -372,8 +372,10 @@ namespace ImageViewer
         private MediaPlayerSurface _surface;
         private bool _isPlaying = false;
         private Color[] _pauseData = null;
-        private Timer _timer = null;
+        private Timer _pauseDataUpdateTimer = null;
         private DispatcherQueue _dispatcherQueue = null;
+        private DispatcherQueueTimer _playbackTimer = null;
+        private Windows.UI.Xaml.Controls.Slider _boundSlider = null;
 
         private VideoImage(StorageFile file, MediaPlaybackItem item)
         {
@@ -439,6 +441,48 @@ namespace ImageViewer
             QueueDelayedUpdateToPauseData();
         }
 
+        public void BindToSlider(Windows.UI.Xaml.Controls.Slider slider)
+        {
+            UnbindSlider();
+            _boundSlider = slider;
+            slider.Minimum = 0;
+            slider.Maximum = _player.PlaybackSession.NaturalDuration.TotalSeconds;
+            slider.StepFrequency = 1;
+            slider.ValueChanged += OnSliderValueChanged;
+            if (_playbackTimer == null)
+            {
+                _playbackTimer = _dispatcherQueue.CreateTimer();
+                _playbackTimer.Tick += (s, a) =>
+                {
+                    if (_boundSlider != null)
+                    {
+                        _boundSlider.Value = _player.PlaybackSession.Position.TotalSeconds;
+                    }
+                };
+            }
+            _playbackTimer.Interval = TimeSpan.FromSeconds(1);
+            _playbackTimer.Start();
+        }
+
+        private void UnbindSlider()
+        {
+            if (_boundSlider != null)
+            {
+                _playbackTimer?.Stop();
+                _boundSlider.ValueChanged -= OnSliderValueChanged;
+                _boundSlider = null;
+            }
+        }
+
+        private void OnSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            _player.PlaybackSession.Position = TimeSpan.FromSeconds(e.NewValue);
+            if (!_isPlaying)
+            {
+                QueueDelayedUpdateToPauseData(3000);
+            }
+        }
+
         private CanvasBitmap GetCurrentBitmap()
         {
             var device = GraphicsManager.Current.CanvasDevice;
@@ -455,13 +499,13 @@ namespace ImageViewer
             }
         }
 
-        private void QueueDelayedUpdateToPauseData()
+        private void QueueDelayedUpdateToPauseData(int delayInMilliseconds = 1000)
         {
-            if (_timer == null)
+            if (_pauseDataUpdateTimer == null)
             {
-                _timer = new Timer(OnTimerTick, this, Timeout.Infinite, Timeout.Infinite);
+                _pauseDataUpdateTimer = new Timer(OnTimerTick, this, Timeout.Infinite, Timeout.Infinite);
             }
-            _timer.Change(1000, Timeout.Infinite);
+            _pauseDataUpdateTimer.Change(delayInMilliseconds, Timeout.Infinite);
         }
 
         private void OnTimerTick(object state)
@@ -481,6 +525,7 @@ namespace ImageViewer
         {
             if (_player != null)
             {
+                UnbindSlider();
                 _player.Pause();
                 _player.Dispose();
                 _player = null;

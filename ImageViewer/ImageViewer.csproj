@@ -131,6 +131,7 @@
     <Compile Include="Converters\ColorToTextConverter.cs" />
     <Compile Include="Converters\NullableMeasureSizeToStringConverter.cs" />
     <Compile Include="Converters\NullablePositionToStringConverter.cs" />
+    <Compile Include="Converters\SecondsToTimestampConverter.cs" />
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
     </Compile>

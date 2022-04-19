@@ -227,6 +227,8 @@ namespace ImageViewer.Pages
             else if (viewMode == ViewMode.Video)
             {
                 VideoPlayPauseButton.IsChecked = true;
+                var videoImage = (VideoImage)MainImageViewer.Image;
+                videoImage.BindToSlider(VideoPlayerSeekSlider);
             }
         }
 
