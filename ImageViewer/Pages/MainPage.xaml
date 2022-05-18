@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ImageViewer"
+    xmlns:pages="using:ImageViewer.Pages"
     xmlns:controls="using:ImageViewer.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -110,15 +111,29 @@
                     <AppBarToggleButton x:Name="VideoPlayPauseButton" Icon="Play" Label="Play/Pause" IsChecked="True" Checked="VideoPlayPauseButton_Checked" Unchecked="VideoPlayPauseButton_Unchecked" />
                     <AppBarButton Icon="Previous" Label="Previous Frame" Click="VideoPreviousFrameButton_Click" />
                     <AppBarButton Icon="Next" Label="Next Frame" Click="VideoNextFrameButton_Click" />
-                    <AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding ElementName=VideoPlayerSeekSlider, Path=Value, Converter={StaticResource SecondsToTimestampConverter}, Mode=OneWay}" />
                             <TextBlock Text="/" />
                             <TextBlock Text="{Binding ElementName=VideoPlayerSeekSlider, Path=Maximum, Converter={StaticResource SecondsToTimestampConverter}, Mode=OneWay}" />
                         </StackPanel>
                     </AppBarElementContainer>
-                    <AppBarElementContainer HorizontalAlignment="Stretch">
+                    <AppBarElementContainer HorizontalAlignment="Stretch" Margin="5, 0, 5, 0">
                         <Slider x:Name="VideoPlayerSeekSlider" HorizontalAlignment="Stretch" MinWidth="250" MaxWidth="400" ThumbToolTipValueConverter="{StaticResource SecondsToTimestampConverter}" />
+                    </AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Playback speed" VerticalAlignment="Center" Margin="0, 0, 5, 0"/>
+                            <ComboBox x:Name="VideoPlayerPlaybackSpeedComboBox" Margin="5, 0, 5, 0" MinWidth="75">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="pages:VideoPlaybackSpeedItem">
+                                        <TextBlock Text="{x:Bind DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
                     </AppBarElementContainer>
                 </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>

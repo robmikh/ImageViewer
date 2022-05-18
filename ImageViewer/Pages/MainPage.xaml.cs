@@ -5,6 +5,7 @@ using Microsoft.Graphics.Canvas;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -48,6 +49,18 @@ namespace ImageViewer.Pages
         Video
     }
 
+    class VideoPlaybackSpeedItem
+    {
+        public string DisplayName { get; }
+        public double Rate { get; }
+
+        public VideoPlaybackSpeedItem(double rate)
+        {
+            Rate = rate;
+            DisplayName = $"{rate:0.##}x";
+        }
+    }
+
 
     public sealed partial class MainPage : Page
     {
@@ -85,6 +98,19 @@ namespace ImageViewer.Pages
             _currentBottomBarSegmentLevel = _bottomBarSegments.Length;
             ComputeSegmentLayoutRanges();
 
+            VideoPlayerPlaybackSpeedComboBox.ItemsSource = new ObservableCollection<VideoPlaybackSpeedItem>()
+            {
+                new VideoPlaybackSpeedItem(2.0),
+                new VideoPlaybackSpeedItem(1.5),
+                new VideoPlaybackSpeedItem(1.25),
+                new VideoPlaybackSpeedItem(1.0),
+                new VideoPlaybackSpeedItem(0.75),
+                new VideoPlaybackSpeedItem(0.5),
+                new VideoPlaybackSpeedItem(0.25),
+            };
+            VideoPlayerPlaybackSpeedComboBox.SelectedIndex = 3;
+            VideoPlayerPlaybackSpeedComboBox.SelectionChanged += VideoPlayerPlaybackSpeedComboBox_SelectionChanged;
+
             var applicationView = ApplicationView.GetForCurrentView();
             if (applicationView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
@@ -99,6 +125,15 @@ namespace ImageViewer.Pages
                 CaptureBorderButton.Visibility = Visibility.Visible;
             }
             Window.Current.CoreWindow.KeyUp += CoreWindow_KeyUp;
+        }
+
+        private void VideoPlayerPlaybackSpeedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MainImageViewer.Image is VideoImage videoImage)
+            {
+                var item = (VideoPlaybackSpeedItem)((ComboBox)sender).SelectedItem;
+                videoImage.SetPlaybackRate(item.Rate);
+            }
         }
 
         public async Task OpenFileAsync(IImportedFile file)
@@ -229,6 +264,7 @@ namespace ImageViewer.Pages
                 VideoPlayPauseButton.IsChecked = true;
                 var videoImage = (VideoImage)MainImageViewer.Image;
                 videoImage.BindToSlider(VideoPlayerSeekSlider);
+                VideoPlayerPlaybackSpeedComboBox.SelectedIndex = 3;
             }
         }
 

@@ -464,6 +464,11 @@ namespace ImageViewer
             _playbackTimer.Start();
         }
 
+        public void SetPlaybackRate(double rate)
+        {
+            _player.PlaybackSession.PlaybackRate = rate;
+        }
+
         private void UnbindSlider()
         {
             if (_boundSlider != null)
