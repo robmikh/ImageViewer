@@ -16,6 +16,7 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -604,12 +605,23 @@ namespace ImageViewer.Pages
             var picker = new FileOpenPicker();
             picker.SuggestedStartLocation = PickerLocationId.VideosLibrary;
             picker.FileTypeFilter.Add(".mp4");
+            picker.FileTypeFilter.Add(".mov");
+            picker.FileTypeFilter.Add(".avi");
+            picker.FileTypeFilter.Add(".mkv");
 
             var file = await picker.PickSingleFileAsync();
             if (file != null)
             {
-                var image = await VideoImage.CreateAsync(file);
-                OpenImage(image, ViewMode.Video);
+                try
+                {
+                    var image = await VideoImage.CreateAsync(file);
+                    OpenImage(image, ViewMode.Video);
+                }
+                catch (Exception)
+                {
+                    var dialog = new MessageDialog("There was an error when trying to open/play the video. The codec may be unsupported, or the file may contain errors.", "Video file error");
+                    await dialog.ShowAsync();
+                }
             }
         }
 
@@ -723,6 +735,9 @@ namespace ImageViewer.Pages
                 case ".bin":
                     return FileType.Image;
                 case ".mp4":
+                case ".mov":
+                case ".avi":
+                case ".mkv":
                     return FileType.Video;
                 default:
                     return FileType.Unknown;

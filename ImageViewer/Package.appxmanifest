@@ -59,6 +59,9 @@
               <uap:FileType>.bin</uap:FileType>
               <uap:FileType>.bmp</uap:FileType>
               <uap:FileType>.mp4</uap:FileType>
+              <uap:FileType>.mov</uap:FileType>
+              <uap:FileType>.avi</uap:FileType>
+              <uap:FileType>.mkv</uap:FileType>
             </uap:SupportedFileTypes>
             <uap:DisplayName>ImageViewer</uap:DisplayName>
           </uap:FileTypeAssociation>

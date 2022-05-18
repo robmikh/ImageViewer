@@ -385,6 +385,7 @@ namespace ImageViewer
             _player.IsLoopingEnabled = true;
             _player.Volume = 0;
             _player.Source = item;
+            _player.MediaFailed += OnPlayerFailed;
             var compositor = GraphicsManager.Current.Compositor;
             _surface = _player.GetSurface(compositor);
 
@@ -403,6 +404,15 @@ namespace ImageViewer
             Size = size;
             DisplayName = file.Name;
             Play();
+        }
+
+        private void OnPlayerFailed(MediaPlayer sender, MediaPlayerFailedEventArgs args)
+        {
+            _dispatcherQueue.TryEnqueue(async () =>
+            {
+                var dialog = new Windows.UI.Popups.MessageDialog($"File failed to play: {args.ErrorMessage}", "Video player error");
+                await dialog.ShowAsync();
+            });
         }
 
         public string DisplayName { get; }
