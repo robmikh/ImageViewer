@@ -492,8 +492,11 @@ namespace ImageViewer.Controls
             {
                 var point = e.GetCurrentPoint(ImageRectangle);
                 var position = point.Position;
+                var scale = 1.0f / _lastDpiScale;
 
-                var color = Image.GetColorFromPixel((int)position.X, (int)position.Y);
+                var x = position.X / scale;
+                var y = position.Y / scale;
+                var color = Image.GetColorFromPixel((int)x, (int)y);
                 CurrentColor = color;
             }
         }
