@@ -25,7 +25,10 @@
                     <Border.BorderBrush>
                         <SolidColorBrush x:Name="ImageBorderBrush" Color="{Binding BorderColor, ElementName=CurrentControl, Mode=OneWay}" />
                     </Border.BorderBrush>
-                    <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid x:Name="ImageGrid" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5, 0.5">
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="RootScaleTransform" ScaleX="1" ScaleY="1" />
+                        </Grid.RenderTransform>
                         <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
                         <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
                             <Rectangle x:Name="MeasureRectangle" StrokeThickness="1" Width="{Binding MeasureWidth, ElementName=CurrentControl, Mode=OneWay}" Height="{Binding MeasureHeight, ElementName=CurrentControl, Mode=OneWay}">

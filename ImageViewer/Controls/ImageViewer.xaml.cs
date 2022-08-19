@@ -98,8 +98,6 @@ namespace ImageViewer.Controls
         private Point _lastPosition;
         private Point _startMeasurePoint;
 
-        private float _lastDpiScale = 1.0f;
-
         public ImageViewer()
         {
             this.InitializeComponent();
@@ -144,7 +142,10 @@ namespace ImageViewer.Controls
 
         private void ProcessDpiChanged(float dpiScale)
         {
-            _lastDpiScale = dpiScale;
+            var scale = 1.0f / dpiScale;
+            RootScaleTransform.ScaleX = scale;
+            RootScaleTransform.ScaleY = scale;
+
             RefreshImageGridSize();
         }
 
@@ -154,9 +155,8 @@ namespace ImageViewer.Controls
             if (image != null)
             {
                 var size = Image.Size;
-                var scale = 1.0f / _lastDpiScale;
-                ImageGrid.Width = size.Width * scale;
-                ImageGrid.Height = size.Height * scale;
+                ImageGrid.Width = size.Width;
+                ImageGrid.Height = size.Height;
             }
         }
 
@@ -492,11 +492,8 @@ namespace ImageViewer.Controls
             {
                 var point = e.GetCurrentPoint(ImageRectangle);
                 var position = point.Position;
-                var scale = 1.0f / _lastDpiScale;
 
-                var x = position.X / scale;
-                var y = position.Y / scale;
-                var color = Image.GetColorFromPixel((int)x, (int)y);
+                var color = Image.GetColorFromPixel((int)position.X, (int)position.Y);
                 CurrentColor = color;
             }
         }
