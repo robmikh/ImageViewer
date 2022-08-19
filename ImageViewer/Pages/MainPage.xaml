@@ -172,7 +172,7 @@
             </StackPanel>
 
             <StackPanel x:Name="ColorContainer" Orientation="Horizontal" Grid.Column="3">
-                <Border BorderThickness="2" BorderBrush="{StaticResource DefaultTextForegroundThemeBrush}" VerticalAlignment="Center" Margin="0, 5, 5, 0" >
+                <Border BorderThickness="2" BorderBrush="{ThemeResource DefaultTextForegroundThemeBrush}" VerticalAlignment="Center" Margin="0, 5, 5, 0" >
                     <Grid Width="15" Height="15">
                         <Line X1="0" Y1="0" X2="15" Y2="15" Stroke="Red" StrokeThickness="2" />
                         <Rectangle>
