@@ -1,6 +1,7 @@
 ﻿using ImageViewer.Dialogs;
 using Microsoft.Graphics.Canvas;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Graphics.DirectX;
@@ -40,9 +41,9 @@ namespace ImageViewer
         public StorageFile File { get; }
         public int Width { get; }
         public int Height { get; }
-        public DirectXPixelFormat Format { get; }
+        public BinaryImportPixelFormat Format { get; }
 
-        public ImportedRawPixelsFile(StorageFile file, int width, int height, DirectXPixelFormat format)
+        public ImportedRawPixelsFile(StorageFile file, int width, int height, BinaryImportPixelFormat format)
         {
             File = file;
             Width = width;
@@ -53,7 +54,35 @@ namespace ImageViewer
         public async Task<CanvasBitmap> ImportFileAsync(CanvasDevice device)
         {
             var buffer = await FileIO.ReadBufferAsync(File);
-            return CanvasBitmap.CreateFromBytes(device, buffer, Width, Height, Format);
+
+            switch (Format)
+            {
+                // Win2D supported formats
+                case BinaryImportPixelFormat.BGRA8:
+                    {
+                        return CanvasBitmap.CreateFromBytes(device, buffer, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
+                // Other formats
+                case BinaryImportPixelFormat.RGB8:
+                    {
+                        var bytes = buffer.ToArray();
+                        var bgraBytes = new byte[Width * Height * 4];
+                        for (var i = 0; i < Width * Height; i++)
+                        {
+                            var sourceIndex = i * 3;
+                            var destIndex = i * 4;
+
+                            bgraBytes[destIndex + 0] = bytes[sourceIndex + 2];
+                            bgraBytes[destIndex + 1] = bytes[sourceIndex + 1];
+                            bgraBytes[destIndex + 2] = bytes[sourceIndex + 0];
+                            bgraBytes[destIndex + 3] = 255;
+                        }
+                        return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
+                default:
+                    throw new ArgumentException();
+            }
+            
         }
     }
 
@@ -89,7 +118,7 @@ namespace ImageViewer
                 case ".bin":
                     var width = 0;
                     var height = 0;
-                    var format = DirectXPixelFormat.B8G8R8A8UIntNormalized;
+                    var format = BinaryImportPixelFormat.BGRA8;
 
                     // If the image name ends in (width)x(height), then use that in the dialog
                     var fileName = file.Name;
@@ -102,10 +131,26 @@ namespace ImageViewer
                         height = int.Parse(match.Groups["height"].Value);
                     }
 
-                    var dialog = new BinaryDetailsInputDialog(width, height);
+                    // Guess the format based on the size
+                    if (width > 0 && height > 0)
+                    {
+                        var basiProperties = await file.GetBasicPropertiesAsync();
+                        var size = basiProperties.Size;
+                        var pixels = (ulong)(width * height);
+                        if (pixels * 4 == size)
+                        {
+                            format = BinaryImportPixelFormat.BGRA8;
+                        }
+                        else if (pixels * 3 == size)
+                        {
+                            format = BinaryImportPixelFormat.RGB8;
+                        }
+                    }
+
+                    var dialog = new BinaryDetailsInputDialog(width, height, format);
                     var dialogResult = await dialog.ShowAsync();
                     if (dialogResult == ContentDialogResult.Primary &&
-                        dialog.ParseBinaryDetailsSizeBoxes(out width, out height))
+                        dialog.ParseBinaryDetailsSizeBoxes(out width, out height, out format))
                     {
                         result = new ImportedRawPixelsFile(file, width, height, format);
                     }

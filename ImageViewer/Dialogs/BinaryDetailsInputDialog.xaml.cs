@@ -1,32 +1,68 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using System.Collections.ObjectModel;
+using Windows.Graphics.DirectX;
+using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer.Dialogs
 {
+    public enum BinaryImportPixelFormat
+    {
+        Unknown,
+        BGRA8,
+        RGB8
+    }
+
     public sealed partial class BinaryDetailsInputDialog : ContentDialog
     {
-        public BinaryDetailsInputDialog(int width, int height)
+        ObservableCollection<BinaryImportPixelFormat> _supportedFormats;  
+
+        public BinaryDetailsInputDialog(int width, int height, BinaryImportPixelFormat format)
         {
             this.InitializeComponent();
-            ResetBinaryDetailsInputDialog(width, height);
+            _supportedFormats = new ObservableCollection<BinaryImportPixelFormat>()
+            {
+                BinaryImportPixelFormat.BGRA8,
+                BinaryImportPixelFormat.RGB8,
+            };
+            BinaryDetailsPixelFormatComboBox.ItemsSource = _supportedFormats;
+            ResetBinaryDetailsInputDialog(width, height, format);
         }
 
         public void ResetBinaryDetailsInputDialog()
         {
-            ResetBinaryDetailsInputDialog(0, 0);
+            ResetBinaryDetailsInputDialog(0, 0, BinaryImportPixelFormat.BGRA8);
         }
 
-        public void ResetBinaryDetailsInputDialog(int width, int height)
+        public void ResetBinaryDetailsInputDialog(int width, int height, BinaryImportPixelFormat format)
         {
             // Reset the state
             IsPrimaryButtonEnabled = width > 0 && height > 0;
             BinaryDetailsWidthTextBox.Text = $"{width}";
             BinaryDetailsHeightTextBox.Text = $"{height}";
+
+            if (format == BinaryImportPixelFormat.Unknown)
+            {
+                format = BinaryImportPixelFormat.BGRA8;
+            }
+            var index = _supportedFormats.IndexOf(format);
+            BinaryDetailsPixelFormatComboBox.SelectedIndex = index;
         }
 
-        public bool ParseBinaryDetailsSizeBoxes(out int width, out int height)
+        public bool ParseBinaryDetailsSizeBoxes(out int width, out int height, out BinaryImportPixelFormat format)
         {
             width = 0;
             height = 0;
+            format = BinaryImportPixelFormat.Unknown;
+
+            var selectedItem = BinaryDetailsPixelFormatComboBox.SelectedItem;
+            if (selectedItem is BinaryImportPixelFormat selectedFormat)
+            {
+                format = selectedFormat;
+            }
+            else
+            {
+                return false;
+            }
+
             var widthText = BinaryDetailsWidthTextBox.Text;
             var heightText = BinaryDetailsHeightTextBox.Text;
             if (!int.TryParse(widthText, out width) || width == 0 ||
@@ -43,7 +79,8 @@ namespace ImageViewer.Dialogs
             {
                 var width = 0;
                 var height = 0;
-                if (ParseBinaryDetailsSizeBoxes(out width, out height))
+                var format = BinaryImportPixelFormat.Unknown;
+                if (ParseBinaryDetailsSizeBoxes(out width, out height, out format))
                 {
                     IsPrimaryButtonEnabled = true;
                 }
