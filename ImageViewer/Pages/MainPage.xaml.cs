@@ -269,13 +269,13 @@ namespace ImageViewer.Pages
             }
         }
 
-        private async Task SaveToFileAsync(StorageFile file)
+        private async Task SaveToFileAsync(StorageFile file, ImageFormat format)
         {
             if (MainImageViewer.Image != null)
             {
                 using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream);
+                    await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream, format);
                 }
             }
         }
@@ -286,6 +286,19 @@ namespace ImageViewer.Pages
             if (file != null)
             {
                 await OpenFileAsync(file);
+            }
+        }
+
+        private ImageFormat GetImageFormatFromExtension(string extension)
+        {
+            switch (extension.ToLower())
+            {
+                case ".png":
+                    return ImageFormat.Png;
+                case ".bin":
+                    return ImageFormat.RawBgra8;
+                default:
+                    throw new ArgumentException();
             }
         }
 
@@ -313,11 +326,24 @@ namespace ImageViewer.Pages
                 picker.SuggestedFileName = currentName;
                 picker.DefaultFileExtension = ".png";
                 picker.FileTypeChoices.Add("PNG Image", new List<string> { ".png" });
+                picker.FileTypeChoices.Add("Raw BGRA8", new List<string> { ".bin" });
 
                 var file = await picker.PickSaveFileAsync();
                 if (file != null)
                 {
-                    await SaveToFileAsync(file);
+                    var format = GetImageFormatFromExtension(file.FileType);
+
+                    await SaveToFileAsync(file, format);
+
+                    // TODO: Better way to encode this information
+                    if (format == ImageFormat.RawBgra8)
+                    {
+                        var fileName = file.DisplayName;
+                        var size = MainImageViewer.Image.Size;
+                        // TODO: Handle name collisions
+                        await file.RenameAsync($"{fileName}_{size.Width}x{size.Height}.bin");
+                    }
+
                     await Launcher.LaunchFileAsync(file);
                 }
             }
@@ -331,7 +357,7 @@ namespace ImageViewer.Pages
                 dataPackage.RequestedOperation = DataPackageOperation.Copy;
 
                 var stream = new InMemoryRandomAccessStream();
-                await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream);
+                await MainImageViewer.Image.SaveSnapshotToStreamAsync(stream, ImageFormat.Png);
 
                 dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromStream(stream));
                 Clipboard.SetContent(dataPackage);

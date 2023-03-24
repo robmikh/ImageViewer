@@ -3,6 +3,7 @@ using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -21,15 +22,47 @@ using WinRTInteropTools;
 
 namespace ImageViewer
 {
+    public enum ImageFormat
+    {
+        Png,
+        RawBgra8,
+    }
+
     public interface IImage : IDisposable
     {
         string DisplayName { get; }
         BitmapSize Size { get; }
-        // TODO: Format?
-        Task SaveSnapshotToStreamAsync(IRandomAccessStream stream);
+        Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format);
         ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics);
         void RegenerateSurface();
         Color? GetColorFromPixel(int x, int y);
+    }
+
+    static class BitmapHelpers
+    {
+        public static async Task SaveToStreamAsync(CanvasBitmap bitmap, IRandomAccessStream stream, ImageFormat format)
+        {
+            switch (format)
+            {
+                case ImageFormat.Png:
+                    await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                    break;
+                case ImageFormat.RawBgra8:
+                    {
+                        var bytes = bitmap.GetPixelBytes();
+                        using (var writer = new DataWriter(stream))
+                        {
+                            writer.WriteBytes(bytes);
+                            await writer.StoreAsync();
+                            await writer.FlushAsync();
+                            writer.DetachStream();
+                        }
+                    }
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
+        }
     }
 
     class CanvasBitmapImage : IImage
@@ -60,9 +93,9 @@ namespace ImageViewer
             }
         }
 
-        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format)
         {
-            await Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+            await BitmapHelpers.SaveToStreamAsync(Bitmap, stream, format);
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
@@ -182,10 +215,10 @@ namespace ImageViewer
             return _surface;
         }
 
-        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format)
         {
             var bitmap = GetBitmapForViewMode(_viewMode);
-            await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+            await BitmapHelpers.SaveToStreamAsync(bitmap, stream, format);
         }
 
         public void Dispose()
@@ -261,7 +294,7 @@ namespace ImageViewer
             _capture.StartCapture();
         }
 
-        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format)
         {
             byte[] bytes = null;
             if (_isPlaying)
@@ -274,16 +307,37 @@ namespace ImageViewer
                 bytes = (byte[])_pauseData.Clone();
             }
 
-            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-            encoder.SetPixelData(
-                BitmapPixelFormat.Bgra8,
-                BitmapAlphaMode.Premultiplied,
-                Size.Width,
-                Size.Height,
-                1.0,
-                1.0,
-                bytes);
-            await encoder.FlushAsync();
+            switch (format)
+            {
+                case ImageFormat.Png:
+                    {
+                        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+                        encoder.SetPixelData(
+                            BitmapPixelFormat.Bgra8,
+                            BitmapAlphaMode.Premultiplied,
+                            Size.Width,
+                            Size.Height,
+                            1.0,
+                            1.0,
+                            bytes);
+                        await encoder.FlushAsync();
+                    }
+                    break;
+                case ImageFormat.RawBgra8:
+                    {
+                        using (var writer = new DataWriter(stream))
+                        {
+                            writer.WriteBytes(bytes);
+                            await writer.StoreAsync();
+                            await writer.FlushAsync();
+                            writer.DetachStream();
+                        }
+                    }
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
+            
         }
 
         public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
@@ -565,11 +619,11 @@ namespace ImageViewer
             // Do nothing
         }
 
-        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream)
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format)
         {
             using (var bitmap = GetCurrentBitmap())
             {
-                await bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png);
+                await BitmapHelpers.SaveToStreamAsync(bitmap, stream, format);
             }
         }
     }
