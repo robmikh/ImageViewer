@@ -750,6 +750,7 @@ namespace ImageViewer.Pages
                 case ".png":
                 case ".bmp":
                 case ".bin":
+                case ".rmraw":
                     return FileType.Image;
                 case ".mp4":
                 case ".mov":
