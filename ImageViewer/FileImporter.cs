@@ -1,4 +1,5 @@
 ﻿using ImageViewer.Dialogs;
+using ImageViewer.FileFormats;
 using Microsoft.Graphics.Canvas;
 using System;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -86,6 +87,69 @@ namespace ImageViewer
         }
     }
 
+    class ImportedRmRawFile : IImportedFile
+    {
+        public StorageFile File { get; }
+        public RmRawImage RawImage { get; }
+        public int Width { get; }
+        public int Height { get; }
+        public BinaryImportPixelFormat Format { get; }
+
+        public ImportedRmRawFile(StorageFile file, RmRawImage image)
+        {
+            File = file;
+            RawImage = image;
+            Width = (int)image.Width;
+            Height = (int)image.Height;
+
+            BinaryImportPixelFormat format;
+            switch (image.PixelFormat)
+            {
+                case RmRawPixelFormat.BGRA8:
+                    format = BinaryImportPixelFormat.BGRA8;
+                    break;
+                case RmRawPixelFormat.RGB8:
+                    format = BinaryImportPixelFormat.RGB8;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            Format = format;
+        }
+
+        public async Task<CanvasBitmap> ImportFileAsync(CanvasDevice device)
+        {
+            var bytes = RawImage.PixelBytes;
+
+            switch (Format)
+            {
+                // Win2D supported formats
+                case BinaryImportPixelFormat.BGRA8:
+                    {
+                        return CanvasBitmap.CreateFromBytes(device, bytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
+                // Other formats
+                case BinaryImportPixelFormat.RGB8:
+                    {
+                        var bgraBytes = new byte[Width * Height * 4];
+                        for (var i = 0; i < Width * Height; i++)
+                        {
+                            var sourceIndex = i * 3;
+                            var destIndex = i * 4;
+
+                            bgraBytes[destIndex + 0] = bytes[sourceIndex + 2];
+                            bgraBytes[destIndex + 1] = bytes[sourceIndex + 1];
+                            bgraBytes[destIndex + 2] = bytes[sourceIndex + 0];
+                            bgraBytes[destIndex + 3] = 255;
+                        }
+                        return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
+                default:
+                    throw new ArgumentException();
+            }
+        }
+    }
+
     static class FileImporter
     {
         public static async Task<IImportedFile> OpenFileAsync()
@@ -97,6 +161,7 @@ namespace ImageViewer
             picker.FileTypeFilter.Add(".png");
             picker.FileTypeFilter.Add(".bmp");
             picker.FileTypeFilter.Add(".bin");
+            picker.FileTypeFilter.Add(".rmraw");
 
             IImportedFile result = null;
             var file = await picker.PickSingleFileAsync();
@@ -116,43 +181,55 @@ namespace ImageViewer
             switch (extension)
             {
                 case ".bin":
-                    var width = 0;
-                    var height = 0;
-                    var format = BinaryImportPixelFormat.BGRA8;
-
-                    // If the image name ends in (width)x(height), then use that in the dialog
-                    var fileName = file.Name;
-                    var fileStem = fileName.Substring(0, fileName.LastIndexOf('.'));
-                    var pattern = @".*[A-z](?<width>[0-9]+)x(?<height>[0-9]+)";
-                    var match = Regex.Match(fileStem, pattern);
-                    if (match.Success)
                     {
-                        width = int.Parse(match.Groups["width"].Value);
-                        height = int.Parse(match.Groups["height"].Value);
-                    }
+                        var width = 0;
+                        var height = 0;
+                        var format = BinaryImportPixelFormat.BGRA8;
 
-                    // Guess the format based on the size
-                    if (width > 0 && height > 0)
-                    {
-                        var basiProperties = await file.GetBasicPropertiesAsync();
-                        var size = basiProperties.Size;
-                        var pixels = (ulong)(width * height);
-                        if (pixels * 4 == size)
+                        // If the image name ends in (width)x(height), then use that in the dialog
+                        var fileName = file.Name;
+                        var fileStem = fileName.Substring(0, fileName.LastIndexOf('.'));
+                        var pattern = @".*[A-z](?<width>[0-9]+)x(?<height>[0-9]+)";
+                        var match = Regex.Match(fileStem, pattern);
+                        if (match.Success)
                         {
-                            format = BinaryImportPixelFormat.BGRA8;
+                            width = int.Parse(match.Groups["width"].Value);
+                            height = int.Parse(match.Groups["height"].Value);
                         }
-                        else if (pixels * 3 == size)
+
+                        // Guess the format based on the size
+                        if (width > 0 && height > 0)
                         {
-                            format = BinaryImportPixelFormat.RGB8;
+                            var basiProperties = await file.GetBasicPropertiesAsync();
+                            var size = basiProperties.Size;
+                            var pixels = (ulong)(width * height);
+                            if (pixels * 4 == size)
+                            {
+                                format = BinaryImportPixelFormat.BGRA8;
+                            }
+                            else if (pixels * 3 == size)
+                            {
+                                format = BinaryImportPixelFormat.RGB8;
+                            }
+                        }
+
+                        var dialog = new BinaryDetailsInputDialog(width, height, format);
+                        var dialogResult = await dialog.ShowAsync();
+                        if (dialogResult == ContentDialogResult.Primary &&
+                            dialog.ParseBinaryDetailsSizeBoxes(out width, out height, out format))
+                        {
+                            result = new ImportedRawPixelsFile(file, width, height, format);
                         }
                     }
-
-                    var dialog = new BinaryDetailsInputDialog(width, height, format);
-                    var dialogResult = await dialog.ShowAsync();
-                    if (dialogResult == ContentDialogResult.Primary &&
-                        dialog.ParseBinaryDetailsSizeBoxes(out width, out height, out format))
+                    break;
+                case ".rmraw":
                     {
-                        result = new ImportedRawPixelsFile(file, width, height, format);
+                        RmRawImage rawImage;
+                        using (var stream = await file.OpenReadAsync())
+                        {
+                            rawImage = await RmRaw.ReadImageAsync(stream);
+                        }
+                        result = new ImportedRmRawFile(file, rawImage);
                     }
                     break;
                 default:

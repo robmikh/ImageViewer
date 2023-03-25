@@ -1,10 +1,7 @@
 ﻿using ImageViewer.Pages;
-using ImageViewer.System;
 using System;
-using System.Linq;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

@@ -1,9 +1,9 @@
-﻿using ImageViewer.ScreenCapture;
+﻿using ImageViewer.FileFormats;
+using ImageViewer.ScreenCapture;
 using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -50,13 +50,8 @@ namespace ImageViewer
                 case ImageFormat.RawBgra8:
                     {
                         var bytes = bitmap.GetPixelBytes();
-                        using (var writer = new DataWriter(stream))
-                        {
-                            writer.WriteBytes(bytes);
-                            await writer.StoreAsync();
-                            await writer.FlushAsync();
-                            writer.DetachStream();
-                        }
+                        var size = bitmap.SizeInPixels;
+                        await RmRaw.WriteImageAsync(stream, size.Width, size.Height, RmRawPixelFormat.BGRA8, bytes);
                     }
                     break;
                 default:
@@ -325,13 +320,7 @@ namespace ImageViewer
                     break;
                 case ImageFormat.RawBgra8:
                     {
-                        using (var writer = new DataWriter(stream))
-                        {
-                            writer.WriteBytes(bytes);
-                            await writer.StoreAsync();
-                            await writer.FlushAsync();
-                            writer.DetachStream();
-                        }
+                        await RmRaw.WriteImageAsync(stream, Size.Width, Size.Height, RmRawPixelFormat.BGRA8, bytes);
                     }
                     break;
                 default:

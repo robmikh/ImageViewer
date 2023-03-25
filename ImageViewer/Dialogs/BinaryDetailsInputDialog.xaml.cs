@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using Windows.Graphics.DirectX;
 using Windows.UI.Xaml.Controls;
 
 namespace ImageViewer.Dialogs

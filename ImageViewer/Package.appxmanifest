@@ -62,6 +62,7 @@
               <uap:FileType>.mov</uap:FileType>
               <uap:FileType>.avi</uap:FileType>
               <uap:FileType>.mkv</uap:FileType>
+              <uap:FileType>.rmraw</uap:FileType>
             </uap:SupportedFileTypes>
             <uap:DisplayName>ImageViewer</uap:DisplayName>
           </uap:FileTypeAssociation>
