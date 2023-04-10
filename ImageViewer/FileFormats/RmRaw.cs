@@ -8,6 +8,7 @@ namespace ImageViewer.FileFormats
     {
         BGRA8 = 0,
         RGB8 = 1,
+        R8 = 2,
     }
 
     struct RmRawHeader
@@ -39,7 +40,7 @@ namespace ImageViewer.FileFormats
     {
         // "rmraw\0"
         static byte[] MAGIC = new byte[] { 114, 109, 114, 97, 119, 0 };
-        static uint MAX_SUPPORTED_VERSION = 1;
+        static uint MAX_SUPPORTED_VERSION = 2;
 
         public static async Task WriteImageAsync(IRandomAccessStream stream, uint width, uint height, RmRawPixelFormat format, byte[] bytes)
         {
@@ -128,6 +129,8 @@ namespace ImageViewer.FileFormats
                     return 4;
                 case RmRawPixelFormat.RGB8:
                     return 3;
+                case RmRawPixelFormat.R8:
+                    return 1;
                 default:
                     throw new ArgumentException();
             }

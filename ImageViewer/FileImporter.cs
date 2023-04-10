@@ -93,7 +93,7 @@ namespace ImageViewer
         public RmRawImage RawImage { get; }
         public int Width { get; }
         public int Height { get; }
-        public BinaryImportPixelFormat Format { get; }
+        public RmRawPixelFormat Format { get; }
 
         public ImportedRmRawFile(StorageFile file, RmRawImage image)
         {
@@ -102,19 +102,16 @@ namespace ImageViewer
             Width = (int)image.Width;
             Height = (int)image.Height;
 
-            BinaryImportPixelFormat format;
             switch (image.PixelFormat)
             {
                 case RmRawPixelFormat.BGRA8:
-                    format = BinaryImportPixelFormat.BGRA8;
-                    break;
                 case RmRawPixelFormat.RGB8:
-                    format = BinaryImportPixelFormat.RGB8;
+                case RmRawPixelFormat.R8:
+                    Format = image.PixelFormat;
                     break;
                 default:
                     throw new NotImplementedException();
             }
-            Format = format;
         }
 
         public async Task<CanvasBitmap> ImportFileAsync(CanvasDevice device)
@@ -124,12 +121,12 @@ namespace ImageViewer
             switch (Format)
             {
                 // Win2D supported formats
-                case BinaryImportPixelFormat.BGRA8:
+                case RmRawPixelFormat.BGRA8:
                     {
                         return CanvasBitmap.CreateFromBytes(device, bytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
                     }
                 // Other formats
-                case BinaryImportPixelFormat.RGB8:
+                case RmRawPixelFormat.RGB8:
                     {
                         var bgraBytes = new byte[Width * Height * 4];
                         for (var i = 0; i < Width * Height; i++)
@@ -140,6 +137,21 @@ namespace ImageViewer
                             bgraBytes[destIndex + 0] = bytes[sourceIndex + 2];
                             bgraBytes[destIndex + 1] = bytes[sourceIndex + 1];
                             bgraBytes[destIndex + 2] = bytes[sourceIndex + 0];
+                            bgraBytes[destIndex + 3] = 255;
+                        }
+                        return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
+                case RmRawPixelFormat.R8:
+                    {
+                        var bgraBytes = new byte[Width * Height * 4];
+                        for (var i = 0; i < Width * Height; i++)
+                        {
+                            var sourceIndex = i;
+                            var destIndex = i * 4;
+
+                            bgraBytes[destIndex + 0] = bytes[sourceIndex];
+                            bgraBytes[destIndex + 1] = bytes[sourceIndex];
+                            bgraBytes[destIndex + 2] = bytes[sourceIndex];
                             bgraBytes[destIndex + 3] = 255;
                         }
                         return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
