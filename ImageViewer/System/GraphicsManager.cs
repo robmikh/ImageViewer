@@ -25,6 +25,7 @@ namespace ImageViewer.System
         }
 
         private Direct3D11Device _captureDevice = null;
+        private CompositionGraphicsDevice _compGraphicsForCapture = null;
         private DeviceLostWatcher _canvasWatcher;
         private DeviceLostWatcher _captureWatcher;
 
@@ -69,8 +70,17 @@ namespace ImageViewer.System
                 {
                     _captureDevice = new Direct3D11Device();
                     _captureWatcher.WatchDevice(_captureDevice);
+                    _compGraphicsForCapture = CompositionGraphics.CreateCompositionGraphicsDevice(Compositor, _captureDevice);
                 }
                 return _captureDevice;
+            }
+        }
+        public CompositionGraphicsDevice CompositionGraphicsDeviceForCapture
+        {
+            get
+            {
+                var device = CaptureDevice;
+                return _compGraphicsForCapture;
             }
         }
 

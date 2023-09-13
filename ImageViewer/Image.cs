@@ -3,7 +3,9 @@ using ImageViewer.ScreenCapture;
 using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
+using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -420,6 +422,9 @@ namespace ImageViewer
         private DispatcherQueueTimer _playbackTimer = null;
         private Windows.UI.Xaml.Controls.Slider _boundSlider = null;
 
+        private List<VideoFrame> _videoFrames = null;
+        public IEnumerable<VideoFrame> VideoFrames => _videoFrames;
+
         private VideoImage(StorageFile file, MediaPlaybackItem item)
         {
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -532,13 +537,22 @@ namespace ImageViewer
             }
         }
 
-        private void OnSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        public void SetPosition(TimeSpan position)
         {
-            _player.PlaybackSession.Position = TimeSpan.FromSeconds(e.NewValue);
+            _player.PlaybackSession.Position = position;
             if (!_isPlaying)
             {
                 QueueDelayedUpdateToPauseData(3000);
             }
+            if (_boundSlider != null)
+            {
+                _boundSlider.Value = _player.PlaybackSession.Position.TotalSeconds;
+            }
+        }
+
+        private void OnSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            SetPosition(TimeSpan.FromSeconds(e.NewValue));
         }
 
         private CanvasBitmap GetCurrentBitmap()
@@ -613,6 +627,17 @@ namespace ImageViewer
             using (var bitmap = GetCurrentBitmap())
             {
                 await BitmapHelpers.SaveToStreamAsync(bitmap, stream, format);
+            }
+        }
+
+        public async Task EnsureVideoFramesAsync(CompositionGraphicsDevice compGraphics, Direct3D11Device device)
+        {
+            if (_videoFrames == null)
+            {
+                var source = MediaSource.CreateFromStorageFile(_file);
+                await source.OpenAsync();
+                var size = new SizeInt32() { Width = (int)Size.Width, Height = (int)Size.Height };
+                _videoFrames = await VideoFrame.ExtractFramesAsync(source, size, compGraphics, device);
             }
         }
     }

@@ -761,5 +761,30 @@ namespace ImageViewer.Pages
                     return FileType.Unknown;
             }
         }
+
+        private async void VideoShowFramesButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                await image.EnsureVideoFramesAsync(GraphicsManager.Current.CompositionGraphicsDeviceForCapture, GraphicsManager.Current.CaptureDevice);
+                VideoTimelineListView.ItemsSource = image.VideoFrames;
+                VideoTimelineGrid.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void VideoShowFramesButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            VideoTimelineGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void VideoTimelineListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                var frame = (VideoFrame)e.ClickedItem;
+                image.Pause();
+                image.SetPosition(frame.Timestamp);
+            }
+        }
     }
 }
