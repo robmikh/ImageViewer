@@ -1,22 +1,11 @@
 ﻿using ImageViewerNative;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.DirectX;
-using Windows.Graphics.DirectX.Direct3D11;
-using Windows.Graphics.Imaging;
-using Windows.Media.Core;
-using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI.Composition;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Maps;
 using WinRTInteropTools;
 
 namespace ImageViewer

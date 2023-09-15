@@ -3,7 +3,6 @@ using ImageViewer.ScreenCapture;
 using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
-using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
 using System.Collections.Generic;
 using System.Threading;
