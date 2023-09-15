@@ -1,0 +1,17 @@
+namespace ImageViewerNative
+{
+    runtimeclass VideoFrameArgs
+    {
+        Windows.Graphics.DirectX.Direct3D11.IDirect3DSurface Surface { get; };
+        Windows.Foundation.TimeSpan Timestamp { get; };
+        UInt64 FrameId { get; };
+    }
+
+    runtimeclass VideoFrameExtractor
+    {
+        static void ExtractFromStream(
+            Windows.Storage.Streams.IRandomAccessStream stream,
+            Windows.Graphics.DirectX.Direct3D11.IDirect3DDevice device,
+            Windows.Foundation.EventHandler<VideoFrameArgs> callback);
+    }
+}

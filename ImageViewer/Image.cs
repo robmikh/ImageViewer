@@ -634,10 +634,11 @@ namespace ImageViewer
         {
             if (_videoFrames == null)
             {
-                var source = MediaSource.CreateFromStorageFile(_file);
-                await source.OpenAsync();
-                var size = new SizeInt32() { Width = (int)Size.Width, Height = (int)Size.Height };
-                _videoFrames = await VideoFrame.ExtractFramesAsync(source, size, compGraphics, device);
+                using (var stream = await _file.OpenReadAsync())
+                {
+                    var size = new SizeInt32() { Width = (int)Size.Width, Height = (int)Size.Height };
+                    _videoFrames = await VideoFrame.ExtractFramesAsync(stream, size, compGraphics, device);
+                }
             }
         }
     }
