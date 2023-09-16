@@ -589,6 +589,7 @@ namespace ImageViewer
                 _player.Pause();
                 _player.Dispose();
                 _player = null;
+                _pauseDataUpdateTimer.Dispose();
             }
         }
 

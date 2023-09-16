@@ -136,7 +136,11 @@
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarSeparator />
-                    <AppBarButton x:Name="FrameByFrameVideoButton" Icon="ShowBcc" Label="Open as frame by frame" Click="FrameByFrameVideoButton_Click" />
+                    <AppBarButton x:Name="FrameByFrameVideoButton" Label="Open as frame by frame" Click="FrameByFrameVideoButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7C5;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                 </wctc:TabbedCommandBarItem>
                 <wctc:TabbedCommandBarItem x:Name="FrameByFrameVideoMenu" Header="Frame By Frame" IsContextual="True" Visibility="Collapsed">
                     <AppBarButton Icon="Previous" Label="Previous Frame" Click="FrameByFrameVideoPreviousFrameButton_Click" />
@@ -152,6 +156,12 @@
                     <AppBarElementContainer HorizontalAlignment="Stretch" Margin="5, 0, 5, 0">
                         <Slider x:Name="FrameByFrameVideoPlayerSeekSlider" HorizontalAlignment="Stretch" MinWidth="250" MaxWidth="400" Value="{Binding ElementName=VideoTimelineListView, Path=SelectedIndex, Mode=TwoWay}" ValueChanged="FrameByFrameVideoPlayerSeekSlider_ValueChanged" />
                     </AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarButton Label="Scroll to selected frame" Click="FrameByFrameVideoScrollIntoViewButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE890;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                 </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>

@@ -779,7 +779,10 @@ namespace ImageViewer.Pages
         {
             if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
             {
+                image.Pause();
+                IsEnabled = false;
                 var newImage = await image.CreateFrameByFrameVideoImageAsync(GraphicsManager.Current.CaptureDevice, GraphicsManager.Current.CompositionGraphicsDeviceForCapture);
+                IsEnabled = true;
                 OpenImage(newImage, ViewMode.FrameByFrameVideo);
             }
         }
@@ -825,6 +828,18 @@ namespace ImageViewer.Pages
         }
 
         private void FrameByFrameVideoPlayerSeekSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                var index = VideoTimelineListView.SelectedIndex;
+                if (index >= 0 && index < image.VideoFrames.Count)
+                {
+                    VideoTimelineListView.ScrollIntoView(image.VideoFrames[index]);
+                }
+            }
+        }
+
+        private void FrameByFrameVideoScrollIntoViewButton_Click(object sender, RoutedEventArgs e)
         {
             if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
             {
