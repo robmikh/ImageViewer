@@ -534,22 +534,13 @@ namespace ImageViewer
             }
         }
 
-        public void SetPosition(TimeSpan position)
+        private void OnSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            _player.PlaybackSession.Position = position;
+            _player.PlaybackSession.Position = TimeSpan.FromSeconds(e.NewValue);
             if (!_isPlaying)
             {
                 QueueDelayedUpdateToPauseData(3000);
             }
-            if (_boundSlider != null)
-            {
-                _boundSlider.Value = _player.PlaybackSession.Position.TotalSeconds;
-            }
-        }
-
-        private void OnSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
-        {
-            SetPosition(TimeSpan.FromSeconds(e.NewValue));
         }
 
         private CanvasBitmap GetCurrentBitmap()

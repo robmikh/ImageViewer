@@ -121,6 +121,10 @@ VideoDecoderProcessor::VideoDecoderProcessor(
     inputViewDesc.ViewDimension = D3D11_VPIV_DIMENSION_TEXTURE2D;
     inputViewDesc.Texture2D.MipSlice = 0;
     winrt::check_hresult(m_videoDevice->CreateVideoProcessorInputView(m_videoInputTexture.get(), videoEnum.get(), &inputViewDesc, m_videoInput.put()));
+
+    auto device5 = m_d3dDevice.as<ID3D11Device5>();
+    auto context4 = m_d3dContext.as<ID3D11DeviceContext4>();
+    m_fence = CreateD3D11Fence(device5, context4);
 }
 
 void VideoDecoderProcessor::ProcessTexture(winrt::com_ptr<ID3D11Texture2D> const& inputTexture, std::optional<D3D11_BOX> const& box)
@@ -146,4 +150,6 @@ void VideoDecoderProcessor::ProcessTexture(winrt::com_ptr<ID3D11Texture2D> const
     videoStream.InputFrameOrField = 0;
     videoStream.pInputSurface = m_videoInput.get();
     winrt::check_hresult(m_videoContext->VideoProcessorBlt(m_videoProcessor.get(), m_videoOutput.get(), 0, 1, &videoStream));
+
+    m_fence->WaitForGpu();
 }

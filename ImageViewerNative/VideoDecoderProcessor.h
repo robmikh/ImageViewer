@@ -1,4 +1,5 @@
 #pragma once
+#include "Fence.h"
 
 class VideoDecoderProcessor
 {
@@ -25,4 +26,6 @@ private:
     winrt::com_ptr<ID3D11VideoProcessorOutputView> m_videoOutput;
     winrt::com_ptr<ID3D11Texture2D> m_videoInputTexture;
     winrt::com_ptr<ID3D11VideoProcessorInputView> m_videoInput;
+
+    std::shared_ptr<D3D11Fence> m_fence;
 };

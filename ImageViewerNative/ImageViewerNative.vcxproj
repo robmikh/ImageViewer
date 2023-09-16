@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Fence.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="VideoDecoder.h" />
     <ClInclude Include="VideoDecoderDevice.h" />
