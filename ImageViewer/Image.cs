@@ -11,6 +11,7 @@ using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
+using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Core;
@@ -642,6 +643,10 @@ namespace ImageViewer
         private CompositionDrawingSurface _surface;
         private int _selectedIndex = -1;
 
+        private Direct3D11Texture2D _stagingTexture;
+        private byte[] _cachedBytes;
+        private int _cachedFrameIndex = -1;
+
         public IReadOnlyList<VideoFrame> VideoFrames => _videoFrames;
         public int SelectedIndex
         {
@@ -668,10 +673,17 @@ namespace ImageViewer
             DisplayName = file.Name;
 
             // All frames should be the same size
-            var description = _videoFrames[0].Surface.Description;
-            Size = new BitmapSize() { Width = (uint)description.Width, Height = (uint)description.Height };
+            var description = _videoFrames[0].Surface.Description2D;
+            Size = new BitmapSize() { Width = (uint)description.Base.Width, Height = (uint)description.Base.Height };
 
             _surface = compGraphics.CreateDrawingSurface2(Size.ToSizeInt32(), DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
+
+            // Create our staging texture
+            description.Usage = Direct3DUsage.Staging;
+            description.BindFlags = 0;
+            description.CpuAccessFlags = Direct3D11CpuAccessFlag.AccessRead;
+            description.MiscFlags = 0;
+            _stagingTexture = device.CreateTexture2D(description);
         }
 
         public string DisplayName { get; }
@@ -696,7 +708,10 @@ namespace ImageViewer
                 var desc = frame.Surface.Description;
                 if (x >= 0 && x < desc.Width && y >= 0 && y < desc.Height)
                 {
-                    var bytes = frame.Surface.GetBytes();
+                    // If we've successfully acquired the current frame,
+                    // we should always be able to get the bytes. No need
+                    // to check for null.
+                    var bytes = TryGetCachedBytes();
 
                     var index = ((y * desc.Width) + x) * 4; // BGRA8
                     var blue = bytes[index + 0];
@@ -751,6 +766,25 @@ namespace ImageViewer
             else
             {
                 return _videoFrames[_selectedIndex];
+            }
+        }
+
+        private byte[] TryGetCachedBytes()
+        {
+            var frame = TryGetCurrentFrame();
+            if (frame != null)
+            {
+                if (_cachedFrameIndex != _selectedIndex)
+                {
+                    _device.ImmediateContext.CopyResource(_stagingTexture, frame.Surface);
+                    _cachedBytes = _stagingTexture.GetBytes();
+                    _cachedFrameIndex = _selectedIndex;
+                }
+                return _cachedBytes;
+            }
+            else
+            {
+                return null;
             }
         }
     }
