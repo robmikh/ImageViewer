@@ -4,13 +4,16 @@ using ImageViewer.System;
 using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
+using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Graphics.Imaging;
+using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
@@ -587,6 +590,7 @@ namespace ImageViewer
                 _player.Pause();
                 _player.Dispose();
                 _player = null;
+                _pauseDataUpdateTimer.Dispose();
             }
         }
 
@@ -613,6 +617,174 @@ namespace ImageViewer
             using (var bitmap = GetCurrentBitmap())
             {
                 await BitmapHelpers.SaveToStreamAsync(bitmap, stream, format);
+            }
+        }
+
+        public Task<FrameByFrameVideoImage> CreateFrameByFrameVideoImageAsync(Direct3D11Device device, CompositionGraphicsDevice compGraphics)
+        {
+            return FrameByFrameVideoImage.CreateAsync(_file, device, compGraphics);
+        }
+    }
+
+    class FrameByFrameVideoImage : IImage
+    {
+        public static async Task<FrameByFrameVideoImage> CreateAsync(StorageFile file, Direct3D11Device device, CompositionGraphicsDevice compGraphics)
+        {
+            using (var stream = await file.OpenReadAsync())
+            {
+                var videoFrames = await VideoFrame.ExtractFramesAsync(stream, device, compGraphics);
+                return new FrameByFrameVideoImage(file, device, compGraphics, videoFrames);
+            }
+        }
+
+        private StorageFile _file;
+        private Direct3D11Device _device;
+        private List<VideoFrame> _videoFrames;
+        private CompositionDrawingSurface _surface;
+        private int _selectedIndex = -1;
+
+        private Direct3D11Texture2D _stagingTexture;
+        private byte[] _cachedBytes;
+        private int _cachedFrameIndex = -1;
+
+        public IReadOnlyList<VideoFrame> VideoFrames => _videoFrames;
+        public int SelectedIndex
+        {
+            get { return _selectedIndex; }
+            set
+            {
+                if (value >= 0 && value < _videoFrames.Count)
+                {
+                    _selectedIndex = value;
+                    RegenerateSurface();
+                }
+                else
+                {
+                    _selectedIndex = -1;
+                }
+            }
+        }
+
+        private FrameByFrameVideoImage(StorageFile file, Direct3D11Device device, CompositionGraphicsDevice compGraphics,  List<VideoFrame> frames)
+        {
+            _file = file;
+            _videoFrames = frames;
+            _device = device;
+            DisplayName = file.Name;
+
+            // All frames should be the same size
+            var description = _videoFrames[0].Surface.Description2D;
+            Size = new BitmapSize() { Width = (uint)description.Base.Width, Height = (uint)description.Base.Height };
+
+            _surface = compGraphics.CreateDrawingSurface2(Size.ToSizeInt32(), DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
+
+            // Create our staging texture
+            description.Usage = Direct3DUsage.Staging;
+            description.BindFlags = 0;
+            description.CpuAccessFlags = Direct3D11CpuAccessFlag.AccessRead;
+            description.MiscFlags = 0;
+            _stagingTexture = device.CreateTexture2D(description);
+        }
+
+        public string DisplayName { get; }
+
+        public BitmapSize Size { get; }
+
+        public ICompositionSurface CreateSurface(CompositionGraphicsDevice graphics)
+        {
+            return _surface;
+        }
+
+        public void Dispose()
+        {
+            // TODO
+        }
+
+        public Color? GetColorFromPixel(int x, int y)
+        {
+            var frame = TryGetCurrentFrame();
+            if (frame != null)
+            {
+                var desc = frame.Surface.Description;
+                if (x >= 0 && x < desc.Width && y >= 0 && y < desc.Height)
+                {
+                    // If we've successfully acquired the current frame,
+                    // we should always be able to get the bytes. No need
+                    // to check for null.
+                    var bytes = TryGetCachedBytes();
+
+                    var index = ((y * desc.Width) + x) * 4; // BGRA8
+                    var blue = bytes[index + 0];
+                    var green = bytes[index + 1];
+                    var red = bytes[index + 2];
+                    var alpha = bytes[index + 3];
+
+                    return new Color() { B = blue, G = green, R = red, A = alpha };
+                }
+            }
+            return null;
+        }
+
+        public void RegenerateSurface()
+        {
+            var frame = TryGetCurrentFrame();
+            if (frame != null && _surface != null)
+            {
+                CompositionGraphics.CopyDirect3DSurfaceIntoCompositionSurface(_device, frame.Surface, _surface);
+            }
+        }
+
+        public async Task SaveSnapshotToStreamAsync(IRandomAccessStream stream, ImageFormat format)
+        {
+            switch (format)
+            {
+                case ImageFormat.Png:
+                    {
+                        var bitmap = await SoftwareBitmap.CreateCopyFromSurfaceAsync(TryGetCurrentFrame().Surface);
+                        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+                        encoder.SetSoftwareBitmap(bitmap);
+                        await encoder.FlushAsync();
+                    }
+                    break;
+                case ImageFormat.RawBgra8:
+                    {
+                        var bytes = TryGetCurrentFrame().Surface.GetBytes();
+                        await RmRaw.WriteImageAsync(stream, Size.Width, Size.Height, RmRawPixelFormat.BGRA8, bytes);
+                    }
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
+        }
+
+        private VideoFrame TryGetCurrentFrame()
+        {
+            if (_selectedIndex < 0 || _selectedIndex >= _videoFrames.Count)
+            {
+                return null;
+            }
+            else
+            {
+                return _videoFrames[_selectedIndex];
+            }
+        }
+
+        private byte[] TryGetCachedBytes()
+        {
+            var frame = TryGetCurrentFrame();
+            if (frame != null)
+            {
+                if (_cachedFrameIndex != _selectedIndex)
+                {
+                    _device.ImmediateContext.CopyResource(_stagingTexture, frame.Surface);
+                    _cachedBytes = _stagingTexture.GetBytes();
+                    _cachedFrameIndex = _selectedIndex;
+                }
+                return _cachedBytes;
+            }
+            else
+            {
+                return null;
             }
         }
     }

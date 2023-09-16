@@ -141,7 +141,9 @@
     <Compile Include="Dialogs\BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="FileFormats\RmRaw.cs" />
+    <Compile Include="FrameExtractor.cs" />
     <Compile Include="System\ApplicationSettings.cs" />
     <Compile Include="System\Capabilities.cs" />
     <Compile Include="ScreenCapture\CaptureSnapshot.cs" />
@@ -292,7 +294,12 @@
   <ItemGroup>
     <None Include="ImageViewer_TemporaryKey.pfx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ImageViewerNative\ImageViewerNative.vcxproj">
+      <Project>{ec7bc29a-fbba-4a3b-abcb-9bba4dc76ee3}</Project>
+      <Name>ImageViewerNative</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -135,11 +135,59 @@
                             </ComboBox>
                         </StackPanel>
                     </AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarButton x:Name="FrameByFrameVideoButton" Label="Open as frame by frame" Click="FrameByFrameVideoButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7C5;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="FrameByFrameVideoMenu" Header="Frame By Frame" IsContextual="True" Visibility="Collapsed">
+                    <AppBarButton Icon="Previous" Label="Previous Frame" Click="FrameByFrameVideoPreviousFrameButton_Click" />
+                    <AppBarButton Icon="Next" Label="Next Frame" Click="FrameByFrameVideoNextFrameButton_Click" />
+                    <AppBarSeparator />
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ElementName=VideoTimelineListView, Path=SelectedItem.Timestamp, Mode=OneWay}" />
+                            <TextBlock Text="/" />
+                            <TextBlock x:Name="FrameByFrameMaxTimeTextBlock" Text="" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer HorizontalAlignment="Stretch" Margin="5, 0, 5, 0">
+                        <Slider x:Name="FrameByFrameVideoPlayerSeekSlider" HorizontalAlignment="Stretch" MinWidth="250" MaxWidth="400" Value="{Binding ElementName=VideoTimelineListView, Path=SelectedIndex, Mode=TwoWay}" ValueChanged="FrameByFrameVideoPlayerSeekSlider_ValueChanged" />
+                    </AppBarElementContainer>
+                    <AppBarSeparator />
+                    <AppBarButton Label="Scroll to selected frame" Click="FrameByFrameVideoScrollIntoViewButton_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE890;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
                 </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>
 
-        <controls:ImageViewer x:Name="MainImageViewer" Grid.Row="1" AllowDrop="True" DragOver="MainImageViewer_DragOver" Drop="MainImageViewer_Drop" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <controls:ImageViewer x:Name="MainImageViewer" Grid.Column="0" AllowDrop="True" DragOver="MainImageViewer_DragOver" Drop="MainImageViewer_Drop" />
+
+            <Grid x:Name="VideoTimelineGrid" Grid.Column="1" Visibility="Collapsed">
+                <ListView x:Name="VideoTimelineListView" SelectionChanged="VideoTimelineListView_SelectionChanged">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Width="300" Height="200">
+                                <Rectangle.Fill>
+                                    <local:BindableCompositionSurfaceBrush Surface="{Binding Thumbnail}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Grid>
 
         <Grid Grid.Row="2" Background="{Binding Background, ElementName=MainMenu, Mode=OneWay}" >
             <Grid.ColumnDefinitions>

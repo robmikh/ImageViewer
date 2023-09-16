@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29827.131
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageViewer", "ImageViewer\ImageViewer.csproj", "{C8C0F86C-7D7C-4C3B-812D-0B0354E803EA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImageViewerNative", "ImageViewerNative\ImageViewerNative.vcxproj", "{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,22 @@ Global
 		{C8C0F86C-7D7C-4C3B-812D-0B0354E803EA}.Release|x86.ActiveCfg = Release|x86
 		{C8C0F86C-7D7C-4C3B-812D-0B0354E803EA}.Release|x86.Build.0 = Release|x86
 		{C8C0F86C-7D7C-4C3B-812D-0B0354E803EA}.Release|x86.Deploy.0 = Release|x86
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|ARM.ActiveCfg = Debug|ARM
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|ARM.Build.0 = Debug|ARM
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|ARM64.Build.0 = Debug|ARM64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|x64.ActiveCfg = Debug|x64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|x64.Build.0 = Debug|x64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|x86.ActiveCfg = Debug|Win32
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Debug|x86.Build.0 = Debug|Win32
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|ARM.ActiveCfg = Release|ARM
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|ARM.Build.0 = Release|ARM
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|ARM64.ActiveCfg = Release|ARM64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|ARM64.Build.0 = Release|ARM64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|x64.ActiveCfg = Release|x64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|x64.Build.0 = Release|x64
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|x86.ActiveCfg = Release|Win32
+		{EC7BC29A-FBBA-4A3B-ABCB-9BBA4DC76EE3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

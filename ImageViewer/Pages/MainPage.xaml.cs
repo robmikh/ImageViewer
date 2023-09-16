@@ -71,6 +71,7 @@ namespace ImageViewer.Pages
             Diff,
             Capture,
             Video,
+            FrameByFrameVideo,
         }
         private ViewMode _viewMode = ViewMode.Image;
         private BottomBarSegment[] _bottomBarSegments;
@@ -238,6 +239,8 @@ namespace ImageViewer.Pages
                     return CaptureMenu;
                 case ViewMode.Video:
                     return VideoMenu;
+                case ViewMode.FrameByFrameVideo:
+                    return FrameByFrameVideoMenu;
                 default:
                     return ViewMenu;
             }
@@ -249,7 +252,9 @@ namespace ImageViewer.Pages
             DiffMenu.Visibility = viewMode == ViewMode.Diff ? Visibility.Visible : Visibility.Collapsed;
             CaptureMenu.Visibility = viewMode == ViewMode.Capture ? Visibility.Visible : Visibility.Collapsed;
             VideoMenu.Visibility = viewMode == ViewMode.Video ? Visibility.Visible : Visibility.Collapsed;
+            FrameByFrameVideoMenu.Visibility = viewMode == ViewMode.FrameByFrameVideo ? Visibility.Visible : Visibility.Collapsed;
             MainMenu.SelectedItem = GetMenuForViewMode(viewMode);
+            VideoTimelineGrid.Visibility = viewMode == ViewMode.FrameByFrameVideo ? Visibility.Visible : Visibility.Collapsed;
             var size = MainImageViewer.Image.Size;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
@@ -266,6 +271,14 @@ namespace ImageViewer.Pages
                 var videoImage = (VideoImage)MainImageViewer.Image;
                 videoImage.BindToSlider(VideoPlayerSeekSlider);
                 VideoPlayerPlaybackSpeedComboBox.SelectedIndex = 3;
+            }
+            else if (viewMode == ViewMode.FrameByFrameVideo)
+            {
+                var videoImage = (FrameByFrameVideoImage)MainImageViewer.Image;
+                FrameByFrameVideoPlayerSeekSlider.Maximum = videoImage.VideoFrames.Count;
+                FrameByFrameMaxTimeTextBlock.Text = videoImage.VideoFrames.Last().Timestamp.ToString();
+                VideoTimelineListView.ItemsSource = videoImage.VideoFrames;
+                VideoTimelineListView.SelectedIndex = 0;
             }
         }
 
@@ -759,6 +772,82 @@ namespace ImageViewer.Pages
                     return FileType.Video;
                 default:
                     return FileType.Unknown;
+            }
+        }
+
+        private async void FrameByFrameVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            {
+                image.Pause();
+                IsEnabled = false;
+                var newImage = await image.CreateFrameByFrameVideoImageAsync(GraphicsManager.Current.CaptureDevice, GraphicsManager.Current.CompositionGraphicsDeviceForCapture);
+                IsEnabled = true;
+                OpenImage(newImage, ViewMode.FrameByFrameVideo);
+            }
+        }
+
+        private void VideoTimelineListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                image.SelectedIndex = ((ListView)sender).SelectedIndex;
+            }
+        }
+
+        private void FrameByFrameVideoPreviousFrameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                var index = VideoTimelineListView.SelectedIndex - 1;
+                if (index < 0)
+                {
+                    VideoTimelineListView.SelectedIndex = 0;
+                }
+                else if (index < image.VideoFrames.Count)
+                {
+                    VideoTimelineListView.SelectedIndex = index;
+                }
+            }
+        }
+
+        private void FrameByFrameVideoNextFrameButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                var index = VideoTimelineListView.SelectedIndex + 1;
+                if (index < 0)
+                {
+                    VideoTimelineListView.SelectedIndex = 0;
+                }
+                else if (index < image.VideoFrames.Count)
+                {
+                    VideoTimelineListView.SelectedIndex = index;
+                }
+            }
+        }
+
+        private void FrameByFrameVideoPlayerSeekSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                var index = VideoTimelineListView.SelectedIndex;
+                if (index >= 0 && index < image.VideoFrames.Count)
+                {
+                    VideoTimelineListView.ScrollIntoView(image.VideoFrames[index]);
+                }
+            }
+        }
+
+        private void FrameByFrameVideoScrollIntoViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
+            {
+                var index = VideoTimelineListView.SelectedIndex;
+                if (index >= 0 && index < image.VideoFrames.Count)
+                {
+                    VideoTimelineListView.ScrollIntoView(image.VideoFrames[index]);
+                }
             }
         }
     }

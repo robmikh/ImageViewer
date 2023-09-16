@@ -69,7 +69,7 @@ namespace ImageViewer.Controls
             var oldImage = e.OldValue as IImage;
             oldImage?.Dispose();
             var newImage = e.NewValue as IImage;
-            viewer.OnImageChnaged();
+            viewer.OnImageChanged();
         }
 
         private static void OnGridLinesColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -498,7 +498,7 @@ namespace ImageViewer.Controls
             }
         }
 
-        private void OnImageChnaged()
+        private void OnImageChanged()
         {
             if (Image != null)
             {
