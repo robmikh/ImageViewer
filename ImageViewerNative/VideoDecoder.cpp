@@ -133,8 +133,6 @@ VideoDecoder::VideoDecoder(
             {
                 break;
             }
-            //winrt::check_hresult(LogMediaType(outputType.get()));
-            //OutputDebugStringW(L"\n");
             winrt::check_hresult(hr);
             winrt::check_hresult(outputType->SetGUID(MF_MT_MAJOR_TYPE, outputInfo.guidMajorType));
             winrt::check_hresult(outputType->SetGUID(MF_MT_SUBTYPE, outputInfo.guidSubtype));
@@ -249,8 +247,6 @@ void VideoDecoder::OnStreamChange()
             {
                 break;
             }
-            //winrt::check_hresult(LogMediaType(outputType.get()));
-            //OutputDebugStringW(L"\n");
             winrt::check_hresult(hr);
             winrt::check_hresult(outputType->SetGUID(MF_MT_MAJOR_TYPE, outputInfo.guidMajorType));
             winrt::check_hresult(outputType->SetGUID(MF_MT_SUBTYPE, outputInfo.guidSubtype));
