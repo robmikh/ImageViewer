@@ -136,7 +136,7 @@
                         </StackPanel>
                     </AppBarElementContainer>
                     <AppBarSeparator />
-                    <AppBarToggleButton x:Name="VideoShowFramesButton" Icon="ShowBcc" Label="Show/Hide Frames View" Checked="VideoShowFramesButton_Checked" Unchecked="VideoShowFramesButton_Unchecked" />
+                    <AppBarButton x:Name="FrameByFrameVideoButton" Icon="ShowBcc" Label="Open as frame by frame" Click="FrameByFrameVideoButton_Click" />
                 </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>
@@ -150,12 +150,12 @@
             <controls:ImageViewer x:Name="MainImageViewer" Grid.Column="0" AllowDrop="True" DragOver="MainImageViewer_DragOver" Drop="MainImageViewer_Drop" />
 
             <Grid x:Name="VideoTimelineGrid" Grid.Column="1" Visibility="Collapsed">
-                <ListView x:Name="VideoTimelineListView" IsItemClickEnabled="True" ItemClick="VideoTimelineListView_ItemClick">
+                <ListView x:Name="VideoTimelineListView" SelectionChanged="VideoTimelineListView_SelectionChanged">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <Rectangle Width="300" Height="200">
                                 <Rectangle.Fill>
-                                    <local:BindableCompositionSurfaceBrush Surface="{Binding Surface}" />
+                                    <local:BindableCompositionSurfaceBrush Surface="{Binding Thumbnail}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                         </DataTemplate>

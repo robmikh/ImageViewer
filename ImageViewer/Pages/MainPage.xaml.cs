@@ -71,6 +71,7 @@ namespace ImageViewer.Pages
             Diff,
             Capture,
             Video,
+            FrameByFrameVideo,
         }
         private ViewMode _viewMode = ViewMode.Image;
         private BottomBarSegment[] _bottomBarSegments;
@@ -250,6 +251,7 @@ namespace ImageViewer.Pages
             CaptureMenu.Visibility = viewMode == ViewMode.Capture ? Visibility.Visible : Visibility.Collapsed;
             VideoMenu.Visibility = viewMode == ViewMode.Video ? Visibility.Visible : Visibility.Collapsed;
             MainMenu.SelectedItem = GetMenuForViewMode(viewMode);
+            VideoTimelineGrid.Visibility = viewMode == ViewMode.FrameByFrameVideo ? Visibility.Visible : Visibility.Collapsed;
             var size = MainImageViewer.Image.Size;
             ImageSizeTextBlock.Text = $"{size.Width} x {size.Height}px";
             ZoomSlider.IsEnabled = true;
@@ -266,6 +268,12 @@ namespace ImageViewer.Pages
                 var videoImage = (VideoImage)MainImageViewer.Image;
                 videoImage.BindToSlider(VideoPlayerSeekSlider);
                 VideoPlayerPlaybackSpeedComboBox.SelectedIndex = 3;
+            }
+            else if (viewMode == ViewMode.FrameByFrameVideo)
+            {
+                var videoImage = (FrameByFrameVideoImage)MainImageViewer.Image;
+                VideoTimelineListView.ItemsSource = videoImage.VideoFrames;
+                VideoTimelineListView.SelectedIndex = 0;
             }
         }
 
@@ -762,28 +770,20 @@ namespace ImageViewer.Pages
             }
         }
 
-        private async void VideoShowFramesButton_Checked(object sender, RoutedEventArgs e)
+        private async void FrameByFrameVideoButton_Click(object sender, RoutedEventArgs e)
         {
             if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
             {
-                await image.EnsureVideoFramesAsync(GraphicsManager.Current.CompositionGraphicsDeviceForCapture, GraphicsManager.Current.CaptureDevice);
-                VideoTimelineListView.ItemsSource = image.VideoFrames;
-                VideoTimelineGrid.Visibility = Visibility.Visible;
+                var newImage = await image.CreateFrameByFrameVideoImageAsync(GraphicsManager.Current.CaptureDevice, GraphicsManager.Current.CompositionGraphicsDeviceForCapture);
+                OpenImage(newImage, ViewMode.FrameByFrameVideo);
             }
         }
 
-        private void VideoShowFramesButton_Unchecked(object sender, RoutedEventArgs e)
+        private void VideoTimelineListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            VideoTimelineGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private void VideoTimelineListView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (MainImageViewer != null && MainImageViewer.Image is VideoImage image)
+            if (MainImageViewer != null && MainImageViewer.Image is FrameByFrameVideoImage image)
             {
-                var frame = (VideoFrame)e.ClickedItem;
-                image.Pause();
-                image.SetPosition(frame.Timestamp);
+                image.SelectedIndex = ((ListView)sender).SelectedIndex;
             }
         }
     }

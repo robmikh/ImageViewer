@@ -141,6 +141,7 @@
     <Compile Include="Dialogs\BinaryDetailsInputDialog.xaml.cs">
       <DependentUpon>BinaryDetailsInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="FileFormats\RmRaw.cs" />
     <Compile Include="FrameExtractor.cs" />
     <Compile Include="System\ApplicationSettings.cs" />

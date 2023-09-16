@@ -12,6 +12,11 @@ namespace winrt
     using namespace Windows::Graphics;
 }
 
+namespace util
+{
+    using namespace robmikh::common::uwp;
+}
+
 namespace winrt::ImageViewerNative::implementation
 {
     void VideoFrameExtractor::ExtractFromStream(
@@ -20,6 +25,7 @@ namespace winrt::ImageViewerNative::implementation
         winrt::Windows::Foundation::EventHandler<winrt::ImageViewerNative::VideoFrameArgs> const& callback)
     {
         auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(device);
+        auto multithread = d3dDevice.as<ID3D11Multithread>();
 
         // Create our source and reader
         winrt::com_ptr<IMFSourceResolver> sourceResolver;
@@ -110,7 +116,10 @@ namespace winrt::ImageViewerNative::implementation
 
                 if (decodeResult == SampleProcessResult::Success)
                 {
-                    videoProcessor.ProcessTexture(frame, videoDecoder.OutputBox());
+                    {
+                        auto lock = util::D3D11DeviceLock(multithread.get());
+                        videoProcessor.ProcessTexture(frame, videoDecoder.OutputBox());
+                    }
                     auto& outputTexture = videoProcessor.OutputTexture();
 
                     // Callback
