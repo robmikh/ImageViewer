@@ -138,6 +138,21 @@
                     <AppBarSeparator />
                     <AppBarButton x:Name="FrameByFrameVideoButton" Icon="ShowBcc" Label="Open as frame by frame" Click="FrameByFrameVideoButton_Click" />
                 </wctc:TabbedCommandBarItem>
+                <wctc:TabbedCommandBarItem x:Name="FrameByFrameVideoMenu" Header="Frame By Frame" IsContextual="True" Visibility="Collapsed">
+                    <AppBarButton Icon="Previous" Label="Previous Frame" Click="FrameByFrameVideoPreviousFrameButton_Click" />
+                    <AppBarButton Icon="Next" Label="Next Frame" Click="FrameByFrameVideoNextFrameButton_Click" />
+                    <AppBarSeparator />
+                    <AppBarElementContainer Margin="5, 0, 5, 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ElementName=VideoTimelineListView, Path=SelectedItem.Timestamp, Mode=OneWay}" />
+                            <TextBlock Text="/" />
+                            <TextBlock x:Name="FrameByFrameMaxTimeTextBlock" Text="" />
+                        </StackPanel>
+                    </AppBarElementContainer>
+                    <AppBarElementContainer HorizontalAlignment="Stretch" Margin="5, 0, 5, 0">
+                        <Slider x:Name="FrameByFrameVideoPlayerSeekSlider" HorizontalAlignment="Stretch" MinWidth="250" MaxWidth="400" Value="{Binding ElementName=VideoTimelineListView, Path=SelectedIndex, Mode=TwoWay}" ValueChanged="FrameByFrameVideoPlayerSeekSlider_ValueChanged" />
+                    </AppBarElementContainer>
+                </wctc:TabbedCommandBarItem>
             </wctc:TabbedCommandBar.MenuItems>
         </wctc:TabbedCommandBar>
 

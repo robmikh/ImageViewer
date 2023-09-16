@@ -641,7 +641,7 @@ namespace ImageViewer
         private CompositionDrawingSurface _surface;
         private int _selectedIndex = -1;
 
-        public IEnumerable<VideoFrame> VideoFrames => _videoFrames;
+        public IReadOnlyList<VideoFrame> VideoFrames => _videoFrames;
         public int SelectedIndex
         {
             get { return _selectedIndex; }
