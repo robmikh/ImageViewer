@@ -177,10 +177,10 @@
             <Grid x:Name="VideoTimelineGrid" Grid.Column="1" Visibility="Collapsed">
                 <ListView x:Name="VideoTimelineListView" SelectionChanged="VideoTimelineListView_SelectionChanged">
                     <ListView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="local:VideoFrame">
                             <Rectangle Width="300" Height="200">
                                 <Rectangle.Fill>
-                                    <local:BindableCompositionSurfaceBrush Surface="{Binding Thumbnail}" />
+                                    <local:BindableCompositionSurfaceBrush Surface="{x:Bind Thumbnail}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                         </DataTemplate>

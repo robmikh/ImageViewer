@@ -1,21 +1,20 @@
 ﻿using ImageViewerNative;
 using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Storage.Streams;
 using Windows.UI.Composition;
-using Windows.UI.Xaml.Controls;
 using WinRTInteropTools;
 
 namespace ImageViewer
 {
     class VideoFrame
     {
-        public CompositionDrawingSurface Thumbnail { get; }
+        public CompositionDrawingSurface Thumbnail { get; private set; }
         public Direct3D11Texture2D Surface { get; }
         public TimeSpan Timestamp { get; }
         public ulong FrameId { get; }
@@ -54,17 +53,26 @@ namespace ImageViewer
                         context.CopyResource(texture, sourceSurface);
                     }
 
-                    var surface = compGraphics.CreateDrawingSurface2(
-                        new SizeInt32() { Width = sourceDescription.Width, Height = sourceDescription.Height },
-                        DirectXPixelFormat.B8G8R8A8UIntNormalized,
-                        DirectXAlphaMode.Premultiplied);
-                    CompositionGraphics.CopyDirect3DSurfaceIntoCompositionSurface(device, texture, surface);
-                    
-                    result.Add(new VideoFrame(surface, texture, args.Timestamp, args.FrameId));
+                    // TODO: For some reason creating surfaces off the UI thread prevents the surfaces from
+                    //       working properly. We'll make the surfaces and issue the copies later.
+
+                    result.Add(new VideoFrame(null, texture, args.Timestamp, args.FrameId));
                 });
 
                 return result;
             });
+
+            var sourceDescription2 = frames.First().Surface.Description;
+            foreach (var frame in frames)
+            {
+                var surface = compGraphics.CreateDrawingSurface2(
+                    new SizeInt32() { Width = sourceDescription2.Width, Height = sourceDescription2.Height },
+                    DirectXPixelFormat.B8G8R8A8UIntNormalized,
+                    DirectXAlphaMode.Premultiplied);
+                frame.Thumbnail = surface;
+
+                CompositionGraphics.CopyDirect3DSurfaceIntoCompositionSurface(device, frame.Surface, frame.Thumbnail);
+            }
 
             return frames;
         }
