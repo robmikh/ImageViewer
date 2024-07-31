@@ -7,7 +7,8 @@ namespace ImageViewer.Dialogs
     {
         Unknown,
         BGRA8,
-        RGB8
+        RGB8,
+        R8
     }
 
     public sealed partial class BinaryDetailsInputDialog : ContentDialog
@@ -21,6 +22,7 @@ namespace ImageViewer.Dialogs
             {
                 BinaryImportPixelFormat.BGRA8,
                 BinaryImportPixelFormat.RGB8,
+                BinaryImportPixelFormat.R8
             };
             BinaryDetailsPixelFormatComboBox.ItemsSource = _supportedFormats;
             ResetBinaryDetailsInputDialog(width, height, format);

@@ -80,6 +80,22 @@ namespace ImageViewer
                         }
                         return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
                     }
+                case BinaryImportPixelFormat.R8:
+                    {
+                        var bytes = buffer.ToArray();
+                        var bgraBytes = new byte[Width * Height * 4];
+                        for (var i = 0; i < Width * Height; i++)
+                        {
+                            var sourceIndex = i;
+                            var destIndex = i * 4;
+
+                            bgraBytes[destIndex + 0] = bytes[sourceIndex];
+                            bgraBytes[destIndex + 1] = bytes[sourceIndex];
+                            bgraBytes[destIndex + 2] = bytes[sourceIndex];
+                            bgraBytes[destIndex + 3] = 255;
+                        }
+                        return CanvasBitmap.CreateFromBytes(device, bgraBytes, Width, Height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+                    }
                 default:
                     throw new ArgumentException();
             }
@@ -222,6 +238,10 @@ namespace ImageViewer
                             else if (pixels * 3 == size)
                             {
                                 format = BinaryImportPixelFormat.RGB8;
+                            }
+                            else if (pixels == size)
+                            {
+                                format = BinaryImportPixelFormat.R8;
                             }
                         }
 
