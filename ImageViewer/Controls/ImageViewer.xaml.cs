@@ -425,8 +425,8 @@ namespace ImageViewer.Controls
                     _startMeasurePoint = e.GetCurrentPoint(MeasureCanvas).Position;
                     _startMeasurePoint.X = (int)_startMeasurePoint.X;
                     _startMeasurePoint.Y = (int)_startMeasurePoint.Y;
-                    MeasureWidth = 0;
-                    MeasureHeight = 0;
+                    MeasureWidth = 1;
+                    MeasureHeight = 1;
                     MeasurePositionX = (int)_startMeasurePoint.X;
                     MeasurePositionY = (int)_startMeasurePoint.Y;
                 }
@@ -470,21 +470,30 @@ namespace ImageViewer.Controls
             {
                 var point = e.GetCurrentPoint(MeasureCanvas);
                 var position = point.Position;
-                position.X = (int)position.X + 1;
-                position.Y = (int)position.Y + 1;
 
-                var diffX = (int)(position.X - _startMeasurePoint.X);
-                var diffY = (int)(position.Y - _startMeasurePoint.Y);
+                var diffX = (int)position.X - (int)_startMeasurePoint.X;
+                var diffY = (int)position.Y - (int)_startMeasurePoint.Y;
 
-                MeasureWidth = Math.Abs(diffX);
-                MeasureHeight = Math.Abs(diffY);
                 if (diffX < 0)
                 {
+                    MeasureWidth = Math.Abs(diffX);
                     MeasurePositionX = (int)position.X;
                 }
+                else
+                {
+                    MeasureWidth = diffX + 1;
+                    MeasurePositionX = (int)_startMeasurePoint.X;
+                }
+
                 if (diffY < 0)
                 {
+                    MeasureHeight = Math.Abs(diffY);
                     MeasurePositionY = (int)position.Y;
+                }
+                else
+                {
+                    MeasureHeight = diffY + 1;
+                    MeasurePositionY = (int)_startMeasurePoint.Y;
                 }
             }
 

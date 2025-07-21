@@ -31,14 +31,12 @@
                         </Grid.RenderTransform>
                         <Rectangle x:Name="ImageRectangle" PointerMoved="ImageRectangle_PointerMoved" PointerExited="ImageRectangle_PointerExited" />
                         <Canvas x:Name="MeasureCanvas" IsHitTestVisible="False" Visibility="Collapsed">
-                            <Rectangle x:Name="MeasureRectangle" StrokeThickness="1" Width="{Binding MeasureWidth, ElementName=CurrentControl, Mode=OneWay}" Height="{Binding MeasureHeight, ElementName=CurrentControl, Mode=OneWay}">
-                                <Rectangle.Stroke>
-                                    <SolidColorBrush x:Name="MeasureRectangleStrokeBrush" Color="{Binding MeasureColor, ElementName=CurrentControl, Mode=OneWay}" />
-                                </Rectangle.Stroke>
-                                <Rectangle.RenderTransform>
-                                    <TranslateTransform X="{Binding MeasurePositionX, ElementName=CurrentControl, Mode=OneWay}" Y="{Binding MeasurePositionY, ElementName=CurrentControl, Mode=OneWay}" />
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
+                            <local:MeasureSpace 
+                                MeasureWidth="{Binding MeasureWidth, ElementName=CurrentControl, Mode=OneWay}" 
+                                MeasureHeight="{Binding MeasureHeight, ElementName=CurrentControl, Mode=OneWay}"
+                                MeasurePositionX="{Binding MeasurePositionX, ElementName=CurrentControl, Mode=OneWay}" 
+                                MeasurePositionY="{Binding MeasurePositionY, ElementName=CurrentControl, Mode=OneWay}"
+                                MeasureColor="{Binding MeasureColor, ElementName=CurrentControl, Mode=OneWay}" />
                         </Canvas>
                         <Rectangle x:Name="GridLinesRectangle" IsHitTestVisible="False" Visibility="Collapsed" />
                     </Grid>
