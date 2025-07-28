@@ -476,7 +476,7 @@ namespace ImageViewer.Controls
 
                 if (diffX < 0)
                 {
-                    MeasureWidth = Math.Abs(diffX);
+                    MeasureWidth = Math.Abs(diffX) + 1;
                     MeasurePositionX = (int)position.X;
                 }
                 else
@@ -487,7 +487,7 @@ namespace ImageViewer.Controls
 
                 if (diffY < 0)
                 {
-                    MeasureHeight = Math.Abs(diffY);
+                    MeasureHeight = Math.Abs(diffY) + 1;
                     MeasurePositionY = (int)position.Y;
                 }
                 else
